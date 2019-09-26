@@ -1,0 +1,105 @@
+\documentclass[UTF8]{ctexart}
+\input{up2020.cfg}
+\newcommand*{\rnrs}[1]{R$^{#1}$RS}
+\newcommand*{\colskipa}{\vspace{-0.55\baselineskip}}
+\newcommand*{\colskipb}{\vspace{-0.45\baselineskip}}
+
+\begin{document}
+\title{\textbf{Unix 哲学 2020}}
+\author{Casper Ti.\ Vector \texttt{<CasperVector@gmail.com>}}
+\date{2019 年 8--9 月}
+\maketitle
+\vspace{\baselineskip}
+\tableofcontents
+
+\newpartx{0.5}
+\specialsec{序}
+
+我从 2008 年末开始学习 Linux，并从 2009 年初起使用 Linux，从此至今 Linux 一直是
+我的主操作系统。在使用 Linux 以及在类 Unix 操作系统圈内活动的过程中，我逐渐被
+“Unix 哲学”这一理念所吸引，而这种观念也给了我巨大的收益。（关于本文档来源的
+更多细节，可以参考\hyperref[sec:afterword]{跋}。）本文档是我关于 Unix 哲学
+这一主题相关思考的一个总结，主要分为下文所概括的三个部分。
+
+在第一部分中，我们将首先讨论“\stress{Unix 哲学的本质是什么}？”这一问题，其中
+我将论证其本质是在几乎满足需求的前提下最小化系统的认知复杂度。进年来，不少
+人认为来源于 1970 年代计算资源限制的 Unix 哲学已不再适用于当今的软件开发，
+那么 \stress{Unix 哲学还有没有意义}，它在 2020 年代是否还会有意义？我的回答是
+“有，而且比它诞生之时更加重要”。在本部分的结尾，我将就\stress{怎样在实际开发中
+贯彻 Unix 哲学}并产生实际的收益。
+
+在第二部分中，我们将把关注点移到编程领域之外，来探索 \stress{Unix 哲学在科学、
+技术和社会中的适用性，以及这一适用性的限度}。在关于科学技术的讨论之后，我将考虑
+文学、艺术和哲学中的极简主义，并试图寻找极简主义的认知本源，而这一本源将用于解释
+为何社会在很多方面并不像 Unix 那样工作。在本部分的结尾，我们将讨论\stress{个人，
+特别是并不出众的人，可以怎样应用极简主义}来提升自己在日常工作中的效率。
+
+在第三部分中，我们将回到编程的话题，但这次我们先暂时离题去考虑 Lisp，特别是
+Scheme，因为这个圈子的人也很鼓励极简主义。为了理解 Lisp 的极简主义，我们将
+考察同像性的概念，我认为这一概念和复杂度具有同等的重要性。之后我将尝试
+回答“\stress{Unix 和 Lisp 之间分歧的根源在哪里}？”这一问题，并最终探索%
+\stress{一种吸收 Lisp 和 C 双方优点的极简主义语言框架}的可行性和好处，
+而这种框架也将避免上述两种语言的缺点。
+
+在实际开始正文之前，有必要特别指出本文档应以一种批判性的眼光来阅读，其原因
+有两点。第一，这里写的只是我对 Unix 哲学的个人看法，而后者又只是对世界进行建模
+的许多方法之一。第二，我对哲学、认知科学、程序语言研究等陌生领域仍然知之甚少，
+因此关于这些话题的内容具有很强的试探性质，其中很多论点可能是业余甚至荒谬的。
+在本文档中我尽量避免出现错误，如果你发现任何错误也欢迎告诉我。
+
+本文档是 2018 年 11 月 10 日我在北京大学 Linux 俱乐部所作技术报告《Unix
+哲学和当今》\nolinebreak\cupercite{casper2018}文字整理版的扩充；我视其为
+我在开源社区 10 年经验的结晶，并将其献给 Unix 的 50 周年\cupercite{salus2005}。
+作上述报告以及编写本文档对我是愉快的经历，而我也希望本文档能给你留下一些
+有意思的点滴，无论你是初来开源界的新人，还是几乎比我年长两倍的专家。
+
+\input{up2020-zh-1.tex}
+\input{up2020-zh-2.tex}
+\input{up2020-zh-3.tex}
+
+\newpart
+\begingroup
+\setlength{\hfuzz}{7.5pt}
+\printbibliography[heading = bibintoc, title = 参考资料]
+\endgroup
+\newpart
+\specialsec{跋}\label{sec:afterword}
+
+在开始学习 Linux 之后不久，我购买了《Shell 脚本学习指南》一书，这本书开启了
+我第一次热情投入的正式编程学习经历，而这一热情正是源于第 \ref{sec:shell}
+节所述的在书中用于演示 Unix 哲学威力的词频统计程序。（注意这和第
+\ref{sec:cognitive} 节中所述的 V.\ I.\ Arnold 对 L.\ A.\ Tumarkin
+教学方式所产生反应的相似性。）尽管这本书自始至终贯彻 Unix 哲学（书中称为
+“软件工具哲学”），我直到 2009 年春在旁听本校曹东刚老师的《Linux 程序设计环境》
+课程时才开始有意识地遵循 Unix 哲学，因为这一课程中对其进行了正式的介绍和强调。
+
+我的 Linux 经历本来是比较平静的，直到 systemd 的出现：2011--2012 年，systemd
+开发者推行了让 logind 成为 GNOME 3 的依赖\cupercite{poettering2011a}，以及让
+udev 并入 systemd\cupercite{sievers2012} 的计划；从此开始的激烈纷争和论战直至
+近两年才开始稍有缓和\cupercite{slashdot:systemd}，而我也明确希望本文档能加快
+systemd 和与之关联的专有式手段走向消亡的速度。“塞翁失马，焉知非福”：在寻找
+systemd 替代品的过程中，我在 2014 年夏注意到了 s6 项目，而学习 Daniel
+J.\ Bernstein 风格软件的设计和实现被证明是对 Unix 哲学实践的宝贵练习。
+在此过程中，“Unix 哲学是否已经过时？”和“Unix 哲学的社会价值是什么？”
+这两个问题开始萦绕在我心头，它们最终形成了本文档的前两部分。
+
+2018 年春，在偶然发现 scsh\cupercite{angelbeats2018} 的一年之后，
+我在考虑 C 语言缺乏表达力的问题时设想了一种有些像 C 但基于 S 表达式的
+语言\cupercite{vector2018b}，尽管我可能早在 2012 年时就开始知道 Lisp
+有多么优雅，而这主要归功于王垠的文章（尽管他在中文开源界内争议很大，
+但是他常能提出很有意思的论点）。启发我寻求上述类 C 语言的问题可以追溯到
+更早，即 2016 年初我开始考虑是否能设计一种结合 Bernstein chainloading 的类
+shell 语言\cupercite{vector2016a}时。最终我在 2018 年春想到了一个可实际操作
+的极简主义方案\cupercite{vector2018c}来实现这样一种语言，并同时产生了
+“统一 Lisp / C”的想法，而这一想法经过 Gentoo 论坛上的一系列
+讨论\cupercite{stevel2018}成为了本文档的第三部分。
+
+在结束本文档之前，我要感谢北京大学 Linux 俱乐部和 skarnet 软件社区，没有它们
+我很可能只会成为又一个对 Linux 略知一二的业余程序员，而本文档也根本不可能问世。
+我也要感谢整个开源社区，其中包括 Unix 圈、Lisp 圈以及其它社区，包含支持和反对
+systemd 的人，因为它提供了丰富而多样的技术资料和观点，这是一份无价的礼物。
+受曹禺所著《雷雨》中背景音乐设定和 Donald Knuth 所著《The \hologo{TeX}book》%
+《The \hologo{METAFONT}book》中附录的影响，我有意在本文档中
+模仿了 J.\ S.\ Bach《b 小调弥撒》的篇章结构。
+\end{document}
+

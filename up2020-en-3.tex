@@ -1,0 +1,685 @@
+\newpart
+\section{From Lisp to Scheme}\label{sec:lisp}
+
+After the discussions about minimalism outside programming in last part, now
+we come back to the subject of programming; but before examining Unix itself,
+let's first discuss something outside the Unix circle -- the Lisp family of
+programming languages\cupercite{wiki:lisp}.  Born in 1958, Lisp is one of the
+oldest programming languages, along with Fortran (1957), Algol (1958) and Cobol
+(1959), and is perhaps the only one of them still constantly attracting new
+interest as of now: Fortran finds little (and still diminishing) use outside
+of numerical computation in science and engineering, few young programmers are
+interested in maintaining existent (stale and also diminishing) Cobol codebases,
+and it is fair to say that Algol as a language has been dead for long.  So what
+is the reason for the continued vitality of Lisp?  The answer is Lisp's inherent
+simplicity, and its strong \stress{expressiveness} despite the simplicity;
+in this section, we will briefly examine the simplicity of Lisp.
+
+Lisp was designed by John McCarthy\footnote{By the way, he was also one of the
+pioneers in time-sharing operating systems.}, who showed that a practically
+usable Turing-complete language can be built with a handful of primitive
+functions in addition to conditional expressions and recursive function
+definitions\cupercite{mccarthy1960}.  Steve Russell noted, to McCarthy's
+surprise, that the \verb|eval| function in Lisp could be directly translated
+into assembly code, and the result was the first Lisp interpreter, running on
+an IBM 704 mainframe, compiled manually by Russell.  Alan Kay, the designer of
+Smalltalk, made the following comment\cupercite{feldman2004} about the idea:
+\begin{quoting}
+	\emph{[...]} that was the big revelation to me when I was in graduate
+	school -- when I finally understood that the half page of code on the
+	bottom of page 13 of the Lisp 1.5 manual\cupercite{mccarthy1962} was Lisp
+	in itself.  These were ``Maxwell's Equations of Software!''  This is the
+	whole world of programming in a few lines that I can put my hand over.
+\end{quoting}
+Although Lisp can be reduced to a minimal core, not all languages in
+the Lisp family are indeed minimalist: for example, now the unqualified
+name ``Lisp'' often means Common Lisp, which is fairly big even in terms
+of core functionalities; nevertheless, proper abstractions to compress
+boilerplate code are still strongly encouraged by Common Lisp experts,
+like Paul Graham\cupercite{graham1993}.  However, there does exist
+a truly minimalist Lisp, and it is Scheme.
+
+Scheme was not intended to be minimalist from the beginning, according to its
+designers, Gerald Jay Sussman and Guy L.\ Steele Jr.\cupercite{sussman1998}%
+\ (note how similar this is to Unix's conscious pursuit for simplicity after
+the inception of pipes -- \cf~Section~\ref{sec:mcilroy}):
+\begin{quoting}
+	We were actually trying to build something complicated
+	and discovered, serendipitously, that we had accidentally
+	designed something that met all our goals but was much simpler
+	than we had intended.  \emph{[...]} we realized that the
+	\stress{$\bm{\lambda}$-calculus} -- a small, simple formalism --
+	could serve as the core of a powerful and expressive programming language.
+\end{quoting}
+Anyway, minimalism became a defining property of Scheme, as can be seen
+from the first sentence from the introduction to its specifications,
+\emph{Revised$\,^3\!$ Report on the Algorithmic Language Scheme} and
+onward (usually called \rnrs{3}, \rnrs{4} \etc)\cupercite{scmreports:home}%
+\footnote{\label{fn:r6rs}The specifications up to \rnrs{5} were all a few
+scores (usually less than 60) pages of text, including examples and rationales;
+\rnrs{6} significantly expanded both the core and standard libraries\cupercite%
+{weinholt2019}, in order to standardise some (more or less legitimately)
+demanded features present in mainstream languages.  \rnrs{6} was highly
+controversial, most importantly because certain features are less useful
+for educators, hobbyists \etc{} who use just a small subset of the
+functionalities\cupercite{scmreports:position}; as a result, \rnrs{7}
+was intentionally separated into a ``small'' specification and a
+``large'' one.  Incidentally, the specification of Go is also
+rough 50 pages, but Go is much less expressive than Scheme
+(\cf~Section~\ref{sec:homoiconic} for an example).}:
+\begin{quoting}
+	Programming languages should be designed not by piling
+	feature on top of feature, but by removing the weaknesses and
+	restrictions that make additional features appear necessary.
+\end{quoting}
+This attitude clearly resembles the Unix philosophy, and it makes Scheme
+the most expressive programming language in my opinion; for this reason,
+in all following text in this document I will use Scheme to represent Lisp.
+
+The reason for this digression about Lisp is its strong expressiveness despite
+the simplicity, and this expressiveness largely comes from the way Lisp code is
+written -- \stress{S-expressions} (short for symbolic expressions)\footnote%
+{In the original paper for Lisp\cupercite{mccarthy1960}, McCarthy actually
+intended to use another form called M-expressions (short for meta expressions)
+for source code, and let the computer translate them to S-expressions; however,
+programmers generally preferred to use S-expression directly.  M-expressions
+are homoiconic just like S-expressions, and a format closely related to the
+former is used by Mathematica, the computational software.}; for example, the
+factorial function can be written in Scheme and Python respectively as\footnote%
+{They are not exactly equivalent: first, Scheme does not have a \texttt{return}
+primitive, and instead use expressions in \stress{tail positions} as well
+as \stress{continuations}\cupercite{wiki:cont} to return values; second,
+\texttt{(define (fn (args ...)) ...)} is a shorthand for \texttt{(define
+fn (lambda (args ...) ...))} in Scheme, while Python's \texttt{lambda} is
+severely restricted (\cf~Section~\ref{sec:homoiconic} for an example).}:
+\colskipa\begin{multicols}{2}
+\begin{quoting}
+\begin{Verbatim}
+(define (f i)
+  (if (> i 1)
+      (* (f (- i 1)) i)
+      1))
+\end{Verbatim}
+\end{quoting}
+\begin{quoting}
+\begin{Verbatim}
+def f(i):
+  if i > 1:
+    return i * f(i - 1)
+  return 1
+\end{Verbatim}
+\end{quoting}
+\end{multicols}\colskipb\noindent%
+S-expressions would probably appear unintuitive to a newbie, but they are in
+fact much easier for computers to process than most alternative source code
+formats, and still quite readable to the programmer after a small degree of
+familiarisation.  You may note that this is very similar to why text streams
+are used as the interface for traditional Unix tools (\cf~Section~%
+\ref{sec:mcilroy}), so why are S-expressions more machine-friendly, and
+what technical advantages do they bring us?  Please read the next section.
+
+\newpart
+\section{S-expressions and homoiconicity}\label{sec:homoiconic}
+
+To understand the machine-friendliness of S-expressions, we first need to
+know how source code for a program is represented internally by the computer:
+whatever language you use, the source code will be converted (\stress{parsed})
+into a data structure that represents its syntax elements necessary for the
+computer to understand the program, and this data structure is called the
+\stress{abstract syntax tree}\cupercite{wiki:ast}.  For instance, the
+AST corresponding to the expression \texttt{(4 * 2) - (a + 3)} and
+the S-expression equivalent to the latter are shown below:
+\colskipa\begin{multicols}{2}
+\begin{quoting}[innerleftmargin = 0.45em,
+	innertopmargin = -0.15em, innerbottommargin = 0.15em]
+\begin{forest}
+	for tree = {l sep = 0pt, l = 2.25em}
+	[$-$,
+		[$\times$, [$4$] [$2$]]
+		[$+$, [$a$] [$3$]]]
+\end{forest}
+\end{quoting}
+\columnbreak\vspace*{-0.64em}
+\begin{quoting}
+\begin{Verbatim}
+(-
+  (* 4 2)
+  (+ a 3))
+\end{Verbatim}
+\end{quoting}
+\end{multicols}\colskipb\noindent%
+S-expressions can be regarded as representations for nested lists, and
+as we can see from the example above, nested lists map to tree structures
+(including ASTs) naturally; additionally, although S-expressions do not
+eliminate the need for parsing, they are technically much easier to parse
+than other formats, which makes them a most convenient representation for
+ASTs.  Therefore in combination with the strong capability for list
+manipulation in Lisp (originally ``LISt Processor''), S-expressions enable
+Lisp to almost effortlessly process Lisp code just like regular data.
+
+When a language can modify source code written in itself just like other
+data, it is called a \stress{homoiconic} language\cupercite{wiki:homoiconic};
+the ability to treat code as data has extremely profound implications,
+as can be seen from the beginning of the half-joking document \emph{The
+Gospel of Tux}\footnote{Apart from the von Neumann Architecture\cupercite%
+{wiki:neumann}, the profundity of the ``code is data'' idea can be
+traced to earlier origins, for instance the Gödel numbering\cupercite%
+{wiki:godelnum} and the halting problem\cupercite{wiki:halt}.}, which
+is why I consider homoiconicity a notion as profound as complexity:
+\begin{quoting}
+	In the beginning Turing created the Machine.  And the Machine was crufty
+	and bogacious, existing in theory only.  And von Neumann looked upon
+	the Machine, and saw that it was crufty.  He divided the Machine into
+	two Abstractions, \stress{the Data and the Code, and yet the two were
+	one Architecture}.  This is a great Mystery, and the beginning of wisdom.
+\end{quoting}
+It was mentioned in Section~\ref{sec:boltzmann} that all Turing-equivalent
+models of computation are not equally wieldy for generic discussions, and
+similarly all homoiconic languages are not equally wieldy for practical ``code
+as data'' usage\footnote{Another example is XML, which is a descendant of SGML,
+which in turn is a document markup language, and this makes the XML markup quite
+verbose.  Although XML naturally models a tree structure, its use outside of
+document markup often results in files with more markups instead of contents;
+in addition, the complex specification of XML makes it nontrivial to parse, and
+therefore unsuitable as source code for programs.}: for example, it might be
+said that all languages which support text processing are in a sense homoiconic,
+because the source code is text; however, most \stress{code transformations},
+that are interesting to implementers of interpreters and compilers, would be
+very cumbersome to implement only with text processing mechanisms.  For this
+reason, in all following text in this document, when discussing homoiconicity
+I will specifically mean it on the \stress{AST level}, or in other words
+the ability to easily modify the AST of source code just like regular data.
+
+In a language with AST-level homoiconicity, the macro system can be implemented
+to use functions, that transform ASTs, as macros; with this kind of macros, new
+syntaxes can be easily defined, and many \stress{language features} that are
+hardcoded in non-homoiconic languages can be implemented as elegant extensions
+to the core language.  For example, goroutines, which are usually considered
+one of the main features of Go, are essentially \stress{syntactic sugar} for
+interfaces to lightweight coroutines in the libthread\cupercite{lucent2002}/%
+libtask\cupercite{swtch:libtask} model\footnote{Another model is based on
+the \stress{continuation-passing style}\cupercite{wiki:cps}.}, and they are
+hardcoded in Go exactly because new syntaxes cannot be easily added in Go.
+The example about goroutines might seem slightly abstract because we
+have not seen code transformations in action, and here I give
+an example that is both more concrete and more advanced.
+
+Anonymous functions, essentially $\lambda$-expressions, are very useful
+when used as function arguments, as is shown in the Python code below:
+\begin{quoting}
+\begin{Verbatim}
+sorted(l, key = lambda e: e[0])
+\end{Verbatim}
+\end{quoting}
+However, the function body of \verb|lambda| in Python must be an expression,
+so assignment cannot be used, for instance the following function on the left
+cannot be directly transformed to a \verb|lambda|.  But if we regard assignment
+as a kind of filter that converts a tuple of input values (\eg~$(x, y)$) into
+a modified tuple of values (\eg~$(x, y')$), the function can be transformed
+into the composition of multiple \verb|lambda|s, as is shown on the right.
+\colskipa\begin{multicols}{2}
+\begin{quoting}
+\begin{Verbatim}
+def f1(x, y):
+  y = y / (1 - x)
+  x = x + y
+  return x * x + y
+\end{Verbatim}
+\end{quoting}
+\begin{quoting}
+\begin{Verbatim}
+f2 = lambda x, y:
+  ((lambda v: v[0] * v[0] + v[1])
+  ((lambda v: (v[0] + v[1], v[1]))
+  ((x, y / (1 - x)))))
+\end{Verbatim}
+\end{quoting}
+\end{multicols}\colskipb\noindent%
+The definition of \verb|f2| is evidently ugly, and part of the ugliness
+lies in the explicit value tuple \verb|v|; another source of ugliness is the
+reversed order of filters -- the last \verb|lambda| to be applied is written
+first, because it is the outermost.  In Scheme, the \verb|let| form has
+its input values written before its body, so we can use it to compose
+filters in the desired order, as is shown below on the left.
+\colskipa\begin{multicols}{2}
+\begin{quoting}
+\begin{Verbatim}
+(define f3
+  (lambda (x y)
+    (let ((y (/ y (- 1 x))))
+    (let ((x (+ x y)))
+    (+ (* x x) y)))))
+\end{Verbatim}
+\end{quoting}
+\begin{quoting}
+\begin{Verbatim}
+f3 = lambda x, y: \
+  (lambda y:
+    (lambda x: x * x + y)
+    (x + y)) \
+  (y / (1 - x))
+\end{Verbatim}
+\end{quoting}
+\end{multicols}\colskipb\noindent%
+As you might have already guessed, \verb|let| is just syntactic sugar for
+\verb|lambda|, and \texttt{(let ((a \emph{e$_1$}) (b \emph{e$_2$}) ...) ...)}
+is a shorthand for \texttt{((lambda (a b ...) ...) \emph{e$_1$} \emph{e$_2$}
+...)}, so \verb|f3| is equivalent to the Python function above on the right.
+You should have also noticed \verb|v| is absent from \verb|f3|, and this
+works because arguments of inner \verb|lambda|s (\eg~the \verb|x|
+in \texttt{(lambda x: x * x + y)}) shadows the outer variables
+with the same names (\eg~the argument \verb|x| for \verb|f3|).
+
+\colskipa\begin{multicols}{2}
+\begin{quoting}
+\begin{Verbatim}
+f4 = lambda x, y: check(
+  divide(y, 1 - x),
+  (lambda y:
+    (lambda x: x * x + y)
+    (x + y)))
+\end{Verbatim}
+\end{quoting}
+\begin{quoting}
+\begin{Verbatim}
+check = lambda arg, fn: \
+  None if arg == None else fn(arg)
+
+divide = lambda a, b: \
+  None if b == 0 else a / b
+\end{Verbatim}
+\end{quoting}
+\end{multicols}\colskipb
+Nevertheless, this is not the end of the story, because $1 - x$ might
+be zero, and I want the function to return \verb|None| in such cases;
+but considering that functions are only evaluated when applied to some
+arguments, \verb|f3| can be transformed into the function above on the left,
+with ancillary functions on the right.  Moreover, I did not tell you $x$ and
+$y$ might be \verb|None| instead of numbers, but following the line of thought
+above, we can further transform \verb|f4| into\footnote{Incidentally,
+this is reminiscent of the continuation-passing style, which is
+in fact not a coincidence\cupercite{troelskn2009}.}
+\begin{quoting}
+\begin{Verbatim}
+f5 = lambda x, y: check(
+  x, (lambda x: check(
+    y, (lambda y: check(
+      divide(y, 1 - x), (lambda y: check(
+        x + y, (lambda x: x * x + y))))))))
+\end{Verbatim}
+\end{quoting}
+Using this technique, we actually implemented exceptions in a purely functional
+way\footnote{Conversely, we can also see that, as a matter of fact, exceptions
+have a ground in type theory.  Besides, I find it necessary to note that
+unlike Haskell, Lisp does not pursue purely functional programming, although
+the functional style is certainly preferred.}; if you are familiar with Haskell,
+you might realise this essentially using a monad.  A Haskell counterpart of
+\verb|f5| can be written in the form below on the left, which is equivalent
+to the form on the right using syntactic sugar hardcoded in Haskell\footnote%
+{\texttt{return} in Haskell is just a function, and the two \texttt{return}s
+on the right correspond exactly to the two \texttt{Just}s on the left,
+which are needed due to type-theoretical requirements in Haskell.}.
+\colskipa\begin{multicols}{2}
+\begin{quoting}
+\begin{Verbatim}
+f5 = \x y ->
+  (x >>= \x ->
+    (y >>= \y ->
+      (divide y (1 - x) >>= \y ->
+        (Just (x + y) >>= \x ->
+          Just (x * x + y)))))
+\end{Verbatim}
+\end{quoting}
+\begin{quoting}
+\begin{Verbatim}
+f5 = \x y -> do
+  x <- x
+  y <- y
+  y <- divide y (1 - x)
+  x <- return (x + y)
+  return (x * x + y)
+\end{Verbatim}
+\end{quoting}
+\end{multicols}\colskipb\noindent%
+So what is the role of Scheme and S-expressions here?  As was mentioned
+just now, the syntactic sugar above is hardcoded in Haskell;
+in Scheme, it can be implemented as a syntactic extension.
+
+In the end of this section, I find it necessary to note that in the operating
+system, \stress{directory trees resembles S-expressions} in that they are
+essentially tree structures; the ``everything is a file'' principle of Unix
+(\cf~Section~\ref{sec:plan9}) is a directly result of this idea, although
+most important contributors to Unix probably did not realise the similar
+potential of S-expressions: for example Daniel J.\ Bernstein noted, in the
+context of security, that parsing and quoting of textual data significantly
+complicates software systems\cupercite{djb:qmailsec}; instead, he extensively
+used directory trees with very simple formats to configure his software, and
+this practice is also adopted by some programmers with close relation
+to his software, as can be seen in most daemontools-ish systems.
+
+The complexity of parsing could have been greatly alleviated had we used
+homoiconic formats, like S-expressions, when processing data with complicated
+structures; the implications of homoiconicity in the context of Unix philosophy
+will be further examined in the rest of this document, and here I instead want
+to consider a little more about the directory trees: given the similarity
+between directory trees and S-expressions, why don't we simply replace most
+configuration directories with files containing S-expressions?  In my opinion,
+an S-expression file is indeed easier to work with than a directory tree is,
+but it is also more rigid and monolithic; in comparison, with a directory
+tree we can atomically update parts of the configuration atomically, and
+can assign different permissions to different parts.  Both of the latter
+are much harder to achieve with a single file, which I believe shows
+the advantage of directory trees as a configuration interface.
+
+\section{The New Jersey and MIT / Stanford styles}\label{sec:wib}
+
+In last section, we have seen the unrivaled power that comes from homoiconcity,
+which allows the macro system to easily manipulate ASTs in order to implement
+new language features; furthermore, because the macro expansion is recursive,
+macros in later parts of a program can access all language features defined
+earlier.  When writing high-performance interpreters and optimising compilers,
+homoiconicity enables us to not only write transformations on the processed
+source code succinctly by using these \stress{structural macros}, but also
+implement the transformations as multiple simple, clear and reliable passes,
+similar to traditional Unix tools connected by pipes.  The prime example for
+this \stress{multi-pass processing} scheme\footnote{\label{fn:slew}Noticing
+the analogy between directory trees and S-expressions in Section~%
+\ref{sec:homoiconic}, we can also implement multi-pass preprocessors for
+configuration directories\cupercite{gitlab:slewman}; furthermore, from the
+viewpoint of the Prototype Pattern, \texttt{fork()}/\texttt{exec()} and
+Bernstein chainloading can also be regarded as similar designs.} is the
+nanopass framework\cupercite{andersen2016}\footnote{Incidentally, the
+name of one main author of nanopass, when abbreviated, becomes ``AWK''.},
+which is used by Chez Scheme\cupercite{wiki:chez}, the prestigious Scheme
+compiler that became open-source in 2016; Chez Scheme often produces
+executables that are even faster than workalikes written in C, and yet it
+has a codebase more than one order of magnitude smaller than that of GCC,
+and self-compiles in seconds while GCC requires thousands of seconds.
+
+As can already be seen above, in comparison with Lisp, C is in many aspects an
+inferior language\cupercite{graham2002}, to put it bluntly, and the pros and
+cons of both will be further examined in the next section; this is a result of
+effects from multiple historical and methodological factors, and I summarise
+them as the following: due to hardware limitations, C began as basically a
+portable assembly language, reasonably simple to implement with acceptable
+performance on computers at Bell Labs; due to the success of Unix, continued
+efforts are made to create stronger optimising compilers, so it is still one of
+the most performant languages; and while it certainly has multiple weaknesses
+in comparison with other languages, people usually either do not find the
+weaknesses a major drawback, or simply use alternative languages.  In simple
+words, C was chosen by Unix initially because the former was simple to implement
+and fairly easy to use, and later mainly because of inertia; the first reason
+highlights some kind of pragmatism present throughout the development of Unix,
+and a well-known summary of it is Richard P.\ Gabriel's ``worse is better''%
+\cupercite{dreamsongs:wib}\footnote{As you can see from the page, Richard
+P.\ Gabriel had still not decided which style was better.  Additionally,
+the complexity issue of interruptible system calls in Unix can be bypassed
+simply by userspace wrappers that retry until the system calls return without
+interruption; however, current standards curiously do not require such
+wrappers, which is one reason why Daniel J.\ Bernstein created
+his own interface set (\cf~Section~\ref{sec:devel}).}.
+
+Gabriel compared Lisp with Unix and concluded that, basically, when simplicity
+of the interface and simplicity of the implementation conflict\footnote{Richard
+P.\ Gabriel later noted in \emph{Worse is Better is Worse} that people often
+ignore this central premise, and instead just blindly aim to produce software
+that only implements 50\% of the requirements.  Another sign of ignoring the
+premise, I believe, is the objection to refactoring when attempting to fulfill
+the complete requirements, with ``worse is better'' as an excuse\cupercite%
+{chiusano2014}.}, Lisp would choose the former (``\stress{the right thing}'' or
+the MIT/Stanford style), while Unix would choose the latter (``\stress{worse is
+better}'' or the New Jersey style).  Apart from C, another main manifestation
+of ``worse is better'' in Unix is the preference of textual interfaces by
+traditional Unix tools\footnote{In addition to the plain text \vs~S-expressions
+debate, there is also the text \vs~binary debate; in my opinion, from cases
+like the use of CDB in qmail and s6-rc, we can see that binary files are not
+always avoided, but only when there are simple ways to use text files without
+compromising the requirements (\eg~performance and security).} (\cf~Section~%
+\ref{sec:mcilroy}); and just like C, textual interfaces are often criticised in
+the Lisp circle, because plain text is unstructured unlike homoiconic formats
+like S-expressions.  However, from the perspective of minimising the system's
+total complexity which covers both the interface and the implementation, I
+believe that \stress{the choice between plain text and S-expressions is not
+a black-or-white problem}: when processing data with simple structures, using
+plain text is usually better because the interface is still easy enough to use;
+in contrast, when processing data with complicated structures, the decrease in
+interfacial complexity of using S-expressions often outweighs the increase
+in implementational complexity.  When dealing with languages, extensive
+processing of data with deeply nested and often self-referencing
+structures are necessary, so S-expressions are undoubtedly preferable.
+
+Another common criticism against Unix from the Lisp circle is that the latter
+relentlessly exposes low-level details to the user, and that instead these
+details should be hidden from the user by means of encapsulation\footnote{From
+this criticism, we can also understand why Lisp focuses more on the interfacial
+complexity.}; however, a common problem with encapsulation is \stress{leaky
+abstractions}, where customisation often has to be achieved by working around
+the encapsulation.  systemd and Linux distributions from Red Hat, examined
+in the first part of this document, are the more severe examples; actually
+I believe there are few abstractions that are satisfactorily airtight,
+and among them are certain well-designed programming languages as well
+as kernels of Unix-like operating systems.  Even when we distinguish
+between ``normal'' and ``advanced'' users, providing encapsulation
+to the former without interfering with the latter's convenience
+in customising and debugging does not seem like a solved problem.
+
+\section{Benefits of reconciling Unix and Lisp}\label{sec:benefits}
+
+As noted in last section, C is an inferior language to Lisp, most importantly
+due to its lack of expressiveness: for example, had it used a macro system (like
+that in Dale\cupercite{github:dale}) that could modify ASTs, then features like
+object-oriented programming would be implementable using macros, and C++ would
+perhaps have been unnecessary.  Another prominent weakness of C, widely noted
+both inside and outside the Lisp circle, is its memory unsafety which results
+in buffer overflows, null-pointer dereferences \etc; alternative C libraries
+like skalibs (\cf~Section~\ref{sec:devel}) surely help to reduce this kind
+of bugs, but are far from able to reducing them to the minimum, and
+I will mention a possible strategy for this in the next section.
+
+However, to be fair, Lisp also has its weaknesses, among which a best-known is
+the performance cost of dynamic type checking, especially in scenarios like
+numerical computation; automatic type inference, even in its advanced form in
+\eg~Chez Scheme, is not a universal solution to this problem.  Another main
+problem is the necessity of garbage collection in Lisp implementations, which
+makes compiled executables larger in size and often unsuitable for use in
+real-time environments; furthermore, advanced requirements for low-level
+development, for instance cryptography (\cf~NaCl and BearSSL) which often
+requires both constant-time execution and high performance (often involving
+assembly), seem largely ignored in the Lisp circle. To summarise them up,
+from what I know, I feel that while Lisp is good at implementing complicated
+application requirements through abstractions, it is less involved
+in low-level development, where it has big potentials in fact.
+
+Something interesting lies in the observations above -- the pros and cons of
+Lisp and C seem to be complementary; this naturally naturally leads to the guess
+that if we somehow manage to design \stress{a minimalist homoiconic language
+that combines their strengths while avoiding their weaknesses}, it would be,
+in Tony Hoare's words\cupercite{hoare1981}\footnote{A most important lesson we
+have to learn from the speech, as Tony Hoare put it, is that simplicity must
+be taken as the first priority when pursuing an ultimate language.},
+\begin{quoting}
+	\emph{[...]} a language to end all languages, designed to meet the needs
+	of all computer applications, both commercial and scientific, \emph{[...]}
+\end{quoting}
+But is that achievable?  If yes, how to do it, and what would we get?
+If no, would the attempt be worthwhile?  My guess for the first question
+is ``yes''; the second and the fourth will be respectively explored
+in the next section and Section~\ref{sec:toe}; in the rest of
+this section, I will give some examples for the third question.
+
+As was mentioned in Section~\ref{sec:exec}, Laurent Bercot implemented the
+unit operations in chainloading as a set of command-line tools; in order to
+implement unit operations involving two commands (\eg~loops and pipelines),
+he designed a special quoting syntax for command line arguments, and wrapped
+it up as ``blocks''\cupercite{ska:elblocks} in his language called execline%
+\footnote{Its design is similar to the initial shell in Unix, the Thompson
+shell\cupercite{wiki:thompson}, which was substituted by the Bourne shell in
+Unix v7 due to its inadequacy for more complex programming.}.  Nevertheless,
+chainloading does not necessary imply \verb|exec()|, and instead can be done in
+a shell-like language\cupercite{vector2016a} (\cf~shell commands like \verb|cd|
+and \verb|umask|); based on the model of scsh\cupercite{scsh:home}, the execline
+language can be replaced with scsh-like Scheme, with chainloaders replaced by
+scsh-like Scheme programs analogous to the following shell reimplementation of
+the \verb|cd| chainloader provided by execline\cupercite{vector2018c}:
+\begin{quoting}
+\begin{Verbatim}
+#!/bin/rc -e
+cd $1; shift; exec $*
+\end{Verbatim}
+\end{quoting}
+
+Following this line of thought, it is not unimaginable to replace traditional
+Unix tools with Scheme programs as well; considering the expressiveness of
+Scheme and the existence of elegant Scheme compilers like Chez Scheme, this
+would surely help to reduce the total complexity of the system.  So now we
+see that by migrating to Lisp for system programming, even these simple
+tools can be further simplified; and as noted before, Lisp is probably
+even more powerful for application programming, so I find it undoubted
+that \stress{by embracing homoiconicity, we will be able to construct
+systems that are more Unix-ish than was possible before}.
+
+Now that we have seen the power of homoiconicity in system programming, it is
+appropriate to revisit the Trusting Trust issue in Section~\ref{sec:security};
+at that time I noted that one method against Trusting Trust is to construct the
+compiler from the machine code in multiple steps, and it should be self-evident
+that the auditability of this procedure directly depends on the latter's total
+complexity.  It was also noted in Section~\ref{sec:lisp} that Steve Russell
+implemented the first Lisp interpreter in assembly by hand, which in combination
+with the elegance of Chez Scheme tells us that \stress{homoiconicity will
+dramatically reduce the total complexity of bootstrapping from machine code},
+and therefore strengthen our defence against Trusting Trust\footnote{Another
+potential problem is hardware backdoors, and I think a way to deter them is to
+leave adequate room for variation in every step of the bootstrapping procedure,
+because the semantics of low-level code is difficult to analyse (which results
+in the importance of open source), so any attempt at mechanically injecting
+malicious code may trigger false positives, which may expose the backdoor.}.
+
+\section{Lisp / C reconciliation: how to?}\label{sec:howto}
+
+As was emphasised in Section~\ref{sec:devel}, we should analyse specific issues
+specifically, and while the disappearance of resource limitations does not imply
+simplicity was no longer important, it surely motivates us to rethink previous
+previous compromises made due to these limitations.  We are well past the era
+where garbage collection is prohibitively expensive for regular computers, and
+for devices with severely limited resource we generally prefer cross-compilation
+over native compilation.  Given this observation while considering the issue
+of big executables and real-time requirements in last section, the proposed
+language (I give it the codename ``Nil'', for uNIx plus Lisp) should be able
+to use GC for its interpreter and compiler, but \stress{executables produced
+by the compiler should avoid using GC whenever reasonable}\footnote{However,
+since I proposed in Section~\ref{sec:benefits} to substitute the shell with
+Nil (in the guise of Scheme), there does exist the natural question of how
+a Nil interpreter should exist in those special environments.  I do not yet
+have a good answer for it; or we could perhaps use an interpreter stripped
+down specifically for shell emulation?}, and the programmer should be
+aware of how to avoid GC when implementing special requirements.
+
+In last section, we revisited the issue of bootstrapping, and I hinted about
+a procedure where a minimal interpreter is somehow built, and then in a later
+step a production-ready compiler is produced; a first point to note is that
+this deviates from today's common practice of using a compiler to produce an
+interpreter, and instead produces an interpreter first.  However, as can be
+guessed, Nil interpreters would probably be easier to write in assembly than
+Nil compilers are, just as with Lisp which Nil is modeled upon, so from the
+viewpoint of complexity it would be better to generate the compiler from a
+primitive interpreter\footnote{Probably in multiple steps, involving more and
+more powerful compilers, interpreters and even assemblers, and the assemblers
+would probably somehow resemble the proposed Nil-powered assembly; to facilitate
+auditing, a smaller number of intermediate steps should probably be preferred,
+as long as the total size of the codebase involved is close to the minimum.
+Besides, on a more theoretical level, I find the notion of Futamura projections
+(essentially \stress{partial evaluation})\cupercite{wiki:parteval} highly
+interesting.}.  Similarly, noticing the expressiveness of Nil, it would
+be natural to use a self-bootstrappable Nil compiler as the base
+compiler in production systems, from which other compilers (if
+still necessary, and perhaps including one for C) are produced.
+
+Hitherto in this section, we have been examining the Lisp-like aspects of Nil,
+but what about the C-like aspects?  I consider Dale, mentioned in last section,
+a possible prototype for a C-like layer, upon which a Lisp-like layer would
+be implemented using macros, and many other languages (\eg~shell and Makefile)
+would be emulated in turn on the Lisp-like layer, accesible to the user via
+something like \hologo{LaTeX}'s \stress{macro packages}.  Another approach I
+have thought of, which I give the codename Nil-powered assembly, is based on the
+notion of a portable assembly\footnote{Since the C-like layer would essentially
+be a machine code generator, similar generators like Chez Scheme's built-in
+assembler and Daniel J.\ Bernstein's qhasm might be highly instructional
+references.} (\cf~Section~\ref{sec:wib}): the C-like layer would be implemented
+based on the Lisp-like layer as most other languages would be, and it
+would be a markup-like ``reverse-macro'' system which provides primitive
+procedures that when called emit assembly instructions to the output.
+
+In addition, as noted in last section, Nil needs a type system strong than
+that of Lisp, for which I find Yin Wang's design base on \stress{contracts}%
+\cupercite{wangyin2013a, wangyin2013b} a very thought-provoking reference; it is
+worth noting that this design helps to boost memory safety of the C-like layer,
+and even facilitates the formal verification of written programs (\cf~%
+Footnote~\ref{fn:formal}).  The foreign function interface between the
+Lisp-like and C-like layers will also be an issue, which I am not yet
+knowledgeable enough to comment on.  Finally, before ending this section,
+I need to stress the non-technical issue of inertia, which troubles Scheme
+(\cf~Footnote~\ref{fn:r6rs}), Plan 9 (\cf~Footnote~\ref{fn:plan9}) as well as
+qmail and other excellent (or not) software projects: apart from the technical
+challenges Nil will inevitably encounter, it will have to attract some attention
+from both academia and industry to gain enough momentum (there is surely the
+possibility that the latter simply does not care, but see the next section); and
+even if Nil might have some success, removing historical burdens while adapting
+to new requirements would not be easy for it, as is for other projects.
+
+\section{Toward a ``Theory of Everything''}\label{sec:toe}
+
+As was noted in last section and Section~\ref{sec:benefits}, Nil might be a
+language that is impossible even in the theoretical sense, or might not attract
+adequate attention from the industry, so would the exploration on Nil still be
+worthwhile in such cases?  In this final section, I will give my answer
+to this question based on the analogy I made in \parencite{vector2018c}:
+\begin{quoting}
+	I guess reconciling Lisp and Unix would be much easier than
+	reconciling quantum mechanics and general relativity; and
+	it would be, in a perhaps exaggerated sense, as meaningful.
+\end{quoting}
+
+Theoretical physicists and high-energy physicists have long pursued a theory
+of everything that can reconcile quantum field theory and general relativity,
+because the theory would provide a unified basis for all low-level physical
+phenomena.  To my knowledge, there does not seem to be a firm guarantee such
+a theory might be successfully achieved by humans: for example, the best-known
+candidate, string theory, still appears far from testable, even though it does
+agree with observed facts.  On the other hand, there is not a proof that such
+a theory is unachievable, either; and apart from the theoretical promises,
+research on it has always been giving rise to exciting advancement in diverse
+fields ranging from pure mathematics (which is profoundly connected with
+theoretical physics) to civil engineering (involved in construction of
+large facilities for physical experiments).  For these two reasons,
+a ToE is still the lifelong pursuit for many physicists.
+
+Similarly, although the efforts at Lisp / C reconciliation is not guaranteed
+to really result in an ultimate language, it would surely be rewarding to
+explore \stress{the best way the two languages can collaborate}, so that the
+system's complexity is minimised and the programmer's productivity is maximised:
+as has already been seen in Section~\ref{sec:benefits}, the reconciliation, even
+in a very primitive form, can already contribute greatly to the reduction in the
+complexity of Unix systems; I believe that further simplification of these
+systems will attract more people to explore fundamental aspects of computer
+systems, just like how the Raspberry Pi reignited the enthusiasm for low-level
+development.  And even if our efforts might not result in production-ready
+Nil-based systems finally, I am completely convinced that insightful
+communication between the Unix and Lisp circles will, as was explained in
+Section~\ref{sec:worklife}, definitely result in a lot of \stress{byproducts
+that are both interesting and meaningful}, therefore I conclude this document
+with two quotations respectively from Rob Pike\cupercite{pike2000}%
+\footnote{The description is, ironically, applicable to himself as well
+regarding programming languages.} and Hal Abelson\cupercite{abelson2008}:
+\begin{quoting}
+	Narrowness of experience leads to narrowness of imagination.
+\end{quoting}
+\colskipc
+\begin{quoting}
+	If you \emph{[carefully study the example interpreters in this book]},
+	you will change your view of your programming, and your view of
+	yourself as a programmer.  You'll come to see yourself as a designer
+	of languages rather than only a user of languages, as a person
+	who chooses the rules by which languages are put together, rather
+	than only a follower of rules that other people have chosen.
+\end{quoting}
+

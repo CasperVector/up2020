@@ -1,0 +1,521 @@
+\newpart
+\section{从 Lisp 到 Scheme}\label{sec:lisp}
+
+在上一部分关于编程之外极简主义的讨论之后，现在我们回到编程的主题；但是在考察
+Unix 本身之前，我们先来讨论 Unix 之外的一样东西——Lisp 族的程序语言\cupercite%
+{wiki:lisp}。诞生于 1958 年的 Lisp 和 Fortran（1957 年）、Algol（1958 年）和
+Cobol（1959 年）是最古老的几种程序语言，而 Lisp 或许是其中唯一在当今仍能不断吸引
+新人关注的：Fortran 在科技数值计算之外少有（而且仍在减少）应用，极少有年轻程序员
+对维护现有 Cobol 代码（陈旧且也在减少）感兴趣，而说作为一种语言的 Algol 早已死亡
+并无不公。那么 Lisp 能保持其生命力的原因是什么呢？答案在于其天然的简洁性以及并不
+因简洁而打折扣的强大\stress{表达力}，而我们就将在本节简要考察 Lisp 的简洁性。
+
+John McCarthy\footnote{另外，他也是分时操作系统的先驱之一。} 设计了 Lisp，并由此
+说明了我们从几个基本函数、条件表达式和递归函数定义就可以建立一种 Turing 完全的
+语言\cupercite{mccarthy1960}。Steve Russell 出乎 McCarthy 预料地注意到 Lisp
+中的 \verb|eval| 函数可以直接翻译为汇编代码，其结果就是第一个 Lisp 解释器，
+后者运行在一台 IBM 704 大型机上、由 Russell 人工编译而成。Smalltalk 的
+设计者 Alan Kay 就这一想法发表了以下的评论\cupercite{feldman2004}：
+\begin{quoting}
+	\emph{[...]} that was the big revelation to me when I was in graduate
+	school -- when I finally understood that the half page of code on the
+	bottom of page 13 of the Lisp 1.5 manual\cupercite{mccarthy1962} was Lisp
+	in itself.  These were ``Maxwell's Equations of Software!''  This is the
+	whole world of programming in a few lines that I can put my hand over.
+\end{quoting}
+Lisp 可以被约化为一个极小的核心，但非所有 Lisp 族语言都追求极简：例如现在
+“Lisp”一词在不加限制时指的经常是 Common Lisp，后者即使就核心功能而言也比较大；
+但 Common Lisp 专家，如 Paul Graham\cupercite{graham1993}，仍然明确鼓励通过合理
+抽象来压缩具有高重复性的代码。然而真正极简主义的 Lisp 的确存在，那就是 Scheme。
+
+根据 Scheme 的设计者 Gerald Jay Sussman 和 Guy L.\ Steele Jr.\ 的说法，%
+Scheme 并不是在设计之初就明确了极简主义的目标\cupercite{sussman1998}（注意这
+和第 \ref{sec:mcilroy} 节所述的 Unix 在管道出现之后对极简主义的追求何其相似）：
+\begin{quoting}
+	We were actually trying to build something complicated
+	and discovered, serendipitously, that we had accidentally
+	designed something that met all our goals but was much simpler
+	than we had intended.  \emph{[...]} we realized that the
+	\stress{$\bm{\lambda}$-calculus} -- a small, simple formalism --
+	could serve as the core of a powerful and expressive programming language.
+\end{quoting}
+无论如何，极简主义成为了 Scheme 的一个标志属性，这可以从其标准《Revised$^3$
+Report on the Algorithmic Language Scheme》及其后续版本（一般简称为 \rnrs{3}、%
+\rnrs{4} 等等）\cupercite{scmreports:home}\footnote{\label{fn:r6rs}\rnrs{5} 及
+更早版本的标准都只有几十（一般不到 60）页，其中还包含了示例和设计依据；为了使
+一些（多少合理）需要的在主流语言中存在的特性标准化，\rnrs{6} 明显地扩大了语言
+核心和标准库的尺寸\cupercite{weinholt2019}。对 \rnrs{6} 的争议很大，其主要原因
+是特定的特性对包含教师和业余爱好者在内的那些只使用一小部分功能的人不那么有用%
+\cupercite{scmreports:position}；为此\rnrs{7} 被特意分为一个“小”标准和一个
+“大”标准。顺便提到，Go 的标准也是约 50 页长，但 Go 的表达力远不如 Scheme%
+（一个例子见第 \ref{sec:homoiconic} 节）。}中引言部分的第一句话看出来：
+\begin{quoting}
+	Programming languages should be designed not by piling
+	feature on top of feature, but by removing the weaknesses and
+	restrictions that make additional features appear necessary.
+\end{quoting}
+这一态度明显和 Unix 哲学相似，它使得 Scheme 成为在我看来表达力最强
+的语言，因此在本文档的后面部分我都使用 Scheme 作为 Lisp 的代表。
+
+本节我们离题去讨论 Lisp 的原因在于其不因简洁性而受损的强表达力，而这一表达力
+在很大程度上来源于 Lisp 代码的写法——\stress{S 表达式}（“符号表达式”的简称）%
+\footnote{在最初那篇关于 Lisp 的论文\cupercite{mccarthy1960}中，McCarthy 希望
+源代码使用的是另一种称为 M 表达式（“元表达式”的简称）的格式，而机器会将其翻译
+为 S 表达式；然而程序员多数更喜欢直接使用 S 表达式。M 表达式和 S 表达式一样
+具有同像性，而一个和前者紧密相关的格式被计算软件 Mathematica 使用。}；例如
+阶乘函数在 Scheme 和 Python 中分别可以写成\footnote{它们并不完全等价：首先，%
+Scheme 没有 \texttt{return} 原语，而是使用\stress{延续}\cupercite{wiki:cont}%
+以及\stress{尾位置}表达式来返回值；第二，在 Scheme 中 \texttt{(define (func
+(args ...)) ...)} 是 \texttt{(define func (lambda (args ...) ...))}
+的简写，而 Python 中的 \texttt{lambda} 在使用上有严重的限制
+（一个例子见第 \ref{sec:homoiconic} 节）。}：
+\colskipa\begin{multicols}{2}
+\begin{quoting}
+\begin{Verbatim}
+(define (f i)
+  (if (> i 1)
+      (* (f (- i 1)) i)
+      1))
+\end{Verbatim}
+\end{quoting}
+\begin{quoting}
+\begin{Verbatim}
+def f(i):
+  if i > 1:
+    return i * f(i - 1)
+  return 1
+\end{Verbatim}
+\end{quoting}
+\end{multicols}\colskipb\noindent%
+S 表达式对新手通常会显得不直观，但它被计算机处理起来其实比其它多数替代格式
+容易地多，而且在稍加适应之后对程序员仍然比较可读。你可能会注意到这和文本流
+成为传统 Unix 工具所用接口的原因（见第 \ref{sec:mcilroy} 节）非常相似，
+那么为什么 S 表达式对机器更友好，它能为我们带来怎样的技术优势？请看下节。
+
+\newpart
+\section{S 表达式和同像性}\label{sec:homoiconic}
+
+为了理解 S 表达式对机器的有好性，我们首先须要了解程序源代码在计算机内部
+的表示方式：不管你使用什么语言，源代码都会被转换（\stress{语法解析}）
+为一种称作\stress{抽象语法树}\cupercite{wiki:ast}（AST）的数据结构，
+这种数据结构用于表示计算机在理解程序时所需的语法元素。例如和表达式
+\texttt{(3 + a) - 4 * 2} 所对应的 AST 和 S 表达式分别如下所示：
+\colskipa\begin{multicols}{2}
+\begin{quoting}[innerleftmargin = 0.45em,
+	innertopmargin = -0.15em, innerbottommargin = 0.15em]
+\begin{forest}
+	for tree = {l sep = 0pt, l = 2.25em}
+	[$-$,
+		[$+$, [$3$] [$a$]]
+		[$\times$, [$4$] [$2$]]]
+\end{forest}
+\end{quoting}
+\columnbreak\vspace*{-0.81em}
+\begin{quoting}
+\begin{Verbatim}
+(-
+  (+ 3 a)
+  (* 4 2))
+\end{Verbatim}
+\end{quoting}
+\end{multicols}\colskipb\noindent%
+S 表达式可以看作嵌套列表的表示，而我们从上面的例子可见嵌套列表自然地映射到
+包含 AST 的树状结构；此外，虽然 S 表达式并没有完全消除语法解析的需求，但是
+它们从技术上看要比其它格式要容易解析得多，这使它们成为一种最方便的表示 AST 的
+方式。因此在和 Lisp（原意为“LISt Processor”）强大的列表操作功能结合起来之后，%
+S 表达式使得 Lisp 可以几乎不费吹灰之力地处理 Lisp 代码，就像处理普通数据一样。
+
+当一种语言可以像修改其它数据一样修改用其自身写成的源代码时，它就被称为一种
+具有\stress{同像性}\cupercite{wiki:homoiconic}的语言；将代码看作数据的能力
+有着极为深刻的意义，这从半搞笑文档《Tux 福音》的开头中可见，它正是我把同像性
+这一概念看作和复杂度一样深刻的原因\footnote{除了 von Neumann 体系\cupercite%
+{wiki:neumann}之外，“代码即数据”这一思想的深刻性还可以被追溯到更早，例如
+Gödel 编码\cupercite{wiki:godelnum}和停机问题\cupercite{wiki:halt}。}：
+\begin{quoting}
+	In the beginning Turing created the Machine.  And the Machine was crufty
+	and bogacious, existing in theory only.  And von Neumann looked upon
+	the Machine, and saw that it was crufty.  He divided the Machine into
+	two Abstractions, \stress{the Data and the Code, and yet the two were
+	one Architecture}.  This is a great Mystery, and the beginning of wisdom.
+\end{quoting}
+第 \ref{sec:boltzmann} 节提到所有 Turing 等价的计算模型并非一样好用，而
+类似地所有同像语言在“代码及数据”的实际应用中也并非同样好用\footnote{另一个
+例子是 XML，它是 SGML 的后继者，而 SGML 是一种文档标记语言，这使 XML 的
+标记部分比较冗长。尽管 XML 自然地代表一种树桩结构，它在用于文档标记之外时
+经常产生包含标记多于实际内容的文件；此外 XML 的复杂标准使其不易进行语法解析，
+因此其不适合用作程序的源代码。}：例如我们或许可以说所有支持文本处理的语言
+在某种意义上都具有同像性，因为源代码毕竟是文本；然而在只用文本处理机制
+时，实现解释器和编译器的人所关心的多数\stress{代码变换}实现起来很麻烦。
+因此在本文档的后面部分中，在讨论同像性时，我都专指 \stress{AST 级}
+的同像性，也就是能像修改普通数据一样轻松修改源代码 AST 的能力。
+
+在具有 AST 级同像性的语言中，宏系统可以实现成使用变换 AST 的函数作为宏；
+利用这种宏，我们可以轻松地定义新语法，于是许多硬编码在非同像语言中的%
+\stress{语言特性}可以实现为对核心语言的优雅扩展。例如一般被当作 Go
+语言主要特点之一的 goroutine 本质上是 libthread\cupercite{lucent2002}/%
+libtask\cupercite{swtch:libtask} 模式轻量级协程\footnote{另一种模式是
+基于\stress{continuation-passing style}\cupercite{wiki:cps}（CPS）的。}%
+所提供接口的\stress{语法糖}，它们被硬编码在 Go 中的原因正是 Go 不能
+轻松地添加新语法。这个关于 goroutine 的例子可能稍显抽象，因为我们没有
+看到实际工作中的代码变换，于是我在这里给出一个更具体且更高级的例子。
+
+匿名函数本质上就是 $\lambda$ 表达式，它在作
+函数参数时很有用，正如下列 Python 代码所示：
+\begin{quoting}
+\begin{Verbatim}
+sorted(l, key = lambda e: e[0])
+\end{Verbatim}
+\end{quoting}
+然而 Python 中 \verb|lambda| 的函数体必须是一个表达式，于是我们不能用赋值
+语句，例如下面左侧的函数不能直接变换为一个 \verb|lambda|；然而如果我们把
+赋值看成将一组输入值（如 $(x, y)$）变为一组改变后输入值（如 $(x, y')$）
+的过滤器，这一函数可以变换为多个 \verb|lambda| 的复合，正如右侧所示：
+\colskipa\begin{multicols}{2}
+\begin{quoting}
+\begin{Verbatim}
+def f1(x, y):
+  y = y / (1 - x)
+  x = x + y
+  return x * x + y
+\end{Verbatim}
+\end{quoting}
+\begin{quoting}
+\begin{Verbatim}
+f2 = lambda x, y:
+  ((lambda v: v[0] * v[0] + v[1])
+  ((lambda v: (v[0] + v[1], v[1]))
+  ((x, y / (1 - x)))))
+\end{Verbatim}
+\end{quoting}
+\end{multicols}\colskipb\noindent%
+\verb|f2| 的定义明显很丑陋，这种丑陋部分源于 \verb|f2| 中直接写出的值元组
+\verb|v|，另一部分源于过滤器顺序的反转——最后应用的 \verb|lambda| 被写在最前，
+因为它是最外层的函数。在 Scheme 中，\verb|let| 表达式的输入值写在其主题的前面，
+因此我们可以利用它来把过滤器以我们希望的顺序进行复合，正如下面左侧所示。
+\colskipa\begin{multicols}{2}
+\begin{quoting}
+\begin{Verbatim}
+(define f3
+  (lambda (x y)
+    (let ((y (/ y (- 1 x))))
+    (let ((x (+ x y)))
+    (+ (* x x) y)))))
+\end{Verbatim}
+\end{quoting}
+\begin{quoting}
+\begin{Verbatim}
+f3 = lambda x, y: \
+  (lambda y:
+    (lambda x: x * x + y)
+    (x + y)) \
+  (y / (1 - x))
+\end{Verbatim}
+\end{quoting}
+\end{multicols}\colskipb\noindent%
+正如你或许已经猜到的，\verb|let| 只是 \verb|lambda| 的语法糖，\texttt{(let
+((a \emph{e$_1$}) (b \emph{e$_2$}) ...) ...)} 是 \texttt{((lambda (a b ...)
+...) \emph{e$_1$} \emph{e$_2$} ...)} 的简写，因此 \verb|f3| 等价于上面右侧的
+Python 函数。你应该也已经注意到 \verb|v| 未在 \verb|f3| 中出现，这能正常工作
+的原因是内层 \verb|lambda| 的参数（如 \texttt{(lambda x: x * x + y)} 中的
+\verb|x|）遮盖了外层的同名变量（如 \verb|f3| 的参数 \verb|x|）。
+
+\colskipa\begin{multicols}{2}
+\begin{quoting}
+\begin{Verbatim}
+f4 = lambda x, y: check(
+  divide(y, 1 - x),
+  (lambda y:
+    (lambda x: x * x + y)
+    (x + y)))
+\end{Verbatim}
+\end{quoting}
+\begin{quoting}
+\begin{Verbatim}
+check = lambda arg, fn: \
+  None if arg == None else fn(arg)
+
+divide = lambda a, b: \
+  None if b == 0 else a / b
+\end{Verbatim}
+\end{quoting}
+\end{multicols}\colskipb
+这一例子并没有在上面结束，因为 $1 - x$ 可能为零，而我希望函数在这种情形下返回
+\verb|None|；但考虑到函数只在应用到具体参数时求值，我们可以将 \verb|f3| 变换为
+上面左侧的函数，其中涉及的辅助函数在右侧。此外，我没有告诉你 $x$ 和 $y$ 可能是
+\verb|None| 而非数值，但我们可以沿用上述思路，将 \verb|f4| 变换为\footnote%
+{顺便提到，这令人联想到 CPS，而这种关联并非巧合\cupercite{troelskn2009}。}
+\begin{quoting}
+\begin{Verbatim}
+f5 = lambda x, y: check(
+  x, (lambda x: check(
+    y, (lambda y: check(
+      divide(y, 1 - x), (lambda y: check(
+        x + y, (lambda x: x * x + y))))))))
+\end{Verbatim}
+\end{quoting}
+利用这一技术，我们其实是纯函数式地实现了异常\footnote{反过来看，我们也
+可以发现异常事实上有类型论的基础。此外我觉得有必要指出 Lisp 不像 Haskell
+那样追求纯函数式编程，虽然函数式的写法肯定是优先使用的。}，而如果你熟悉
+Haskell，你可能意识到这本质上是在使用 monad。\verb|f5| 的一个 Haskell
+对应物可以写成下面左侧的形式，后者等价于右侧使用 Haskell 中硬编码语法糖的
+形式\footnote{\texttt{return} 在 Haskell 中只是一个函数，而右侧的两个
+\texttt{return} 严格对英语左侧的两个 \texttt{Just}，其原因是 Haskell 中的
+类型论要求。}。那么 Scheme 和 S 表达式在这里扮演什么角色呢？正如刚刚提到的，
+上述语法糖是硬编码在 Haskell 中的，而在 Scheme 中它可以实现为语法扩展。
+% XXX: hackish.
+\pagebreak
+\colskipa\begin{multicols}{2}
+\begin{quoting}
+\begin{Verbatim}
+f5 = \x y ->
+  (x >>= \x ->
+    (y >>= \y ->
+      (divide y (1 - x) >>= \y ->
+        (Just (x + y) >>= \x ->
+          Just (x * x + y)))))
+\end{Verbatim}
+\end{quoting}
+\begin{quoting}
+\begin{Verbatim}
+f5 = \x y -> do
+  x <- x
+  y <- y
+  y <- divide y (1 - x)
+  x <- return (x + y)
+  return (x * x + y)
+\end{Verbatim}
+\end{quoting}
+\end{multicols}\colskipb
+
+在本节末尾，我认为有必要指出操作系统中的\stress{目录树是类似于 S 表达式的}，
+因为它们本质上都是树状结构；Unix 中“一切皆是文件”的原则（见第 \ref{sec:plan9}
+节）正是这一思想的直接结果，尽管对 Unix 做出重大贡献的多数人大概并没有注意到
+S 表达式的类似潜力：例如 Daniel J.\ Bernstein 在讨论安全性时指出文本数据的
+语法解析和格式化输出明显增加了软件系统的复杂度\cupercite{djb:qmailsec}，
+于是他大量使用了具有简单格式的目录树来配置他的软件，这种做法也被其他一些
+和他的软件有紧密关联的程序员采用，这可以在多数的 daemontools 式软件中看到。
+
+如果我们在处理具有复杂结构的数据时使用的是具有同像性的格式，语法解析的复杂度本来
+可以被极大降低；同像性对 Unix 哲学的意义将在本文档的剩余部分中进一步考察，而这里
+我想多考虑一点关于目录树的问题：既然目录树和 S 表达式类似，那么为什么我们不直接
+把多数的配置目录替换为包含 S 表达式的文件呢？我的观点是 S 表达式文件的确比目录树
+更好处理，但它也更加固定和单一；相比之下，在使用目录树时我们可以原子性地替换
+配置的一部分，而且可以为不同的部分分配不同的权限。后两点在使用单个文件
+时实现起来都要复杂得多，而我相信它们表明了目录树作为配置接口的优势。
+
+\section{New Jersey 作风和 MIT/Stanford 作风}\label{sec:wib}
+
+我们在上节看到了同像性无可匹敌的威力，因为它使宏系统可以轻松地操作 AST，从而
+实现新的语言特性；此外，因为宏展开是递归的，程序后面部分定义的宏可以使用前面
+部分定义的所有语言特性。在编写高性能解释器和优化编译器时，同像性让我们不但可以
+使用这些\stress{结构宏}来紧凑地编写要在被处理的源代码上进行的变换，而且可以将
+这些代码变换实现为多个简洁清晰且可靠的步骤，后者就像通过管道连接的传统 Unix
+工具一样。这种\stress{多步处理}方案的最佳实例\footnote{\label{fn:slew}注意到第
+\ref{sec:homoiconic} 节所提到的目录树和 S 表达式之间的相似性，我们也可以实现
+配置目录的多步预处理器\cupercite{gitlab:slewman}；进一步地，从原型模式的角度，%
+\texttt{fork()}/\texttt{exec()} 和 Bernstein chainloading 也可以看作类似的
+设计。}是 nanopass 框架\cupercite{andersen2016}\footnote{顺便提到，nanopass
+主要作者之一的姓名首字母简写是“AWK”。}，它被久负盛名的 Scheme 编译器 Chez
+Scheme\cupercite{wiki:chez} 使用，后者在 2016 年被开源；Chez Scheme
+生成的可执行文件经常比用 C 语言编写的类似物还快，但其代码量却比
+GCC 小了不止一个数量级，而且自编译仅耗时数秒（GCC 需要数千秒）。
+
+正如从上文已经可见的，直白地说的话，C 在很多方面和 Lisp 相比都是更差的语言%
+\cupercite{graham2002}，而下节会进一步考察两者各自的优缺点；C 的问题是多种历史
+因素和方法学因素共同影响的结果，而我这样总结这些因素：因为硬件限制，C 起初基本上
+是一种可移植的汇编语言，它比较容易实现而且在 Bell 实验室的计算机上性能可以接受；
+因为 Unix 的成功，人们不断努力为 C 制造更强的优化编译器，因此它仍是性能最佳的
+语言之一；虽然 C 和其它语言相比有着种种弱点，但是人们通常要么不觉得这些弱点是
+主要问题，要么直接使用其它语言。简单地说，C 被 Unix 采用最初是因为前者容易实现
+且比较容易使用，后来则是主要因为人们的惯性；前一理由反映了贯穿 Unix 发展过程的
+一种实用主义，其一个著名的总结是 Richard P.\ Gabriel 的“worse is better”%
+\cupercite{dreamsongs:wib}\footnote{正如你从那个页面可见的，Richard
+P.\ Gabriel 仍未确定哪种作风更佳。此外 Unix 中可中断系统调用的复杂度
+问题可以通过用户空间的包装函数来简单地绕过，后者不断重试直到系统
+调用返回且未被中断；然而当前的标准并不要求这样的包装，这是 Daniel
+J.\ Bernstein 自己建立一组接口（见第 \ref{sec:devel} 节）的原因之一。}。
+
+Gabriel 比较了 Lisp 和 Unix，其总结大致是在接口的简洁性和实现的简洁性冲突时%
+\footnote{Richard P.\ Gabriel 后来在《Worse is Better is Worse》中提到人们
+经常忽略这一核心前提，盲目地追求只实现 50\% 需求；我认为忽略这一前提的另一种
+表现是在试图完整地实现需求时反对重构，并以“worse is better”为借口\cupercite%
+{chiusano2014}。}，Lisp 会选择前者（“\stress{the right thing}”，或 MIT/Stanford
+作风），而 Unix 会选择后者（“\stress{worse is better}”，或 New Jersey 作风）。
+除了 C 以外，“worse is better”在 Unix 中的另一种主要体现是传统 Unix 工具对文本
+接口的普遍使用\footnote{除了关于纯文本和 S 表达式的争论，其实还有关于文本格式
+和二进制格式的争论；在我看来，从 CDB 在 qmail 和 s6-rc 中的使用等等实例可见，%
+Unix 并不是总避免使用二进制文件，而是只在有简单的使用文本且不影响需求（如性能
+和安全性）的方法时才这样做。}（见第 \ref{sec:mcilroy} 节）；和 C 类似，文本
+接口经常被 Lisp 圈批评，因为纯文本不像 S 表达式之类的同像格式那样有结构。
+然而从最小化包含接口和实现的系统总复杂度的角度看，我相信\stress{纯文本
+和 S 表达式的选择并不是非黑即白的}：在处理结构简单的数据时，使用纯文本
+一般更好，因为这时的接口仍然足够好用；相反在处理结构复杂的数据时，使用
+S 表达式缩减的接口复杂度则经常超过增加的实现复杂度。在处理语言时须要
+面对的大量数据具有深嵌套且经常自指的结构，因此 S 表达式无疑更有优势。
+
+Lisp 圈另一种常见的对 Unix 的批评是后者把底层细节无情地暴露给用户，而这些
+细节本该通过封装的方式对用户隐藏\footnote{从这种批评，我们也可以理解 Lisp
+为何更强调接口复杂度。}；然而封装时的一个常见问题是\stress{有遗漏的抽象}，
+此时定制需求常常只能通过绕过封装的方式实现。本文档第 1 部分考察的 systemd
+以及来自 Red Hat 的 Linux 发行版都是比较严重的例子，而事实上我认为只有
+很少的抽象达到了令人满意的严密度，这些正面例子包括设计优良的程序语言
+以及类 Unix 操作系统的内核。即使在区分“普通”和“高级”用户的前提下，在不
+干扰后者定制、调试便利的前提下为前者提供封装也并不像是一个已解决的问题。
+
+\section{Unix 和 Lisp 统一将带来的好处}\label{sec:benefits}
+
+如上节所述，C 和 Lisp 相比是一个更差的语言，最主要是因为其缺乏表达力：例如要是
+其当初用的是（像 Dale\cupercite{github:dale} 中那样的）可以修改 AST 的宏系统，
+那么像面向对象编程的一些特性就可以用宏实现，C++ 或许就不再必需。C 的另一个在
+Lisp 圈内外广为提到的显著缺陷是其不内存安全，这导致了缓冲区溢出、空指针解引用
+等等漏洞；skalibs（见第 \ref{sec:devel} 节）等替代用 C 库当然能帮助减少这类
+bug，但远不能把其数量削减到最小，对此我将在下节提到一种可行策略。
+
+然而公平地说，Lisp 也有它的弱点，其中最为大家熟知的是动态类型检查的性能
+开销，特别是在数值计算等场景下的开销；自动类型推到，即使是其在 Chez Scheme
+等中的高级形式，并不是这一问题的通用解决方案。另一个主要问题是 Lisp 实现所需
+的垃圾回收（GC）机制，这使得编译出来的可执行文件更大且经常不适用于实时环境；
+此外底层开发中的高级需求，例如经常既需要常数时间运行又需要高性能（往往用到
+汇编）的密码学开发（参考 NaCl 和 BearSSL）似乎在很大程度上被 Lisp 圈忽略。
+总结起来，根据我了解的信息，我觉得 Lisp 虽然擅长通过抽象实现复杂的应用
+需求，但是在底层开发中涉及较少，而它在这一方面本来是有很大潜力的。
+
+上述现象中有一些有趣的东西——Lisp 和 C 的优缺点似乎是互补的，这自然让我们
+猜想，如果我们能设法创造\stress{一种吸取两者优势且避免两者劣势的极简主义
+同像语言}，那么这种语言用 Tony Hoare 的话来说将是\cupercite{hoare1981}%
+\footnote{应从那场演讲中吸取的最重要教训之一，正如 Tony Hoare
+所述，是在追求终极语言时必须将简洁性作为头等重要的判据。}
+\begin{quoting}
+	\emph{[...]} a language to end all languages, designed to meet the needs
+	of all computer applications, both commercial and scientific, \emph{[...]}
+\end{quoting}
+但这能实现吗？如果是，怎样实现，我们能得到什么？如果不是，
+这种尝试是否值得？我对第 1 个问题的猜想是肯定的，下一节和第 \ref{sec:toe} 节将
+分别探索第 2 和第 4 两个问题，而在本节剩下的部分我将就第 3 个问题给出一些例子。
+
+第 \ref{sec:exec} 节中提到 Laurent Bercot 将 chainloading 的单元操作实现为了一组
+命令行工具，而为了实现涉及两个命令的单元操作（例如循环和管道），他设计了一种特殊
+的命令行参数转义法，并将其包装为他的称为 execline 的语言\footnote{其设计和 Unix
+起初使用的 Thompson shell\cupercite{wiki:thompson} 相似，后者在 Unix v7 中
+因为在比较复杂的编程中不够用而被 Bourne shell 取代。}中的语句块\cupercite%
+{ska:elblocks}。然而 chainloading 不必然要用 \verb|exec()|，而可以在类 shell
+语言中实现\cupercite{vector2016a}（参考如 \verb|cd| 和 \verb|umask| 等等 shell
+命令）；基于 scsh\cupercite{scsh:home} 的模型，execline 语言可以替换为类 scsh
+的 Scheme，而 chainloader 可以替换为和下面重新实现 execline 所提供 \verb|cd|
+chainloader 的 shell 脚本相似的类 scsh Scheme 程序\cupercite{vector2018c}：
+\begin{quoting}
+\begin{Verbatim}
+#!/bin/rc -e
+cd $1; shift; exec $*
+\end{Verbatim}
+\end{quoting}
+
+沿用这一思路，我们并非无法想象将传统 Unix 工具替换为 Scheme 程序；考虑到 Scheme
+的表达力，以及优雅的 Scheme 编译器如 Chez Scheme 的存在，这肯定能帮助降低系统的
+总复杂度。所以现在可见，通过迁移到使用 Scheme 进行系统编程，即使这些简单工具也
+可以进一步简化；而正如之前指出的，Lisp 在应用编程中很可能更加强大，因此我确定
+无疑地认为\stress{通过应用同像性，我们将能构造比超越从前可能的 Unix 式系统}。
+
+既然我们已经看到同像性在系统编程中的威力，现在是时候回顾第 \ref{sec:security}
+节中的 Trusting Trust 问题了；当时我指出一种对抗 Trusting Trust 的方法是从机器码
+经过多步构造编译器，而应该不言自明的是这一过程的可审计性直接取决于其总复杂度。第
+\ref{sec:lisp} 节中又提到 Steve Russell 通过手写汇编实现了第一个 Lisp 解释器，
+这和 Chez Scheme 的优雅相结合告诉我们\stress{同像性将极大地降低从机器码构造
+编译器全程的总复杂度}，因此它能增强我们对 Trusting Trust 的防御\footnote%
+{另一个潜在问题是硬件后门，而我认为一个遏制它们的办法是在构造编译器全程中的
+每一步预留足够的变通空间，因为底层代码的语义难以分析（这正是开源重要的原因），
+因此任何机械地植入恶意代码的尝试都可能触发假阳性样本，后者可能导致后门暴露。}。
+
+\section{如何统一 Lisp 和 C？}\label{sec:howto}
+
+第 \ref{sec:devel} 节强调我们应当具体问题具体分析，因此尽管资源限制的消失并不
+意味着简洁性不再重要，它肯定可以促使我们重新思考之前因为这些限制而作出的妥协。
+我们早已度过 GC 在普通计算机上昂贵到无法忍受的年代，而对于资源严重受限的设备我们
+一般优先选择交叉编译而非原生编译。基于这一事实，并考虑到上节提到的可执行文件
+尺寸以及在实时环境下的需求等等问题，这里提出的语言（我给它取的代号是“Nil”，意为
+uNIx 加 Lisp）应当能在解释器和编译器中使用 GC，但\stress{编译器生成的可执行文件
+应当在合理的前提之下尽量避免使用 GC}\footnote{然而因为我在第 \ref{sec:benefits}
+节提出将 shell 替换为 Nil（当时披着 Scheme 的外衣），一个自然的问题是 Nil 解释器
+应该怎样在那样的特殊环境下存在。对此我还没有一个好的答案；或许我们可以使用一个
+专门模拟 shell 的缩减版解释器？}，而程序员在实现特殊需求时应该清楚怎样避免 GC。
+
+我们在上节回顾了自举的问题，而我暗示了一种方案，其中先设法构造一个极小的解释器，
+然后在后面的某个步骤中生成一个可用于生产环境的编译器；其中首先须要注意的一点是
+这没有采用当今通行的使用编译器来生成解释器的做法，而是首先生成解释器。然而正如
+可以猜到的，用汇编写 Nil 解释器多半会比写 Nil 编译器容易，就像 Nil 所模仿的
+Lisp 一样；因此从复杂度的角度来看，从一个原始的解释器生成编译器会更好\footnote%
+{也许要经过多个步骤，使用逐渐增强的编译器、解释器乃至汇编器，这种汇编器很可能会
+和这里提出的具有 Nil 威力的汇编有些相似；为了方便审计，在能把全程涉及的代码总量
+压缩到接近最小的前提之下，中间步骤数应当尽量小。此外从更偏理论的角度上，我觉得
+Futamura 投影（本质上是\stress{部分求值}）\cupercite{wiki:parteval} 很有趣。}。
+类似地，注意到 Nil 的表达力，我们自然可以使用可以自举的 Nil 编译器
+作为生产系统中的基础编译器，而其它编译器（如果仍有必要，
+此外其中可能包含 C 编译器）都由它来生成。
+
+在本节中，我们至今考虑的是 Nil 的类似于 Lisp 的方面，那么它类似于 C 的方面是怎样
+的呢？我认为上节提到的 Dale 是 Nil 中类 C 层的一个可能原型，在这一层之上可以通过
+宏构造一个类 Lisp 层，而许多其它语言（如 shell 和 Makefile）将由类 Lisp 层模拟，
+它们通过某种像 \hologo{LaTeX} \stress{宏包}那样的机制提供给用户。我设想的另一种
+做法基于可移植汇编语言的概念\footnote{因为类 C 层本质上将是一个机器码生成器，
+类似的生成器，例如 Chez Scheme 内置的汇编器和 Daniel J.\ Bernstein 的 qhasm，
+或许可以作为很有指导意义的参考。}（见第 \ref{sec:wib} 节），它可以称为具有 Nil
+威力的汇编：类 C 层将像多数其它语言一样基于类 Lisp 层实现，它将是一个像标记
+语言一样的“逆宏”系统，其中提供的基本函数在被调用时将汇编指令发送到输出。
+
+此外正如上节所述，Nil 的类型系统须要比 Lisp 中的更强，就此我认为王垠的基于%
+\stress{合约}的设计\cupercite{wangyin2013a, wangyin2013b}是一个很引人深思的
+参考；值得指出的是这一设计能帮助我们增强类 C 层的内存安全性，而且甚至可以方便
+对程序的形式化验证（见脚注 \ref{fn:formal}）。类 Lisp 层和类 C 层之间的外部
+函数接口也将是一个问题，但我现在的知识还不足以让我能就此发表意见。最后在结束
+本节之前，我须要强调惯性这一非技术问题，它困扰着 Scheme（见脚注 \ref{fn:r6rs}
+节）、Plan 9（见脚注 \ref{fn:plan9}）以及 qmail 和其它优秀（或者不优秀）的软件
+项目：除了将不可避免地遇到的技术挑战，Nil 也须要吸引学术界和工业界的注意以产生
+足够的动力（后者当然可能完全不关心，但请参考下节）；而即使 Nil 获得某种成功，
+在丢弃历史包袱的同时适应新的需求对 Nil 也不会是轻松的任务，就像其它项目一样。
+
+\section{走向“超统一”}\label{sec:toe}
+
+正如上节和第 \ref{sec:benefits} 节指出的，Nil 可能是一个即使在
+理论意义上也无法实现的语言，它也可能无法从工业界吸引足够的注意，
+那么在这样的情况下探索 Nil 是否仍有价值？在这最后一节，我将
+基于我在 \parencite{vector2018c} 中作的比喻给出我的回答：
+\begin{quoting}
+	I guess reconciling Lisp and Unix would be much easier than
+	reconciling quantum mechanics and general relativity; and
+	it would be, in a perhaps exaggerated sense, as meaningful.
+\end{quoting}
+
+理论物理学家和高能物理学家长期追求一种可以统一量子场论和广义相对论的超统一
+理论，因为这一理论将为所有底层物理现象提供一个统一的基础。据我所知，我们
+似乎并没有可靠地证明人类能够成功地达成这种理论：例如弦论是最为人知晓的
+候选理论，它虽然的确符合观测到的事实，但至今似乎仍然远非一个可验证的理论。
+但另一方面，我们也没有证明超统一理论无法达成；而且除了超统一理论作为物理
+理论的价值，对它的研究还不断地在从纯数学（和理论物理有着深刻的联系）
+到土木工程（在建设物理实验用的大型装置时涉及）的许多领域中催生令人
+激动的进展。因为这两个原因，超统一理论仍是许多物理学家的毕生追求。
+
+类似地，尽管统一 Lisp 和 C 的努力并不确定能真的产生一种终极语言，对这%
+\stress{两种语言最佳协作方式}（最小化系统复杂度、最大化程序员效率）的探索将必然
+给我们丰厚的回报：正如我们已经在第 \ref{sec:benefits} 节看到的，即使是在一种非常
+原始的形态下，这种统一也能明显地降低 Unix 系统的复杂度；我相信对它们的的进一步
+简化将吸引更多的人去探索计算机系统的基础层面，就像 Raspberry Pi 重新点燃人们对
+底层开发的热情那样。此外即使我们的努力最终或许不能产生可用于生产环境的基于 Nil
+的系统，我也完全确信 Unix 和 Lisp 这两个圈子之间深刻见解的交流将必然产生大量%
+\stress{有趣且有意义的副产品}，正如第 \ref{sec:worklife} 节中解释的一样，因此我
+用分别来自 Rob Pike\cupercite{pike2000}\footnote{讽刺的是，就程序语言而言，他的
+话也适用于他自己。} 和 Hal Abelson\cupercite{abelson2008} 的两段引文结束本文档：
+% XXX: hackish.
+\pagebreak
+\begin{quoting}
+	Narrowness of experience leads to narrowness of imagination.
+\end{quoting}
+\colskipc
+\begin{quoting}
+	If you \emph{[carefully study the example interpreters in this book]},
+	you will change your view of your programming, and your view of
+	yourself as a programmer.  You'll come to see yourself as a designer
+	of languages rather than only a user of languages, as a person
+	who chooses the rules by which languages are put together, rather
+	than only a follower of rules that other people have chosen.
+\end{quoting}
+

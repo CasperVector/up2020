@@ -1,0 +1,1477 @@
+\newpart
+\section{An introduction to the history of Unix}\label{sec:intro}
+
+CTSS\cupercite{wiki:ctss} (first released in 1961), widely thought to be the
+first time-sharing operating system in history, was quite a success; its success
+resulted in a much more ambitious project called Multics\cupercite{wiki:multics}
+(with development starting in 1964), which did not deliver a commercially usable
+system until 1969\cupercite{multicians:history} despite joint efforts from
+MIT, GE and Bell Labs, as the system was too complicated for the human and
+computational resources available at that time\footnote{Actually, what the
+system required is no more than the hardware of a low-end home router now,
+and in comparison, modern Linux systems can only run on the same hardware
+with massive tailorings to reduce the size.  The Multicians Website has a
+page\cupercite{multicians:myths} clarifying some common misunderstandings about
+Multics.}.  Bell Labs withdrew from the project in 1969, a few months before
+the first commercial release of Multics; Ken Thompson and Dennis Ritchie,
+previosuly working on the project, went on to develop another operating
+system to fulfill their own needs, and the system would soon get the name
+``Unix''\cupercite{wiki:unixhist}.  In order to make the new system usable
+and manageable on a (sort of) spare PDP-7 minicomputer at Bell Labs, Thompson
+made major simplifications to the Multics design and only adopted certain key
+elements like the hierarchical file system and the shell\cupercite{seibel2009}.
+
+The 1970s saw the growth and spread of Unix (\cf~\parencite{wiki:unixhist}
+for details), and in my opinion the most important historical event
+during this period was the publication of \emph{Lions' Commentary on Unix
+v6}\cupercite{wiki:lions}\footnote{For a modern port of Unix v6, \cf~%
+\parencite{wiki:xv6}.} in 1976, which greatly spurred the propagation of Unix
+in universities.  In the early 1980s, commercial versions of Unix by multiple
+vendors appeared, but AT\&T, the owner of Bell Labs at that time, was barred
+from commercialising Unix due to antitrust restrictions; this changed in
+1983, when the Bell System was broken up, and AT\&T quickly commercialised
+Unix and restricted the distribution of its source code.  The restriction on
+code exchange greatly contributed to the already looming fragmentation of Unix,
+resulting in what we now call the ``Unix wars''\cupercite{raymond2003a}; the
+wars, in combination with the negligence of 80x86 PCs' potentials by the Unix
+circle, led to the pitiful decline in popularity of Unix in the 1990s.
+
+In 1991, Linus Torvalds started working on his own operating system kernel,
+which went on to become Linux; the combination of user-space tools from the
+GNU project (starting from 1985) and the Linux kernel achieved the goal of
+providing a self-hosting Unix-like environment that is free / open-source and
+low-cost\footnote{The 386BSD project also reached this goal, but its first
+release was in 1992; additionally, a lawsuit and some infighting at that
+time\cupercite{wiki:386bsd} distracted the BSD people, and now it might be
+fair to say that, from then on, BSD never caught up with Linux in popularity.},
+and kickstarted the GNU/Linux ecosystem, which is perhaps the most important
+frontier in the open-source movement.  Currently, the most popular Unix-like
+systems are undisputedly Linux and BSD, while commercial systems like Solaris
+and QNX have minute market shares; an unpopular but important system,
+which I will introduce in Section~\ref{sec:plan9}, is Plan 9
+from Bell Labs (first released in 1992).
+
+Before ending this section which has hitherto been mostly non-technical,
+I would like to emphasise the three techical considerations which
+``influenced the design of Unix'' according to Thompson and Ritchie
+themselves\cupercite{ritchie1974}, and all of these points
+will be discussed in later sections:
+\begin{itemize}
+\item \stress{Friendliness to programmers}: Unix was designed to boost
+	the productivity of the user as a programmer; on the other hand,
+	we will discuss the value of the Unix methodology from
+	a user's perspective in Section~\ref{sec:user}.
+\item \stress{Simplicity}: the hardware limitations of machines accessible
+	in Bell Labs around 1970 resulted in the pursuit for economy and elegance
+	in Unix; as the limitations are no more, is simplicity now only an
+	aesthetic?  Let's see in Sections~\ref{sec:quality}--\ref{sec:foss}.
+\item \stress{Self-hosting}: even the earliest Unix systems were able to be
+	maintained independent of machines running other systems; this requires
+	self-bootstrapping, and its implications will be discussed in Sections~%
+	\ref{sec:security}~\& \ref{sec:benefits}--\ref{sec:howto}.
+\end{itemize}
+
+\section{A taste of shell scripting}\label{sec:shell}
+
+It was mentioned in last section that the shell was among the few design
+elements borrowed by Unix from Multics; in fact, as the main way that the user
+interacts with the system\cupercite{ritchie1974} (apart from the graphical
+interface), the shell is also a component where the design concepts of Unix
+are best reflected.  As an example, we can consider the classic word frequency
+sorting problem\cupercite{robbins2005} -- write a program to output the $n$
+most frequent words along with their frequencies; this problem attracted
+answers from Donald Knuth, Doug McIlroy and David Hanson.  The programs by
+Knuth and Hanson were respectively written from scratch in Pascal and C, and
+each took a few hours to write and debug; the program by McIlroy was a shell
+script, which took only one or two minutes and worked correctly on the
+first run.  This script, with minor modifications, is shown below:
+\begin{quoting}
+\begin{Verbatim}
+#!/bin/sh
+tr -cs A-Za-z\' '\n' | tr A-Z a-z |
+sort | uniq -c |
+sort -k1,1nr -k2 | sed "${1:-25}"q
+\end{Verbatim}
+\end{quoting}
+
+Its first line tells Unix this is a program interpreted by \verb|/bin/sh|,
+and the commands on the rest lines are separated by the
+\stress{pipe} ``\verb/|/'' into six steps:
+\begin{itemize}
+\item In the first step, the \verb|tr| command converts all characters, except
+	for (uppercase and lowercase) English letters and \verb|'| (the \verb|-c|
+	option means to complement), into the newline character \verb|\n|, and
+	the \verb|-s| option means to squeeze multiple newlines into only one.
+\item In the second step, the command converts all uppercase letters into
+	corresponding lowercase letters; after this step, the input text is
+	transformed into a form where each line contains a lowercase word.
+\item In the third step, the \verb|sort| command sorts the lines according
+	to the dictionary order, so that the same words would appear on
+	adjacent output lines.
+\item In the fourth step, the \verb|uniq| command replaces repeating adjacent
+	lines with only one of them, and with the \verb|-c| option prepends to the
+	line the count of the repetition, which is also the frequency we want.
+\item In the fifth step, the \verb|sort| command sorts the lines according to
+	the first field (the frequency added in last step) in descending numerical
+	order (the \verb|-k1,1nr| option, where \verb|n| defaults to the
+	ascending order, and \verb|r| reverses the order), and according
+	to the second field (the word itself, with the \verb|-k2| option)
+	in dictionary order in case of identical frequencies.
+\item In the sixth step, the \verb|sed| command only prints the first lines,
+	with the actual number of lines specified by the first argument of the
+	script on its execution, defaulting to 25 when the argument is empty.
+\end{itemize}
+Apart from being easy to write and debug, this script is also very maintainable,
+because the input requirements and processing rules of the steps are very simple
+and clear, and we can easily replace the actual implementations of the steps:
+for instance, the word-splitting criterion used above is obviously primitive,
+with no consideration of issues like stemming (\eg~regarding ``look'',
+``looking'' and ``looked'' as the same word); if such requirements are to
+be implemented, we only need to replace the first two steps with some other
+word-splitting program (which probably needs to be written separately), and
+somehow make it use the same interface as before for input and output.
+
+Like many Unix tools (\eg~the ones used above), this script reads input from
+its \stress{standard input} (defaults to the keyboard), and writes output to
+its \stress{standard output} (defaults to the current terminal)\footnote{The
+\texttt{stdio.h} in C means standard I/O exactly.}.  Input/output from/to a
+specified file can be implemented with the \stress{I/O redirection} mechanism
+in Unix, for example the following command in the shell (assuming the script
+above has the name \verb|wf.sh| and has been granted execution permission)
+\begin{quoting}
+\begin{Verbatim}
+/path/to/wf.sh 10 < input.txt > output.txt
+\end{Verbatim}
+\end{quoting}
+outputs the 10 most frequent words, with their frequencies, from
+\verb|input.txt| into \verb|output.txt|.  It is obvious that the pipe is also
+a redirection mechanism, which redirects the output of the command on its
+left-hand side to the input of the command on its right-hand side.  From another
+perspective, if the commands connected by pipes are considered as filters, then
+each filter performs a relatively simple task, and the programming style in the
+script above is to decompose a complicated text-processing task into multiple
+filtering steps linked together with pipes, and then to implement the steps
+with relatively ready-made tools.  Through the example above, we have taken a
+glimpse at the strong power that can be achieved by the combination of Unix
+tools; but other systems, like Windows, also have mechanisms similar to I/O
+redirection, pipes \etc{} in Unix, so why don't we often see similar
+usage in these systems?  Please read the next section.
+
+\section{Cohesion and coupling in software engineering}\label{sec:coupling}
+
+Cohesion and coupling are extremely important notions in software engineering,
+and here we first try to understand what coupling is.  Consider the interactions
+(\eg~communication through text or binary byte stream, message passing using
+data packets or other media, calling between subroutines) between modules in
+the two extreme cases from the figure in \parencite{litt2014a}.  When some
+faults occur, how difficult will the debugging processes be with the two
+systems?  When the requirements change, how difficult will the maintenance be
+with the two systems?  I think the answer should be self-evident.  In these two
+systems, similarly consisting of 16 modules, the sharp difference in the level
+of difficulty in debugging and maintenance is determined by the complexity
+of interactions between modules, and the \stress{degree of coupling} can just
+be considered as a measure of the complexity of this kind of interactions.
+We obviously want the modules in a system to be as loosely coupled
+as possible, and the script from last section was easily to debug and
+maintain exactly because of the low coupling between the underlying commands.
+
+Low coupling is actually a common feature of traditional Unix tools, so why can
+they be loosely coupled?  A tip of the iceberg has already been shown in the
+script from the last section: the tools not only have well-defined input/output
+interfaces, but also have clear processing rules from the input to the output,
+or in other words they behaviours are clearly guided; from the perspective of
+systems and modules, each Unix tool, when considered as a module, usually does
+a different unit operation, like character translation (\verb|tr|), sorting
+(\verb|sort|), deduplication / counting (\verb|uniq|) and so on.  When Unix
+tools are implemented, each of them usually need to be partitioned into
+submodules, but the submodules are always much more tightly coupled than the
+tools themselves are, even with a most optimal design.  I consider the
+\stress{degree of cohesion} to be the measure of this kind of inherent coupling
+between submodules, and partitioning of modules according to the principle of
+high cohesion would naturally enforce clear separation of concerns between
+modules, and therefore reducing the degree of coupling in the system.
+
+We have already seen that high cohesion and low coupling are desirable
+properties for software systems.  You migh ask, while there are many Windows
+programs that are loosely coupled (\eg~Notepad and Microsoft Paint do not
+depend upon each other) and have somehow high cohesion (\eg~Notepad is used
+for text editing while Microsoft Paint for drawing), why don't we often combine
+them as with Unix tools?  The answer is actually obvious -- because they are
+not designed to be composable; to put it more explicitly, they cannot use some
+simple yet general-purpose interface, like pipes, to collaborate, and therefore
+cannot be easily reused in automated tasks.  In comparison, the power of
+Unix seen in last section comes exactly from its emphasis on reusability of
+user-accessible tools in automation, which results in the almost extreme
+realisation of the principle of high cohesion and low coupling in traditional
+Unix tools\cupercite{salus1994}.  In conclusion, the requirements of cohesion
+and coupling must be considered with the background of \stress{collaboration
+and reuse}, and the pursuit for collaboration and reuse naturally
+promotes designs with high cohesion and low coupling.
+
+Until now, our examples have been relatively idealised or simplified, and here
+I give two more examples that are more realistic and relevant to hot topics in
+recent years.  When Unix systems are started, the kernel will creates a first
+process, which in turn creates some other processes, and these processes manage
+the system services together; because of the important role of the first process
+in system initialisation, it is usually called ``\stress{init}''\cupercite%
+{jdebp2015}.  systemd is the most popular init system as of now, and its init
+has very complex functionalities, while its mechanisms are poorly documented;
+furthermore, aside from the init program called \verb|systemd| as well as
+related ancillary programs, systemd also has many other non-init modules, and
+the interactions between all these modules are complex and lack documentation
+(a fairly exaggerated depiction can be found at \parencite{litt2014b}).
+systemd obviously has low cohesion and high coupling, but this is unnecessary
+because the daemontools-ish design (represented in this document with s6) is
+much simpler than systemd, yet not weaker than systemd in functionalities.
+
+The init program of s6, \verb|s6-svscan|, scans for subdirectories in a
+specified directory (``scan directory'', like \verb|/service|), and for each
+subdirectory (``service directory'', like \verb|/service/kmsg|) runs a
+\verb|s6-supervise| process, which in turn runs the executable called \verb|run|
+in the scan directory in order to run the corresponding system service.
+The user can use s6's command line tools \verb|s6-svc|/\verb|s6-svscanctl|
+to interact with \verb|s6-supervise|/\verb|s6-svscan|, and can use ancillary
+files in service directories and the scan directory to modify the behaviours
+of \verb|s6-supervise| and \verb|s6-svscan|\footnote{This configuration method
+may seem unintuitive, but its rationale and benefits will be explained in
+Section~\ref{sec:homoiconic} and Footnote~\ref{fn:slew}.}.  Only longrun
+services are managed by s6, while oneshot init scripts are managed by s6-rc,
+which also uses s6's tools to track the startup status of services in order to
+manage the dependencies between services.  It was mentioned above that this
+design is not weaker than systemd in functionalities, and here I give one
+example (\cf~Section~\ref{sec:exec} for some in-depth examples): systemd
+supports service templates, for instance after a template called \verb|getty@|
+is defined, the \verb|getty@tty1| service would run the getty program on
+\verb|tty1|; in s6/s6-rc, similar functionalty can be achieved by calling
+a 5-line library script\cupercite{gitlab:srvrc} in the \verb|run| script.
+
+\section{Do one thing and do it well}\label{sec:mcilroy}
+
+The Unix-ish design principle is often called the ``\stress{Unix philosophy}'',
+and the most popular formulation of the latter is undoubtedly
+by Doug McIlroy\cupercite{salus1994}:
+\begin{quoting}
+	This is the Unix philosophy:  Write programs that do one thing and
+	do it well.  Write programs to work together.  Write programs to
+	handle text streams, because that is a universal interface.
+\end{quoting}
+
+In connection with the discussion in last section, it is easy to notice
+that the first point by McIlroy is an emphasis on high cohesion and low
+coupling\footnote{By the way, this also shows that the requirements of high
+cohesion and low coupling is not unique to objected-oriented programming.
+In fact, some people believe\cupercite{chenhao2013} that every design pattern
+in OOP has some counterparts in Unix (\cf~Section~\ref{sec:exec} for one of
+them).}, the second point is an emphasis on collaboration and reuse of
+programs, and the third point feels slightly unfamiliar: we did see the power
+from combination of Unix tools in text processing in Section~\ref{sec:shell},
+but what is the underlying reason for calling text streams a universal
+interface?  I believe that this can be explained by the friendliness of
+\stress{human-computer interfaces} toward humans and computers (this will
+be involved again in Section~\ref{sec:cognitive}), where text streams are a
+compromise between binary data and graphical interfaces.  Binary data are easily
+processed by computers, but are difficult to understand for humans, and the
+subtle differences between the ways binary data are processed by different
+processors also give rise to portability issues of encodings, with the
+endianness problem being a representative issue.  Graphical interfaces are
+the most friendly to humans, but are much more difficult to write in comparison
+with textual interfaces, and do not compose easily even as of now\footnote{It is
+worth mentioning that I do not reject graphical interfaces, but just think the
+requirements of automation need consideration in their design; and as far
+as I know, the automation of graphical interfaces is still a non-trivial
+subject.  I currently find the AutoCAD design an interesting approach, where
+there is a command line along with the graphical interface, and operations on
+the graphical interface are automatically translated into commands and shown
+on the command line.}.  Text streams are both easy for computers to process
+and fairly easy for humans to understand, and while it also involves issues
+with character encoding, the latter kind of issues are generally
+much simpler than similar issues with binary information.
+
+McIlroy's formulation is not undisputed, and the most relevant disagreement is
+on whether text streams as a communication format is the best choice, which we
+will also discuss in Section~\ref{sec:wib}; in addition, while this formulation
+almost covers the factors that we have hitherto seen to make Unix powerful,
+I do not think it completely represents the Unix philosophy.  It is worth
+noting that the appearance of pipes directly resulted in the pursuit for
+collaboration and reuse of command line programs\cupercite{salus1994}, and
+McIlroy is the inventor of Unix pipes, so his summary was obviously based on
+shell scripting.  Shell scripting is admittedly important, but it is far
+from the entirety of Unix: in the two following sections, we will see
+some relevant cases outside shell scripting that however reflect the
+philosophy, which cannot be covered by the classic formulation by
+McIlroy; and then in Section~\ref{sec:complex}, I will present
+what I regard as the essence of the Unix philosophy.
+
+\section{\texttt{fork()} and \texttt{exec()}}\label{sec:exec}
+
+Processes are one of the most important notions in operating systems, so OS
+interfaces for process management are quite relevant; as each process has a
+set of state attributes, like the current working directory, handles to open
+files (called \stress{file descriptors} in Unix, like the standard input and
+output used in Section~\ref{sec:shell}, and the \stress{standard error output}
+which will be involved in Section~\ref{sec:complex}) \etc, how do we create
+processes in specified states?  In Windows, the creation of processes is
+implemented by the \verb|CreateProcess()| family of functions, which usually
+needs about 10 arguments, some of which are structures representing multiple
+kinds of information, so we need to pass complicated state information when
+creating processes; and noticing that we need system interfaces to modify
+process states anyway, the code that does these modifications are nearly
+duplicated in \verb|CreateProcess()|.  In Unix, processes are created using
+the \verb|fork()| function, which initiates a new child process with state
+attributes identical to the current process, and the child process can replace
+itself with other programs by calling the \verb|exec()| family of functions;
+before \verb|exec()|ing, the child process can modify its own state attributes,
+which are preserved during \verb|exec()|.  It is obvious that \verb|fork()|/%
+\verb|exec()| only require very little information, and that Unix realised the
+decoupling between process creation and process state control through this
+mechanism; and considering that when creating processes in real applications,
+the child process often need to inherit most attributes from its parent,
+\verb|fork()|/\verb|exec()| actually also simplifies the user code greatly.
+
+If you know some object-oriented programming, you should be easily able to
+notice that the \verb|fork()|/\verb|exec()| mechanism is exactly a realisation
+of the Prototype Pattern, and the same line of thought can also inspire us
+to think about the way processes are created for system services.  With systemd,
+service processes are created by its init program \verb|systemd|, which reads
+configuration file(s) for each service, runs the corresponding service program,
+and sets the process attributes for the service process according to the
+configuration; under this design, all the code for process creation and process
+state control need to be in the init, or in other words what systemd does is
+like, on a conceptual sense, implementing service process creation in the style
+of \verb|CreateProcess()| while using \verb|fork()|/\verb|exec()|.  Borrowing
+the previous line of thought, we can completely decouple process state control
+from the init module: for example, with s6, \verb|s6-supervise| almost does
+not modify any process attribute before \verb|exec()|ing into the \verb|run|
+program; the \verb|run| program is almost always a script (\cf~\parencite%
+{pollard2014} for some examples), which sets its own attributes before
+\verb|exec()|ing into the actual service program.  The technique of implementing
+process state control with continuous \verb|exec()|s is expressively called
+\stress{Bernstein chainloading}, because of Daniel J.\ Bernstein's extensive use
+of this technique in his software qmail (first released in 1996) and daemontools
+(first released in 2000); Laurent Bercot, the author of s6, pushed this
+technique further and implemented the unit operations in chainloading as a set
+of discrete tools\cupercite{ska:execline}, with which we can implement some very
+interesting requirements (\cf~Footnote~\ref{fn:logtype} for one such example).
+
+When creating service processes, chainloading is of course much more flexible
+than systemd's mechanism, because the modules of the former possess the
+excellent properties of high cohesion and low coupling, and are therefore easy
+to debug and maintain; in comparison, the mechanism in systemd is tightly
+coupled to other modules from the same version of systemd, so we cannot easily
+replace the malfunctioning modules when problems (like \parencite{edge2017})
+arise.  Because of the simple, clear interface of chainloading, when new process
+attributes emerge, we can easily implement the corresponding chainloader, and
+then integrate it into the system without upgrading: for instance, systemd's
+support for Linux's cgroups is often touted by systemd developers as one of its
+major selling points\cupercite{poettering2013}, but the user interface is just
+operations on the \verb|/sys/fs/cgroup| directory tree, which are easy to do in
+chainloading; now we already have some ready-made chainloaders available%
+\cupercite{pollard2019}, so it can be said that the daemontools-ish design has
+natural advantages on support for cgroups.  Additionally, the composability of
+chainloaders allow us to implement some operations that are hard to describe
+just using systemd's mechanisms: for example we can first set some environment
+variables to modify the behaviour of a later chainloader, and then clear the
+environment before finally \verb|exec()|ing into the service program;
+\cf~\parencite{ska:syslogd} for a more advanced example.
+
+It is necessary to note that primitive forms of \verb|fork()|/\verb|exec()|
+appeared in operating systems earlier than Unix\cupercite{ritchie1980}, and
+Thompson, Ritchie \etal{} chose to implement process creation with this
+mechanism out of a pursuit for simplicity of the implementation, so the
+mechanism was not exactly an original idea in Unix; nevertheless we have also
+seen that based on \verb|fork()|/\verb|exec()| and its line of thought we can
+implement many complicated tasks in simple, clear ways, so the mechanism does
+satisfy the Unix design concepts in Section~\ref{sec:shell} in an intuitional
+sense.  Now back to the subject of Unix philosophy: \verb|fork()|/\verb|exec()|
+conforms to the principle of high cohesion and low coupling, and facilitates
+collaboration and reuse of related interfaces, so we can regard it as rough
+compliant to the first two points from Doug McIlroy's summary in last
+section despite the fact that it is not directly reflected in shell
+scripting; however, this mechanism does not involve the choice of
+textual interfaces, so it is not quite related to McIlroy's last point,
+and I find this to be a sign that \verb|fork()|/\verb|exec()| cannot
+be satisfactorily covered by McIlroy's formulation.
+
+\section{From Unix to Plan 9}\label{sec:plan9}
+
+Unix v7\cupercite{mcilroy1987} already had most notions seen currently
+(\eg~files, pipes and environment variables) and many \stress{system
+calls} (how the userspace requests services from the kernel, like
+\verb|read()|/\verb|write()| which performs read/write operations on files,
+and \verb|fork()|/\verb|exec()| mentioned in last section) that are still
+widely used now.  To manipulate the special attributes of various hardware
+devices and avoid a crazy growth in number of system calls with the development
+of device support, this Unix version introduced the \verb|ioctl()| system call,
+which is a ``jack of all trades'' that manipulates various device attributes
+according to its arguments, for instance
+\begin{quoting}
+\begin{Verbatim}
+ioctl (fd, TIOCGWINSZ, &winSize);
+\end{Verbatim}
+\end{quoting}
+saves the window size of the serial terminal corresponding to the file
+descriptor \verb|fd| into the structure \verb|winSize|.  In Unixes up to this
+version (and even versions in few years to come), although there were different
+kinds of system resources like files, pipes, hardware devices \etc{} to operate
+on, these operations were generally implemented through file interfaces
+(\eg~read/write operations on \verb|/dev/tty| are interpreted by the kernel
+as operations on the terminal), or in other words ``everything is a file''; of
+course, as was mentioned just now, in order to manipulate the special attributes
+of hardware, an exception \verb|ioctl()| was made.  In comparison with today's
+Unix-like operating systems, Unixes of that age had two fundamental differences:
+they had no networking support, and no graphical interfaces; unfortunately,
+the addition of these two functionalities drove Unix increasingly
+further from the ``everything is a file'' design.
+
+Berkeley sockets\cupercite{wiki:sockets} appeared in 1983 as the user interface
+for the TCP/IP networking protocal stack in 4.2BSD, and became the most
+mainstream interface to the internet in 1989 when the corresponding code was
+put into the public domain by its copyright holder.  Coming with sockets was a
+series of new system calls like \verb|send()|, \verb|recv()|, \verb|accept()|
+\etal.  Sockets have forms similar to files, but they expose too many protocol
+details, which make their operations much more complicated than those of files,
+and a typical example for this can be seen at \parencite{pike2001}; moreover,
+duplication began to appear between system calls, for example \verb|send()| is
+similar to \verb|write()|, and \verb|getsockopt()|/\verb|setsockopt()| are
+similar to the already ugly \verb|ioctl()|.  After that, the system calls began
+to grow constantly: for instance, Linux currently has more than 400 system
+calls\cupercite{kernel:syscalls}, while Unix v7 had only about 50\cupercite%
+{wiki:unixv7}; one direct consequence of this growth is the complication of
+the system interfaces as a whole, and the weakening of their uniformity, which
+led to an increase in difficulty of learning.  The X Window System\cupercite%
+{wiki:xwindow} (usually called ``X'' or ``X11'' now), born in 1984, has
+problems similar to those of Berkeley sockets, and the problems are more
+severe: sockets are at least formally similar to files, while windows
+and other resources in X are not files at all; furthermore, although
+X did not introduce new system calls as with sockets, its number
+of basic operations, which can be roughly compared to system calls,
+is much larger than the number of system calls related to sockets,
+even when we only count the core modules of X without any extension.
+
+After the analysis above, we would naturally wonder, how can we implement the
+support for networking and graphical interfaces in Unix, in a way that follows
+its design principles?  Plan 9 from Bell Labs (often simply called ``Plan 9'')
+is, to a large extent, the product of the exploration on this subject by Unix
+pioneers\cupercite{raymond2003b}.  As was mentioned before, system calls like
+\verb|ioctl()| and \verb|setsockopt()| were born to handle operations on
+special attrbutes of system resources, which do not easily map to operations
+on the file system; but on a different perspective, operations on resource
+attributes are also done through communication between the userspace and the
+kernel, and the only difference is that the information passed in the
+communication is special data that represent operations on resource attributes.
+Following this line of thought, Plan 9 extensively employs \stress{virtual file
+systems} to represent various system resources (\eg~the network is represented
+by \verb|/net|), in compliance with the ``everything is a file'' design%
+\cupercite{pike1995}; control files (\eg~\verb|/net/tcp/0/ctl|) corresponding
+to various resource files (\eg~\verb|/net/tcp/0/data|) implement operations
+on resource attributes, different \stress{file servers} map file operations
+to various resource operations, and the traditional \stress{mounting}
+operation binds directory trees to file servers.  Because file servers use
+the network-transparent \stress{9P protocol} to communicate, Plan 9 is
+naturally a distributed OS; in order to implement the relative independence
+between processes and between machines, each process in Plan 9 has its own
+\stress{namespace} (\eg~a pair of parent and child processes can see mutually
+independent \verb|/env|, this way the independence of environment variables
+is implemented), so normal users can also perform mounting.
+
+With the mechanisms mentioned above, we can perform many complicated tasks in
+Plan 9 in extremely easy ways using its roughly 50 system calls\cupercite%
+{aiju:9syscalls}: for instance, remote debugging can be done by mounting
+\verb|/proc| from the remote system, and the requirements of VPN can be
+implemented by mounting a remote \verb|/net|; another example is that the
+modification of users' networking permissions can be performed by setting
+permissions on \verb|/net|, and that the restriction of user access to one's
+graphical interface can be done by setting permissions on \verb|/dev/mouse|,
+\verb|/dev/window| \etc.  Again back to the topic of Unix philosophy: on an
+intuitional level, the design of Plan 9 is indeed compliant to the philosophy,
+but even if \verb|fork()|/\verb|exec()|, analysed in last section, could be
+said to roughly compliant to Doug McIlroy's formulation on the philosophy in
+Section~\ref{sec:mcilroy}, I am afraid that the ``everything is a file''
+design principle can hardly be covered by the same formulation; so
+the formulation was not very complete, and we need a better one.
+
+\section{Unix philosophy: minimising the system's complexity}\label{sec:complex}
+
+In the two previous sections, we have already seen that Doug McIlroy's
+summary cannot satisfactorily cover the entirety of Unix philosophy;
+this summary (and especially its first point) can indeed be regarded as
+the most mainstream one, but there are also many summaries other than
+the one by McIlroy\cupercite{wiki:unixphilo}:
+\begin{itemize}
+\item Brian Kernighan and Rob Pike emphasised the design of software systems as
+	multiple easily composable tools, each of which does one kind of simple
+	tasks in relative separation, and they in combination can do complex tasks.
+\item Mike Gancarz\footnote{He is, curiously, one of the designers of the
+	X Window System (\cf~Section~\ref{sec:plan9}).} summarised
+	the Unix philosophy as 9 rules.
+\item Eric S.\ Raymond gave 17 rules in \emph{The Art of Unix Programming}.
+\end{itemize}
+I believe that the various formulations of the philosophy are all of some value
+as references, but they themselves also need to be summarised, just like how
+Plan 9, as was mentioned in last section, implemented requirements, which need
+several hundreds of system calls elsewhere, with only about 50 system calls
+by using virtual file systems, the 9P protocol and namespaces.  In Sections~%
+\ref{sec:shell}~\& \ref{sec:exec}--\ref{sec:plan9}, our intuitive criteria
+for a system's conformance to the Unix philosophy were all that the
+system used a small number of simple mechanisms and tools to implement
+requirements that were more difficult to implement in other ways, or in other
+words they reduced the complexity of the system.  Based on this observation,
+I believe the essence of the Unix philosophy is \stress{the minimisation of the
+cognitive complexity of the system while almost satisfying the requirements},
+and the three restrictions in my formulation are explained below:
+\begin{itemize}
+\item The prerequisite is to \stress{almost} satisfy the requirements,
+	because said requirements can often be classified into core parts
+	(\eg~support for networking and graphical interfaces) and non-core
+	parts (\eg~support for Berkeley sockets and the X Window System),
+	and some non-core parts can be discarded or implemented in better ways.
+\item We need to consider the total complexity of the \stress{system}, because
+	there are interactions between the modules, and only examining some of the
+	modules would result in omission of the effects on their behaviours by
+	their dependencies: for example, if a requirement could be implemented in	
+	both ways in the figure from \parencite{litt2014a}, and both implementations
+	use the same user interface, we surely cannot say they would be equally
+	compliant to the Unix philosophy just because of the identical interfaces.
+\item It is stipulated that we are discussing about the \stress{cognitive}
+	complexity, because as is shown in the comparison above (a more realisatic
+	comparison can be found at \parencite{github:acmetiny}/\parencite%
+	{gitlab:emca}), the quality of a system is not only determined by its code
+	size; we also have to consider the cohesion and coupling of its modules,
+	and the latter are essentially attributes oriented toward humans, not
+	computers, which I will further discuss in Section~\ref{sec:cognitive}.
+\end{itemize}
+
+Let's see a fairly recent example.  In some init systems, represented by
+sysvinit, longrun system services detach themselves from the control of the
+user's shell, in order to implement backgrounding\cupercite{gollatoka2011}: when
+the service program is run by the user from the shell, it \verb|fork()|s a
+child process, and then the parent process exits, so the shell waits for another
+command from the user because the user-run (parent) process has exited, while
+the child process is reparented to init upon exiting of the parent process, and
+no longer under the user shell's control.  However, in order to control the
+state of a process, its process ID should be known, but the above-mentioned
+child has no better way to pass its PID other than to save it into a ``PID
+file'', which is an ugly mechanism: if the service process crashes, the PID file
+would become invalid, and the init system cannot get a real-time notification%
+\footnote{In fact, init would be notified upon death of its children, but using
+this to monitor \texttt{fork()}ing service programs creates more complexity,
+and does not solve the problem cleanly (\eg~what if the program crashes before
+writing the PID file?); all other attempts to ``fix'' PID files are riddled
+with similar issues, which do not exist when using process supervision.};
+moreover, the original PID could be occupied by a later process, in which
+case the init system might mistake a wrong process for the service process.
+
+With s6 (other daemontools-ish systems and systemd behave similarly), the
+service process is a child of \verb|s6-supervise|, and when it exits the kernel
+will instantly notify \verb|s6-supervise| about this; the user can use s6's
+tools to tell \verb|s6-supervise| to change the state of the service, so the
+service process is completely independent of the user's shell, and no longer
+needs to background by \verb|fork()|ing.  This mechanism in s6 is called
+\stress{process supervision}, and from the analysis above we see that using
+this mechanism the init system can track service states in real time, without
+worrying about the pack of problems with PID files.  In addition, since the
+service process is only restarted by its parent (\eg~\verb|s6-supervise|)
+after exiting with supervision, in comparison with the sysvinit mechanism
+where the service process is created by a close relative of init on system
+startup and created by a user shell when restarting, the former mechanism
+has much better reproducibility of service environments.  An apparent
+problem with supervision is that services cannot notify the init system
+about its readiness by exiting of the init script as with sysvinit,
+and instead has to use some other mechanism; the readiness notification
+mechanism of s6\cupercite{ska:notify} is very simple, and can emulate
+systemd's mechanism using some tool\cupercite{ska:sdnwrap}.
+
+A bigger advantage of process supervision is the management of system logs.
+With the sysvinit mechanism, in order to detach itself from the user shell's
+control, the service process has to redirect is file descriptors, which were
+inherited from the shell and previously pointed to the user's terminal through
+\verb|exec()|, somewhere else (usually \verb|/dev/null|), so its logs have to be
+saved by alternative means when not directly written to the disk.  This is the
+origin of the syslog mechanism, which lets service processes output their log
+to \verb|/dev/log| which is listened by a system logger, which means all system
+logs would be mixed up before being classified and filtered\footnote{\label%
+{fn:logtype}As a matter of fact, because \texttt{/dev/log} is a socket (to be
+precise, it needs to be a \texttt{SOCK\_STREAM} socket\cupercite{bercot2015d}),
+in principle the logger can do limited identification of the log source and then
+somehow group the log streams, and this is not hard to implement with tools by
+Laurent Bercot\cupercite{ska:syslogd, vector2019b}.}, and the latter operations
+can become a performance bottleneck when the log volume is huge, due to the
+string matching procedure involved.  With supervision, we can assign one
+logger process for each service process\cupercite{ska:s6log}\footnote{systemd
+unfortunately does not do this, and instead mixes up all logs before processing.
+Incidentally, here the different loggers can be run as different low-privilege
+users, therefore implementing a high level of privilege separation.  In
+addition, by a moderate amount of modification to the logger program, a
+feature that prevents log tampering\cupercite{marson2013} can be implemented,
+and the latter is often boasted by systemd proponents as one of its exclusive
+features.}, and redirect the standard error output of the latter to the
+standard input of the former by chainloading, so service processes only
+need to write to the standard error in order to transfer logs; because each
+logger only needs to do classification and filtering of logs from the
+corresponding service (instead of the whole system), the resource consumption
+of these operations can be minimised.  Furthermore, using the technique of
+\stress{fd holding}\cupercite{ska:fdhold} (which, incidentally, can be used
+to implement so-called ``socket activation''), we can construct highly
+fault-tolerant logging channels that ensure the log is not lost
+when either the service or the logger crashes and restarts.
+
+From the analyses above, we can see that process supervision can greatly
+simplify the management of system services and their logs, and one typical
+example for this is the enormous simplification to the management of MySQL
+services\cupercite{pollard2017}.  Because this mechanism can, in a simple
+and clear way (minimises the cognitive complexity of the system), implement
+the requirements for managing system services and their logs (and cleanly
+implement new requirements that are troublesome to do with the old
+mechanism), I find it highly conformant to the Unix philosophy.
+
+\section{Unix philosophy and software quality}\label{sec:quality}
+
+It was mentioned in Section~\ref{sec:intro} that the resource limitations when
+Unix was born resulted in its pursuit for economy and elegance, and nowadays
+many people consider the Unix philosophy outdated exactly because of this
+reason.  I think this issue can be analysed from the viewpoint of software
+quality, or in other words whether the conformance to the philosophy is
+correlated with the quality of software systems.  There are many definitions for
+software quality, and one of them\cupercite{wiki:quality} divides it into five
+aspects: \stress{reliability}, \stress{maintainability}, \stress{security},
+\stress{efficiency} and \stress{size}; it is easy to notice that the last two
+aspects are mainly oriented toward machines, and the first three mainly toward
+humans.  Since the limits on available hardware resources was the main cause
+for the origination of the Unix philosophy, let's first examine the two mainly
+machine-oriented aspects: with today's hardware resources multiple orders of
+magnitude richer than the era when Unix was born, speaking of perceived
+software efficiency and size, is the philosophy no longer so relevant?
+I am inclined to give a negative conclusion, and I use the most common
+requirement for most users, web browsing, as an example.
+
+With the constant upgrade of hardware, it appears that our browsing experience
+should become increasingly smooth, but this is often not what we usually feel
+in fact: although the speed of file downloading and the resolution of videos
+we watch grow continuously, the loading speed of pages we experience on many
+websites do not seem to grow at the same pace; this observation might be a
+little subjective, but frameworks like Google's ``Accelerated Mobile Pages''
+and Facebook's ``Instant Articles'' can perhaps attest to the existence of
+the phenomenon.  Moreover, the memory consumption problem of web browsers
+has still not disappeared over time, which to some extent shows that
+aside from the efficiency issue, the size issue is not satisfactorily
+solved over time either; this is a general problem in the realm of
+software, and one classic summary is\cupercite{wiki:wirth}:
+\begin{quoting}
+	Software efficiency halves every 18 months, compensating Moore's law.
+\end{quoting}
+It is my opinion that if we were to be satisfied with writing ``just usable''
+software in terms of efficiency and size, it would perhaps be unnecessary to
+consider the Unix philosophy; and that if we however want to write software
+whose efficiency and size do not deteriorate with the release of new
+versions, the philosophy will still be of its value.
+
+Now we consider the three aspects that are largely human-oriented, and since
+security is to be specifically discussed in the next section, here we mainly
+focus on reliability and maintainability.  It cannot be denied that today's
+programmer resources and programming tools are almost imaginable at the
+inception of Unix, which is why mainstream Unix-like systems in this era
+can be much more complicated than Multics (\cf~Section~\ref{sec:intro}); on
+the other hand, I believe that the improvements in these areas are far from
+able to counter the rule summarised by Tony Hoare in his Turing Award lecture%
+\cupercite{hoare1981} (and many computer scientists think similarly):
+\begin{quoting}
+	Almost anything in software can be implemented, sold, and even used, given
+	enough determination.  There is nothing a mere scientist can say that will
+	stand against the flood of a hundred million dollars.  But there is one
+	quality that cannot be purchased in this way, and that is reliability.
+	\stress{The price of reliability is the pursuit of the utmost simplicity.}
+	It is a price which the very rich find most hard to pay.
+\end{quoting}
+Hoare focused on reliability, but I believe maintainability is, to a large
+extent, also governed by the rule, and one example for the correspondence
+between complexity and maintainability (which I regard development cost as a
+part of) can be found at \parencite{rbrander2017}.  In the following I will
+demonstrate the relation between complexity and reliability / maintainability.
+
+As was noted in Section~\ref{sec:coupling}, init is the first process after a
+Unix system is started, and in fact it is also the root node of the whole
+process tree, its crash (exiting) would result in a kernel panic\footnote{But
+init can \texttt{exec()}, which enables mechanisms like \texttt{switch\_root};
+in addition, it is exactly using \texttt{exec()} by init that s6 realised the
+decoupling between the main submodules of the init system and code related to
+the beginning phase of booting and the final phase of shutdown\cupercite%
+{ska:pid1}.}, so it must be extremely reliable; and since init has root
+permissions, it also has to be highly secure.  Again as was mentioned before,
+contrary to the design of s6, the init module of systemd is overly complex,
+and has too much, too complex interaction with other modules, which makes
+the behaviours of systemd's init difficult to control in a satisfactory manner,
+for instance \parencite{ayer2016} and \parencite{edge2017} are examples for
+actual problems this has led to.  Similarly, the systemd architecture, which
+has low cohesion and high coupling, makes other modules difficult to debug and
+maintain just like the init module: the number of unresolved bugs with systemd
+grows incessantly over time, still without any sign of leveling off (let alone
+sustainably decreasing)\cupercite{waw:systemd}.  In comparison, with s6/s6-rc
+and related packages, the fix for any bug (there have been very few) almost
+always arrives within one week of the bug report, and even if we also count
+other projects with functionalities emulated by systemd, the number of bugs
+still does not grow in systemd's fashion\footnote{We can also compare the Linux
+kernel, which is of a huge size and developed rapidly, with systemd: through
+periodically pausing the addition of new features (\stress{feature freeze})
+and concentrating on fixing bugs discovered in the current period (\stress{bug
+converge}), the former effectively controlled its bug growth; systemd developers
+do not do the same thing, and nor do they control its bug growth by other means
+of project management, which shows that they lack proper planning in software
+development (of course, this may be because they do not even feel they are
+able to effectively fix bugs without creating new problems).}.
+
+From the perspective of the user, systemd's behaviours are too complex, and
+consequently its documentation can only describe most typical application
+scenarios, and many use cases unconsidered by its developers become truly
+``corner cases'' (\eg~\parencite{dbiii2016}; \parencite{vr2015} is a
+very detailed analysis on the origins of this kind of problems) where the
+behaviours of systemd are very difficult to deduce from the documentation.
+Sometimes, even if the requirement happens to be successfully implemented
+with systemd, the corresponding configuration lacks reproducibility because
+there are too many factors affecting systemd's behaviours (\eg~\parencite%
+{fitzcarraldo2018}/\parencite{magsforumtechno.2019}).  On the contrary, a user
+familiar with shell scriping and basic notions about processes can read through
+the core s6/s6-rc documentation comfortably in 2--3 hours, and then will be able
+to implement the desired configuration with s6/s6-rc; a vast majority of
+problems that can arise will be easily traceable to the causes, and problems
+with s6/s6-rc themselves are very rare\cupercite{gitlab:slewman}.  Furthermore,
+the behaviours of systemd change too fast\cupercite{hyperion.2019}, which
+further complicates problems considering that the behaviours are already
+very complex; in comparison, clear notices are given when those rare
+backward-incompatible changes occur in s6/s6-rc and related packages,
+which in combination with the well-defined behaviours of related
+tools minimises the unpredictability of upgrading.
+
+systemd has almost two orders of magnitude more developers than s6, and uses
+fairly advanced development methods like coverage tests and fuzzing, but even so
+its quality is far from that of s6, which adequately demonstrates that the
+increase in human resources and the progress in programming tools are far from
+substitutes for the pursuit for simplicity in software.  Even if it can be said
+that the Unix philosophy is not as relevant as before in terms of software
+efficiency and size, from the analysis above I believe we can conclude that in
+terms of reliability and maintainability, \stress{the Unix philosophy has never
+become outdated, and is more relevant than when it was born}: the disregard of
+simplicity due to the disappearance of resource limitations contributed to the
+spread of low-quality software, and systemd is just its extreme manifestation
+in the realm of system programming\cupercite{ska:systemd}; programmers used
+to be forced into pursuing simplicity by resource limitations, and now we
+largely need to adhere to the philosophy by self-discipline, which is harder%
+\footnote{Similar phenomena are not unique to programming, for example
+the appearance of software like Microsoft Publisher in the 1990s enabled
+the ordinary person to do basic typesetting\cupercite{kadavy2019},
+which however also contributed to people's negligence of
+basic typographical principles\cupercite{suiseiseki2011}.}.
+
+\section{Unix philosophy and software security}\label{sec:security}
+
+After the disclosure of the PRISM project in the US by Edward Snowden,
+information security became a topic that attracts continued attention, so an
+entire section in this document is dedicated to the relation between the Unix
+philosophy and software security.  Assuming very few software bugs are injected
+by malicious actors, security vulnerabilities, like other defects, are usually
+introduced inadvertently by developers; due to this I think it may be assumed
+that the cognitive complexity of a software system determines its number of
+defects, because programming is after all a task similar to other kinds of
+mental labor, and the same kind of products by the same person that consumed
+the same amount of energy should naturally contain similar amounts of defects.
+Defects (including vulnerabilities and other kinds of defects) in software
+systems come with new code, and go with analyses and debugging, and the
+degree of difficulty in analyses and debugging obviously depends on the size
+of the codebase as well as the degree of cohesion and coupling.  Therefore we
+can see that \stress{complexity is a crucial factor that governs the creation
+and annihilation of defects, including security vulnerabilities, in software}
+(which probably also explains why the number of unresolved bugs in systemd
+increases constantly), so the Unix philosophy, which pursuits simplicity,
+is extremely important to software security.
+
+The root cause of many software defects is the fundamental weaknesses in the
+design of these software systems, and the counterpart to these weaknesses in
+information security is, to a large extent, weaknesses in cryptographic
+protocols; accordingly, I give two examples for the purely theoretical analysis
+above, one about cryptographic protocols and the other about implementation of
+such protocols.  Due to the strongly mathematical nature of cryptographic
+protocols, they can be mathematically analysed, and its generally thought
+in the field of information security that cryptographic protocols without
+enough theoretical analyses lack practical value\cupercite{schneier2015}.
+Nevertheless, even with this background, some widely used cryptographic
+protocols are so complicated that they are very hard to analyse, and one typical
+example is the IP security protocols represented by IPsec\footnote{I find the
+recent cjdns (and later derivatives like Yggdrasil) to be, protocol-wise, a
+scheme with perhaps great potentials, because it is a compulsorily end-to-end
+encrypted (preventing surveillance and manipulation, and simplifying upper-level
+protocols) mesh network (simplifying routing, and rendering NAT unnecessary)
+which uses IPv6 addresses generated from public keys as network identifiers
+(eliminating IP address spoofing) and is quite simple.  And I need to clarify
+that I detest the current implementation of cjdns, which seems too bloated
+from the build system to the actual codebase; I even suspect that if an almost
+identical protocol was implemented by Laurent Bercot, the codebase might
+have been less than a tenth of its current size.}.  After analysing IPsec,
+Niels Ferguson and Bruce Schneier remarked\cupercite{ferguson2003} that
+\begin{quoting}
+	On the one hand, IPsec is far better than any IP security protocol that has
+	come before: Microsoft PPTP, L2TP, \etc.  On the other hand, we do not
+	believe that it will ever result in a secure operational system.  It is far
+	too complex, and the complexity has lead to a large number of ambiguities,
+	contradictions, inefficiencies, and weaknesses.  It has been very hard work
+	to perform any kind of security analysis; we do not feel that we fully
+	understand the system, let alone have fully analyzed it.
+\end{quoting}
+And they gave the following rule:
+\begin{quoting}
+	\stress{Security's worst enemy is complexity.}
+\end{quoting}
+Similarly, when discussing how to avoid security vulnerabilities similar to the
+notorious Heartbleed (which originated from the homemade memory allocator in
+OpenSSL shielding the buffer overread issue in the codebase) from occuring
+again, David A.\ Wheeler remarked\cupercite{wheeler2014} that
+\begin{quoting}
+	I think \stress{the most important approach for developing secure software
+	is to simplify the code so it is obviously correct}, including avoiding
+	common weaknesses, and then limit privileges to reduce potential damage.
+\end{quoting}
+
+With the rapid development on the Internet of Things, the number of
+Internet-connected devices is growing steadily, and the 2020s may become
+the decade of IOT, which creates at least two problems.  First, security
+vulnerabilities on these ubiquitous devices would not only give rise to
+unprecedentedly large botnets, but also possibly result in very realistic
+damages to the security of the physical world due to the actual purposes of
+these devices, and for this very reason security is a first subject the IoT must
+tackle.  Second, these connected devices often have highly limited hardware
+resources, so the efficiency and size of software will inevitably become
+relevant factors in IoT development.  As such, I believe that \stress{the
+Unix philosophy will still manifest its highly relevant value in the 2020s}.
+
+Before concluding this section, I would like to digress a little and examine
+the issue of compiler backdoors, which makes the compiler automatically injects
+malicious code when processing certain programs: when suspecting the compiler
+after noticing abnormalities, people would certainly think of generating the
+compiler itself from a clean copy of its source; however, if the source code
+is processed by the dirty compiler (\eg~most C compilers are written in C,
+so they can compile themselves, or in other words \stress{self-bootstrap}%
+\footnote{``Booting'' in system startup is exactly short for bootstrapping,
+and here the compiler bootstraps itself.}), which automatically inserts the
+above-mentioned injector, what should we do?  This extremely covert kind of
+backdoors are called \stress{Trusting Trust} backdoors, which became well-known
+through the Turing Award lecture\cupercite{thompson1984} by Ken Thompson%
+\footnote{Who is, incidentally, a chess enthusiast; do you notice the
+pattern of ``predicting the enemy's move''?}, and got its name from the
+title of the lecture.  A universal method against Trusting Trust is ``Diverse
+Double-Compiling''\cupercite{wheeler2009}, which compiles the clean source code
+of the suspected compiler with another compiler, and compares the product from
+the latter with the product from self-compilation of the former to determine
+whether there is a Trusting Trust backdoor.  One alternative method avoids
+self-bootstrapping, and instead constructs the compiler step by step from
+the low-level machine code\cupercite{nieuwenhuizen2018}, and I will
+discuss this method in detail in Section~\ref{sec:benefits}.
+
+\section{Unix philosophy and free / open-source software}\label{sec:foss}
+
+``Free software''\cupercite{wiki:free} and ``open-source software''\cupercite%
+{wiki:oss} are notions that are very similar in extensions but clearly
+different in intensions: the former stresses the \stress{freedom to (run,)
+study, redistribute and improve software}, while the latter stresses the
+\stress{convenience to use, modify and redistribute source code of software}.
+In this document, I do not intend to further analyse the similarities and
+differences between them, and instead will develop our discussion based on
+one aspect of their common requirements on software.  It is evident that both
+demands that the user has the rights to study and improve the source code,
+in order to modify the software's behaviours, to a reasonable extent, to
+fulfill his/her requirements.  Correspondingly, the key point I would like
+to express in this section is that the grant of these rights does not imply
+the user has sufficient control over the behaviours of the software, which in
+extreme conditions allows the existence of \stress{software projects that
+are formally free and open-source but actually close to proprietary and
+closed-source}.  Of course not every user is able to study and improve the
+source code, so all comparisons of software projects involved in this section
+are done from the viewpoint of a same user with an appropriate background
+in computer science and software engineering.
+
+We know that software that only has obfuscated source code released is
+ineligible to be called free and open-source software, because obfuscation
+makes the source code difficult to understand, or in other words increases the
+cognitive complexity of the source code.  On the other hand, from the analyses
+before, we know that software systems with low cohesion and high coupling also
+have high cognitive complexities, and some FOSS projects are also affected by
+this, like Chromium and Firefox, the currently mainstream open-source browsers,
+and systemd, which has been mentioned multiple times.  It can be noticed
+that the user's control over the behaviours of these software systems has
+been significantly undermined: for Chromium and Firefox, the typical sign
+of this problem is that when there are updates that defies user requirements
+(\eg~\parencite{beauhd2019, namelessvoice2018}), the user has few choices
+other than pleading to the development teams\footnote{There are Firefox
+replacements like Waterfox and Pale Moon, but these replacements lag behind
+Firefox in terms of security updates \etc, due to limitations in human
+resources\cupercite{hoffman2018}.}; for systemd, the typical sign is that
+when various ``corner cases'' (\eg~\parencite{ratagupt2017}), which should
+not have even existed in the first place (\cf~Section~\ref{sec:quality})
+are encountered, the user has to work around the problems by all means before
+the developers are able to somwhow fix them, and the developers may even
+plainly refuse to consider the requests (\eg~\parencite{akcaagac2013}/%
+\parencite{junta2017}\footnote{With the chainloading technique (\cf~Section~%
+\ref{sec:complex}) which has existed since the beginning of this century, we
+can completely avoid the binary logging format used by \texttt{journald} in
+systemd, and yet implement most user requirements doable with \texttt{journald}
+in simpler and more reliable ways.  Moreover, even if we do not consider the
+superfluity of \texttt{journald}, I have never seen any technical advantage
+for mandating the forwarding of logging information through \texttt{journald}
+when we just want syslog, and adding the feature that allows syslog
+services to directly listen to logs does not even seem difficult to systemd
+developers: they only need to allow configuring \texttt{journald} to not
+listen on \texttt{/dev/log}.} and \parencite{freedesktop:sepusr}\footnote%
+{However, it can be said that systemd developers' reasons for not supporting
+separate mounting of \texttt{/usr} without using an initramfs are very
+untenable\cupercite{saellaven2019a}.}).  In fact, the user's control over
+these software are not even comparable with some source-available software
+with restrictions on redistribution, like old versions of Chez Scheme which
+will be mentioned in Section~\ref{sec:wib}--\ref{sec:howto}.  From the
+above, we can see that from software that allows strong control, like s6, and
+software that allows sufficient control, like old Chez Scheme, to software that
+allows highly limited control, like systemd, and traditional proprietary and
+closed-source software, \stress{in terms of the user's control over software
+behaviours, the boundary between FOSS and PCSS is already blurring}.
+
+The analysis above is from a purely technical perspective, and the weakening
+of user control over FOSS is indeed mainly because of the architectures of these
+software systems, which have low cohesion and high coupling, but I think there
+is one important exception: in the following, through comparison to proprietary
+software, I will argue that \stress{systemd is the first open-source project
+to promote its software using proprietary practices}.  Both proponents and
+opponents of systemd generally agree that the most important milestone during
+the course where systemd became be the default init system in mainstream
+Linux distributions was when it became the default in the ``jessie'' release
+of Debian\cupercite{sfcrazy2014, paski2014}\footnote{The appropriateness of
+criteria for the results from both votes in the original contexts were disputed%
+\cupercite{dasein2015, coward2017}, but anyway the injustice of the behaviours
+of the systemd developers themselves is unaffected regardless of the goodness
+of Debian's decisions.  Similarly, the existence of elogind does not disprove
+the fact that systemd developers expected \texttt{logind} to be tied to systemd,
+so it does not invalidate the above-mentioned injustice, and similar conclusions
+also hold for events mentioned in the following related to udev and kdbus.},
+and agree that the latter was because GNOME~3 began to depend on interfaces
+provided by \verb|logind| from systemd\cupercite{bugaev2016}.  However, although
+the only dependency was nominally the \verb|logind| interfaces\cupercite%
+{vitters2013}, systemd developers soon made it explicit that \verb|logind| was
+intended to be tied to systemd in the first place\cupercite{poettering2013},
+which led to the \emph{de facto} dependency of GNOME~3 on systemd; on the
+other hand, I have never seen any credible analysis of advantages of systemd
+\verb|logind| over elogind (appeared in 2015), so systemd developers tied
+\verb|logind| to systemd deliberately without any known technical advantage.
+
+After this, systemd developers attempted to tie udev to systemd\cupercite%
+{poettering2012}, and then attempted to increase the development cost of the
+eudev project when independently implementing udev-compatible interfaces%
+\cupercite{poettering2014} by pushing the merger of kdbus into the Linux
+kernel\footnote{After questions by other kernel developers (\eg~\parencite%
+{lutomirski2015}), the technical reasons\cupercite{hartman2014} for the merger
+was gradually shown to be untenable, and finally kdbus never made it into the
+kernel.}.  Considering the obvious renege of previous promises by systemd
+developers\cupercite{poettering2011a, sievers2012}, and their push of kdbus
+with total disregard of projects like eudev and mdev when they already knew
+kdbus lacked technical advantages\cupercite{cox2012}, I find it completely
+fair to establish that systemd developers deliberately practiced the typical
+``\stress{embrace, extend and extinguish}''\cupercite{wiki:eee} scheme,
+which resulted in unnecessary \stress{vendor lock-in}:
+\begin{itemize}
+\item Developing facilities in their project that can be used by downstream
+	projects, which might extend currently available facilities.
+\item Lobbying downstream projects into using said facilities (perhaps making
+	false promises about low coupling during the process); when the facilities
+	extend on the current ones, pushing for the adoption of these extensions,
+	which creates compatibility issues for competing projects.
+\item After their own project becomes the \emph{de facto} standard, tying
+	said facilities to the project knowingly without technical advantages,
+	supplanting other ``incompatible'' projects.
+\end{itemize}
+It is undeniable that the open-source community is not an undisturbed utopia,
+and that it is instead full of controversies or even so-called ``holy wars'',
+but as far as I know there has never been a controversy where the developers
+involved adopt practices like EEE as blatantly as systemd developers do%
+\footnote{For instance, GNU software is often criticised as too bloated, and
+supplanting simpler workalikes due to its feature creep, but most GNU software
+systems can be replaced quite easily.  GCC might be one of their software
+systems with most hard downstream dependencies, but on one hand its feature set
+does not seem to be easily implementable with low coupling (\eg~LLVM, which
+competes with GCC, does not seem to have an architecture much better than GCC),
+and on the other hand we do not have strong evidences that GCC developers added
+tight-coupled new features knowingly without technical advantages.}.  I am of
+the opinion that FOSS developers should have higher moral standards than PCSS
+developers do, so these proprietary practices are, although compatible with
+mainstream open-source licences\footnote{Incidentally, tivoisation\cupercite%
+{wiki:tivo} is also compatible with most open-source licences.},
+more outrageous than similar practices in PCSS communities to me,
+or as Laurent Bercot put it\cupercite{bercot2015a, bercot2015b}
+(I call it \stress{free and open-source mal-bloatware}):
+\begin{quoting}
+	systemd is as proprietary as open source can be.
+\end{quoting}
+
+Although the systemd debacle has not yet reach its end (I will discuss how
+to speed up this process in Section~\ref{sec:devel}--\ref{sec:user}), we can
+already examine the issues it highlights: what is the root of this debacle,
+and how can we avoid similar debacles in the future?  As was noted in Section~%
+\ref{sec:quality}, I think the technical root is the negligence of software
+simplicity resulted by the disappearance of limitations on hardware resources,
+and the attendant low cohesion and high coupling in critical system software
+was ``innovatively'' combined by its developers with the EEE ploy to create the
+current status of vendor lock-in.  To avoid this kind of debacle from occuring
+again, we need to realise that \stress{free and open-source software should
+embrace the Unix philosophy}, because only in this way can we block the way
+EEE uses to infect the open-source community through low cohesion and high
+coupling.  One opinion (\eg~\parencite{bugaev2016}) thinks that systemd and
+its modules were actually compliant to the philosophy, but now we should clearly
+know that it is wrong, and the lesson we should learn from it is that when
+discussing the Unix philosophy, we should keep it firmly in mind that what we
+discuss is the \stress{total complexity of the system}: in comparison with the
+previous system which fully reuses existent tools, after seeing systemd's
+architecture with low cohesion and high coupling, its complex external
+dependencies\cupercite{github:sdreadme} (increasing the external coupling
+of systemd), and its reimplementations of functionalities from tools
+already existing in the system\cupercite{wosd:arguments}\footnote{Few
+of the reimplementations do better than the originals, and some of them
+(\eg~\parencite{wouters2016, david2018}) can even be called disasters; the
+stock replies from systemd proponents are ``these functionalities can be
+disabled'' (completely ignoring the issue of whether they were technically
+better) and ``do it if you can'' (totally oblivious of the rule that ``who
+caused the problem fixes it''\cupercite{torvalds2014}).} (ignoring
+collaboration and reuse), which would we consider systemd to be,
+``small, minimal, lightweight'' or ``big, chaotic, redundant,
+resource intensive''\cupercite{poettering2011b}?
+
+In the end of this section, I want to stress that while the systemd debacle
+is a huge challenge to the open-source community, it is meanwhile an important
+opportunity: as was noted above, it lets us clearly see the severe consequences
+from the blind omission of the Unix philosophy, and the result of not learn the
+lesson from it would inevitably be to ``make later generations lament the later
+generations''; systemd is destined to be introduced into the hall of shame in
+the open-source community, but on the other hand it also urges us to re-examine
+those excellent software systems (including ``unpopular'' software like Plan 9
+and daemontools), and to learn from them how to apply the Unix philosophy in
+actual work.  More details on this will be discussed in Section~\ref{sec:devel}%
+--\ref{sec:user}, and here I only give two additional comments regarding
+FOSS.  First, the pursuit for simplicity can \stress{save time and energy for
+volunteers} (which exist in large numbers, do not have constant cash support,
+and have made huge contributions), making it easier for them to concentrate
+on most meaningful projects, which is particularly relevant nowadays where
+new requirements continuously emerge with the advancement of technology.
+Second, simple, clear code naturally encourages the user to participate
+in development, which \stress{increases the effective review of FOSS}
+and therefore contributes to the improvement in software quality,
+and this may be a way, from the origin, to avoid the next Heartbleed
+catastrophe and realise Linus's Law\cupercite{wiki:eyeball}
+\begin{quoting}
+	Given enough eyeballs, all bugs are shallow.
+\end{quoting}
+
+\section{Practical minimalism: a developer's perspective}\label{sec:devel}
+
+Before ending last section, I mentioned that the pursuit for simplicity can
+save time and energy, which was in fact a simplified expression.  In order to
+make software simple, the developer needs to invest quite a large amount of time
+and energy in architecture design, so the tangible production in the short term
+may seem smaller than that by a developer who throws quick and dirty solutions
+at problems.  Nevertheless, once the same requirements are implemented, in
+comparison with bloated and obscure code, simple and clear code will possess
+higher reliability, maintainability and security, and therefore, in the long
+run, will save the time and energy consumed by the developer during the whole
+lifecycle of the software.  In commercial development, sometimes in order to
+seize the market and rapidly release new features, it may be necessary to put
+simplicity on a secondary position to realise ``move fast and break things''
+as with Facebook, but I believe pursuing simplicity should still be the norm
+in the long run, for two reasons.  First, seizing the market is a fairly rare
+requirement in open-source development because in principle naturally excellent
+software projects can succeed by their quality\footnote{\label{fn:plan9}Here
+I say ``in principle'' because there are some subtle ``exceptions'', and I use
+Plan 9 as an example.  Plan 9 has four formal releases hitherto\cupercite%
+{wiki:plan9}, where the first release was only available for universities, the
+second only for non-commercial purposes, and only the third and forth releases
+were truly open-source, so it completely missed the best opportunities to gain
+influence through free distribution.  On the other hand, after Plan 9 was made
+open-source in 2000, due to the quite aggressive minimalism (you can have a
+glimpse of this at \parencite{catv:hsoft}) of people in its circle, they flatly
+refused to implement requirements like web browsers supporting JavaScript; I
+concur that these requirements are ugly, but not implementing them naturally
+made it very hard for users to adapt, since after all non-smooth transition is
+a general difficulty in the realm of software.  In addition, the increasingly
+severe disregard of simplicity in upper-level development (if you have once
+compiled the Bazel program used to built TensorFlow, you would perhaps have an
+intuitive experience for this; despite the employment of Ken Thompson and Rob
+Pike \etal{} at Google, these software systems are so strikingly bloated, which
+leaves me puzzled) also contributed to the diverge between Plan 9 and ``modern''
+requirements, and one important goal of this document is to raise the awareness
+for minimalism.}, so projects that often have this need invariably remind
+me of low software quality and dirty practices represented by ``embrace,
+extend and extinguish''.  Second, most features used to seize the market
+will not be discarded soon, so in order to keep the project maintainable,
+refactoring will happen sooner or later.  From this we can see that in software
+development, and in particular open-source development, the Unix philosophy,
+which pursuits simplicity, is a principle worth following, and in this
+section we will discuss how we can actually follow this principle.
+
+Before delving into the details, we need to have a general principle for
+actual practices: since we pursuit simplicity, we should keep in mind that
+simplicity is something we can be proud of, and use the implementation of
+specified requirements as minimal viable programs\cupercite{armstrong2014}
+as one standard for programming capabilities, instead of only looking
+at the amount of code one produced.  To achieve this, we should firmly
+remember what Ken Thompson said, \stress{take pride in producing negative
+code\textmd{\cupercite{wiki:negcode}}, and often consider refactoring}:
+\begin{quoting}
+	One of my most productive days was throwing away 1000 lines of code.
+\end{quoting}
+Merely having the attitude for pursuing simplicity is of course not enough, and
+we also need actual methods to improve our abilities to write simple code, while
+among them \stress{studying available excellent software projects and related
+discussions} is an important way to achieve such improvement.  I personally
+recommend beginning the study from projects by Laurent Bercot\cupercite%
+{ska:software}, the Plan 9 project\cupercite{wiki:plan9}, the suckless family
+of projects\cupercite{suckless:home} and the discussions on the cat-v website%
+\cupercite{catv:hsoft}\footnote{I find the cat-v site significantly aggressive,
+and therefore suggest critical reading of its contents.}.  The key to
+the design of simple systems based largely sound foundations (\eg~Unix)
+is \stress{clever reuse of existing mechanisms}, which requires deep
+understanding of the underlying nature of these mechanisms, and following
+are some typical examples that are particularly worth studying:
+\begin{itemize}
+\item It was noted in Section~\ref{sec:plan9} that the operations on
+	attributes of system resources can be thought as communication
+	between the userspace and the kernel that passes special data,
+	and the communication can be mapped to operations on control
+	files, avoiding the \verb|ioctl()| family of system calls.
+\item qmail\cupercite{bernstein2007} implemented its access control
+	using the user-permission mechanism of Unix, its mailbox-aliasing
+	mechanism using the file system, and its separation of code for the
+	transport and application layers following the line of thought with
+	\verb|inetd| (and in fact, the UCSPI\cupercite{bernstein1996}).
+\item LMDB\cupercite{wiki:lmdb} implemented a key-value store with excellent
+	properties and outstanding performance in a few thousands of code using
+	mechanisms like \verb|mmap()| and copy-on-write, and eliminated garbage
+	collection by using a page-tracking mechanism based on B+ trees.
+\item When discussing possible implementation strategies for message
+	passing in the publication--subscription (bus) style, Laurent Bercot
+	noted\cupercite{bercot2016} that the data transfered need garbage
+	collection based on reference counting, and that this requirement
+	can be implemented using file descriptors in Unix.
+\end{itemize}
+
+It was noted just now that the key to designing simple systems based on
+largely sound systems is clever reuse, but what if unsound parts are
+encountered?  In fact, today's mainstream Unix-like systems have
+many unsound parts from the lower levels to the upper levels,
+and insightful people do not ignore them, for instance:
+\begin{itemize}
+\item As was noted in Section~\ref{sec:plan9}, the BSD socket mechanism and
+	the X Window System were landmarks in Unix's evolution toward a bloated
+	system, and Plan 9 was the result of Unix pioneers' in-depth thinking
+	on issues represented by them; similarly, as was noted in Section~%
+	\ref{sec:complex}, process supervision was the result of reflections on the
+	management of system services and their logs by Daniel J.\ Bernstein \etal.
+\item The currently mainstream standard C library interfaces are far from ideal%
+	\cupercite{ska:djblegacy}, and POSIX, the portable standard, is just a
+	unification of existent behaviours in Unix-like systems, whether these
+	behaviours are sound or not.  Bernstein carefully inspected these interfaces
+	when writing software like qmail, and defined a set of interfaces with much
+	higher quality by catious encapsulation of system calls (\eg~\verb|read()|%
+	/\verb|write()|) and not-too-bad library functions (\eg~\verb|malloc()|).
+	The latter interfaces were taken out from qmail \etc{} by other developers,
+	and now have multiple descendants, among which I think the skalibs library
+	is the best\footnote{Its author noted\cupercite{ska:libskarnet} that under
+	many circumstances, static-linked executables of programs written with
+	skalibs are one order of magnitude smaller than those of workalikes
+	written with the standard library or other utility libraries.  By the way,
+	dynamic linking was originally created to work around the high space
+	consumption of the bloated X Window System, and similar issues have
+	already been largely alleviated with the progress in hardware
+	resources, so the various troubles with dynamic linking make
+	simplicity-minded developers even more inclined to use static
+	linking than before\cupercite{catv:dynlink}.}.
+\item The Bourne shell (\verb|/bin/sh|, and descendants like \verb|bash|,
+	\verb|zsh| \etc) widely used in Unix-like systems has quite weird
+	interfaces\cupercite{ska:diesh}, for instance the value of a variable
+	whose name is stored in \verb|$str| usually has to be accessed
+	through the dangerous \verb|eval|, because \verb|$$str| and \verb|${$str}|
+	cannot be used; nevertheless, these pecularities are not inherent
+	weaknesses in all shells, for example the \verb|rc| shell from Plan 9
+	avoided most pitfalls in the Bourne shell\cupercite{vector2016b}.
+\end{itemize}
+Similarly, we should get used to \stress{looking upon existing software
+critically}: for instance the GNU project, which spreads software freedom,
+produced many mediocre software systems\cupercite{bercot2015c}; OpenBSD, which
+values security extremely, has support for POSIX even worse than that of macOS%
+\cupercite{bercot2017}; Apache, once the ``killer application'' in the open
+source community, is implemented in a bloated and inefficient way.  These
+problems do not affect the relevance of these projects, but we should not be
+complacent with the \emph{status quo}; furtherly, we should treat the current
+achievements and trends calmly, and \stress{focus on the nature instead of
+the phenomena}: for instance when reading here, you should already have
+some rough understanding of the nature of many features in systemd, and
+how necessarily correlated they are with the architecture of systemd;
+in Section~\ref{sec:homoiconic}, I will present my understanding
+of the notion of ``language features'', which might help you to
+think about some currently popular languages from a new viewpoint.
+
+It is necessary to note that people mentioned in this document that have made
+great contributions also make mistakes: for example, the root cause of the
+``silly qmail syndrome''\cupercite{simpson2008} was Bernstein's incorrect
+implementation of the SPOOLing system composed of the mail queue, mail
+sorting (the writer) and mail transfer (the reader), and SPOOLing is a fairly
+useful notion in operating systems; Tony Hoare, in his Turing Award lecture%
+\cupercite{hoare1981}, recommended compilers to use the single-pass scheme,
+but we will see in Section~\ref{sec:wib} that multi-pass processing can be
+simpler, clearer and more reliable than single-pass processing; the designers
+of Plan 9 adopted a networking architecture with multiple terminals connecting
+to a few central servers at Bell Labs due to concerns about hardware prices,
+and noted that although Plan 9 can be used on personal computers they rejected
+that kind of usage\cupercite{pike1995}, but this design is evidently not quite
+applicable nowadays with cheap hardware and people increasingly distrusting
+centralised servers.  Thus when anyone can make mistakes,
+who should we trust?  I find two key points:
+\begin{itemize}
+\item \stress{Analyse specific issues specifically}: examine the proof and its
+	bases, and note whether the bases are still applicable to the current
+	scenario\footnote{Similarly, this document intentionally deviates from the
+	academic convention that avoids citing Wikipedia, which is why I list only
+	``References'', and not a ``Bibliography''; the reason is that I want to
+	provide the reader with materials that are (more or less) more vivid and
+	are constantly updated.}.  For instance it is well known that \verb|goto|
+	statements should be avoided in C programming, but many projects, including
+	the Linux kernel, employ ``\verb|goto| chains''\cupercite{shirley2009}
+	because \verb|goto| is avoided to prevent complicated back-and-forth jumping
+	and avoid spaghetti code, and on the contrary goto chains not only do no
+	harm to the readability of the code, but also have better readability than
+	all other equivalent ways to write the code.  Similarly, the goal for
+	summarising the essence of the Unix philosophy as a complexity issue in
+	Section~\ref{sec:complex} was not to make it pretty, but to correctly
+	understand its spirit when determining the quality of systems.
+\item \stress{Investigate extensively and listen broadly}: listen to opinions
+	from multiple sides, in order to have a view of the problem scope that is
+	as complete as reasonable.  For example the ``success'' of systemd for the
+	time being was largely because most people in the Linux circle only knew
+	sysvinit, systemd, Upstart and OpenRC, and almost ignored the daemontools
+	design and its potentials; after adequately understanding the designs of
+	various init systems, and the comparison between them by proponents and
+	opponents of these systems, you would naturally know which init system
+	to choose.  Similarly, some systemd proponents will inevitably fight
+	the points in this document with teeth and nails, and I just hope you
+	to read enough of this document and its references, and then form your
+	own conclusion by combining opinions you know from multiple sides.
+\end{itemize}
+
+Before concluding this section, I would like to discuss some additional issues
+about systemd.  First, the systemd debacle has not yet finished, and we can
+accelerate this process only by speeding up the perfection of its substitutes
+and making them close to complete in terms of actually implemented requirements,
+so I appeal all developers disappointed by the terrible properties of systemd
+to take part in, or keep an eye on, the development of these substitutes.
+Second, although there are projects like eudev and elogind, the code from their
+mother projects is of mediocre quality (or otherwise they would not have been
+easily tied to systemd), so the race on their development against the systemd
+project, which has abundant human resources, would naturally be disadvantageous;
+on the other hand, we should focus more on supporting alternative projects
+like mdevd and skabus, which start from scratch and pursue simple, clear code,
+in order to let ``the good money drive out the bad''.  Finally, ``\stress{do
+not foist what you dislike upon others}'', when participating in unfamiliar
+open-source projects, we should pay due respect to their traditions, and avoid
+the tendency to impose our opinions on others like that of systemd developers,
+which is also relevant with projects unrelated to init: for instance, due to
+influences from multiple factors, different people pursue simplicity to
+different degrees, and this personal choice needs to be respected,
+as long as it is made after sufficient investigation and careful
+consideration, and does not infringe upon other people's choices.
+
+\section{Practical minimalism: a user's perspective}\label{sec:user}
+
+It was noted in last section that for developers, pursuing simplicity might be
+disadvantageous in the short term, but would save time and energy in the long
+run, and a similar statement also holds for the ordinary user: for example,
+Windows admittedly has a ``user-friendly'' graphical interface, but once some
+harder tasks are involved and there is no ready-made tool, in Windows we would
+need its tools similar to Unix shells (batch scripts, VBscript, PowerShell,
+or cross-platform languages like Python) anyway.  From this we can see that
+if you want a self-sufficient experience, you would need to learn those
+``user-unfriendly'' tools sooner or later, and since we have already seen the
+great power from combining Unix tools with the shell in a quite intuitive way
+in Section~\ref{sec:shell}, so this learning process would really be rewarding.
+I believe that the shell is not hard to learn, and the key is to understand
+its fundamental usage instead of the eccentricities of the Bourne shell
+mentioned in the last section.  Here I suggest carefully learning \verb|rc|%
+\cupercite{github:rc} after a preliminary walkthrough of the Bourne shell,
+because the former represents the main ideas in shell scripting,
+so when coming back to the Bourne shell after this, it would
+be easier to know which parts are less important.
+
+Furtherly, just like the shell in connection with graphical interfaces,
+simple software systems have similar relation to complex ones, and here I
+use RHEL/CentOS and Alpine Linux\footnote{Incidentally, if most distributions
+should be called ``Some Name GNU/Linux''\cupercite{instgentoo:interj}, then
+should Alpine be called ``Alpine BusyBox/musl/Linux''?} as examples.  Red Hat's
+system is big and ``comprehensive'' just like Windows, and usually works as
+expected when used exactly in ways intended by its developers, but the system
+has too much additional and underdocumented encapsulation in order to make the
+``intended ways'' more ``user-friendly''; the attendant problem is that when
+faults occur the system is hard to debug because of its high complexity, and the
+user has to work around the encapsulation by all means when special requirements
+arise, while worrying about potential effects by the workarounds on the
+behaviours of other system components\cupercite{saellaven2019b}.  Exactly the
+opposite, Alpine Linux uses simple components, like musl and BusyBox, to
+construct its base system, and tries hard to avoid unnecessary encapsulation
+and dependencies, which makes it, while certainly less ``user-friendly'' than
+Red Hat's system, highly stable and reliable, and easily to debug and customise.
+This of course reminds us of the comparison between systemd and s6/s6-rc in
+Section~\ref{sec:quality}, so it can be intuitively felt that the complexity of
+software not only affects developers, but also has apparent effects on users,
+as was remarked by Joe Armstrong, the designer of the Erlang language\footnote%
+{I am very aware that the original remark was meant for object-oriented
+programming, and as a matter of fact, implicit states are factors that
+introduce coupling just like global variables, so OO systems that lack
+separation between the states of objects have the problem of high
+coupling reminiscent of the similar problem in complex software
+systems, and this problems is particularly severe when there
+are multiple levels of encapsulation and inheritance.}:
+\begin{quoting}
+	The problem with object-oriented languages is they've got all this implicit
+	environment that they carry around with them.  You wanted a banana but
+	what you got was a gorilla holding the banana and the entire jungle.
+\end{quoting}
+As was mentioned in Section~\ref{sec:foss}, I believe that the effect
+of software complexity on user experience is particularly relevant
+for free and open-source software systems, because their internals
+are open to users, which gives the user the possibility
+of debugging and customisisation by themselves.
+
+Due to the reasons above, I believe that \stress{even for the ordinary user,
+complexity should be taken into consideration when choosing software systems},
+and simple software like musl, BusyBox, s6/s6-rc, Alpine Linux, as well as
+\verb|rc|, vis, abduco/dvtm, are to be preferred.  When choosing between simple
+but nascent software (like BearSSL) and complex but relatively well-reviewed
+software (like LibreSSL/OpenSSL), prefer the former as long as its author has
+good track records and considers it sufficiently practical for use.  When having
+to choose between multiple bloated software systems, prefer the simpler and
+relative well-tested, for instance when using systemd-based systems, prefer the
+generic tools and avoid the reimplementations in systemd.  On the other hand,
+even when lightweight alternatives cannot adequately implement our requirements,
+we can still support or pay attention to them, to be able to migrate as early as
+reasonable after they become adequately feature-complete: for example, I first
+noticed the s6 project one year before the first release of s6-rc, and I began
+to prepare the migration of my systems to s6/s6-rc after the release (so that
+the systems would support service dependencies and oneshot init scripts),
+eventually realising the migration one year later.  s6-related software were
+admittedly not sufficient for the requirements of the average user when systemd
+became the default init system in Debian, which was one technical reason systemd
+could successfully achieve its domination.  However, s6/s6-rc is now very
+close to the standard of fulfilling the requirements of the average user%
+\cupercite{vector2018a, vector2019a}\footnote{Besides, I guess all systemd
+functionalities, that are meaningful enough in practice, can be implemented in
+an infrastructure based on s6/s6-rc, and the codebase of many among them will be
+smaller than $1/5$ those of their systemd counterparts.}, and it also possesses
+excellent properties that systemd developers alleged but failed to realise%
+\cupercite{poettering2011b}, so I request all interested users to actively
+watch and participate in the development of s6/s6-rc and related software.
+
+Sometimes the user's choice of software systems is constrained by factors like
+requirements at work, and I think that in this scenario the user can use the
+system in a way that is as simple, clear as reasonable under the current
+constraints, and remember to leave room for more ideal solutions, in order to
+\stress{minimise the cost of possible migration in the future}.  For instance,
+most Linux distributions write their system maintenance scripts in the Bourne
+shell instead of \verb|rc|, while the user may need to customise some of them
+(which is also why it was not suggested in the above to only learn \verb|rc|
+and skip the Bourne shell), and the user can write the customised parts in
+a form that is simple, clear and close to the \verb|rc| way as far as is
+reasonable.  Another example is that I have to interact with the systemd-based
+CentOS 7 due to work requirements, and that my choice is to do most work on
+a machine controllable by myself, and try to use CentOS 7 in a simplest way
+in virtual machines, in order to minimise dependence on it.
+
+If you are using systemd relucantly because of software systems (Linux
+distribution or desktop environment) you are used to, I suggest you to actively
+try out simple software, gradually get rid of software strongly coupled with
+systemd, and henthforth bear firmly in mind the lesson from the systemd debacle:
+in this nonpeaceful open-source community, \stress{it is only by mastering the
+secret weapon of simplicity that we can master our own destiny when encountering
+dangerous traps like systemd} and avoid the catastrophe instead of getting
+trapped\footnote{Even in Gentoo, which compiles everything from the source code
+and is very customisable, users who want to use GNOME~3 without systemd used to
+have to jump through multiple hoops\cupercite{dantrell2019}, and those who would
+like to separately mount \texttt{/usr} without using an initramfs still have to
+maintain a patchset by themselves\cupercite{stevel2011} because of developers
+blindly following systemd practices\cupercite{saellaven2013}.}.  To achieve
+this, I consider it necessary for the user to be in particular wary of bloated
+components, like GNOME, in the system, and when it shows the tendency to be
+close coupled to suspicious projects, consider lightweight alternatives like
+Fluxbox, Openbox, awesome and i3 in time: after those bloated projects get tied
+to mal-bloatware, even assuming their developers are totally well-intentioned,
+they would not necessarily be able to afford cleaning up the infections in
+their own projects\cupercite{vitters2013}, which is a natural result of the
+high complexity of these projects.  Furtherly, I think the user should keep a
+necessary degree of caution against those overly bloated software projects with
+major developers funded by a same commercial corporation like Red Hat\cupercite%
+{saellaven2019a}\footnote{Furtherly, it is also necessary to be cautious with
+complex standards driven by commercial companies, like HTML5 which is now driven
+by big browser vendors and the companies behind them.  In addition, I would like
+to express my sincere esteem for the BusyBox developers that, although working
+at Red Hat, have the courage to stand up against systemd developers\cupercite%
+{vlasenko2011}.}: from the examples of Chromium and Firefox (\cf~Section~%
+\ref{sec:foss}), we know that companies in the open source community can also
+sacrifice user interests in favour of commercial interests, so we would get
+attacked on multiple fronts if the developers of these projects are asked to
+conspire in ``embrace, extend and extinguish''; and even if we take a step
+back and assume that EEE is not a direct result of abetting from the employer,
+employers that connive at employees who use filthy practices to monopolise
+the market, which creates conflicts of interests between the companies and
+the open-source community, are still very despicable, and we should vote
+with our package managers to express our contempt of these companies.
+
+You may notice that while the section title says ``a user's perspective'', the
+simplicity of some software mentioned in this section can only be sufficiently
+appreciated when the user has a certain level of background in it; actually,
+it was mentioned in Section~\ref{sec:intro} that Unix was designed as a system
+to boost the efficiency of programmers, and we also see that Unix works best
+when its internal mechanisms are adequately understood by the user.  However,
+most users have after all only limited energy to understand the mechanisms of
+their systems they use, so does this imply that only programmers can make good
+use of Unix-like operating systems?  I do not think so, and instead I believe
+a user without related backgrounds previously just need to overcome his/her
+repulsion of programming, and \stress{start with good tools and tutorials},
+which would not consume too much energy: for instance, assuming one carefully
+reads the documentation of \verb|rc| after roughly learning the Bourne shell,
+and then comes back to review the latter, even a newbie would be able to
+understand basic shell scripting within one or two days, provided enough
+exercise are done; if another one or two days are invested in studying basic
+notions related to Unix processes, the user would be able to start learning
+s6/s6-rc.  After studying the basics, the user would save a lot of energy
+during the learning process if the following points are kept in mind:
+\begin{itemize}
+\item \stress{Remember to assess the importance of knowledge}:
+	often think about which knowlege that you learn is more \stress{common}
+	and more \stress{useful}, as was noted in \parencite{dodson1991}
+	(we will discuss this statement in Section~\ref{sec:boltzmann}):
+\begin{quoting}
+	Self-adjoint operators are very common
+	and very useful (hence very important).
+\end{quoting}
+\item \stress{Dare to ask for help, and be smart when asking}:
+	when facing problems that you cannot solve, make full use of the power of
+	the open-source community, but rembember to express the problem in a concise
+	and reproducible manner, and also present your own efforts at solving it.
+\item \stress{Avoid over-programming}:
+	as was noted in last section, take pride in simplicity, and pursue problem
+	solving with simple, clear methods; avoid over-engineering in everyday
+	work, and consider manual completion of small-scaled tasks.
+\end{itemize}
+
+% XXX: bug?
+Before ending this part, I would like to quote
+the famous sentence by Dennis Ritchie:\mbox{}
+\begin{quoting}
+	Unix is very simple, it just needs a genius to understand its simplicity.
+\end{quoting}
+This sentence may be called both right and wrong, and it is right because
+making good use of Unix requires deep understanding of its mechanisms, while
+it is wrong because this requirement is not difficult to achieve, with proper
+guidance, for those who are eager to learn.  I believe that the essence of
+efficient Unix learning is \stress{minimisation of the total complexity of
+the learning process required for the completion of specified practical
+tasks}, and that the key to it is fostering the habit of minimising the total
+complexity; this habit connects one's work and life to the Unix philosophy,
+and I will elaborate on its relevance in Section~\ref{sec:worklife}.
+

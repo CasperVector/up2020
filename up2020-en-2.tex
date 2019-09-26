@@ -1,0 +1,674 @@
+\newpart
+\section{Hilbert's 24th problem: minimalism in mathematics}\label{sec:hilbert}
+
+In 1900, David Hilbert published a list of 23 unresolved mathematical
+problems, and these problems, to be called ``Hilbert's problems'', influenced
+mathematicians throughout the 20th century, and still continue to have major
+influences; in 2000, one additional problem was discovered in Hilbert's notes
+that was somehow excluded from the original publication, and we begin this part
+with this 24th problem\cupercite{wiki:hilbert}.  Essentially, Hilbert's 24th
+problem asks for a formal standard for simplicity of mathematical proofs, and
+a method to demonstrate that a certain proof is the simplest for a theorem.
+From this we can already see the pursuit for simplicity also exists in
+mathematics, and this pursuit is in fact shared by other great mathematicians.
+For example, Paul Erdős often referred to ``THE BOOK''\footnote{A real-world
+``approximation'', \emph{Proofs from THE BOOK}\cupercite{wiki:thebook}, was
+dedicated in 1998 to Erdős, who gave many advices during the preparation
+of the book but deceased before the publication.}, an imaginary book where
+God keeps the simplest proofs, and said in a lecture in 1985 that
+\begin{quoting}
+	You don't have to believe in God, but you should believe in THE BOOK.
+\end{quoting}
+It also seems that the pursuit for simplicity is not an exclusive for masters,
+because Edsger W.\ Dijkstra once said:
+\begin{quoting}
+	How do we convince people that in programming simplicity and clarity --
+	in short: what mathematicians call ``elegance'' -- are not a dispensable
+	luxury, but a crucial matter that decides between success and failure?
+\end{quoting}
+From the quotation we know that mathematicians, in a sense, appear more
+minimalist than programmers; in Section~\ref{sec:science}, we will
+see an extreme example for minimalism in mathematics.
+
+In Hilbert's original note on the 24th problem, he attempted to reduce a certain
+class of proofs into a class of sequences mainly consisting of elements of a
+certain type, and judge the simplicity by lengths of the sequences.  Nowadays,
+from the viewpoint of programming languages, this can be generalised quite
+easily\footnote{The correspondence can be formalised through \stress{Gödel
+numbering}\cupercite{wiki:godelnum}, which maps different programs into
+different integers; similar operations can also be done on proofs, so every
+proof is formally equivalent to a program.  The converse is not true, because
+a proof has to finish in finite steps, while a program does not have to;
+nevertheless, since algorithms also need to end in finite steps, every algorithm
+is formally equivalent to a proof.}: proofs (like programs) are after all based
+on axioms (like primitive operations), and by embedding proofs for all theorems
+(like implementations of library functions) a proof involves, said proof can be
+reduced into a sequence of applications of the axioms, which can be counted.
+With this correspondence in mind, we can \stress{``refactor'' proofs
+and propositions}, just as with programs, to make them
+shorter and clearer, for example
+\begin{quoting}
+	For discrete probability measures constrained by a set of moment
+	conditions, if a probability measure exists with the (*) form,
+	it must be unique and must be the maximal-entropy distribution;
+	and if the maximum-entropy distribution exists, it must have
+	the form of (*) and therefore must be unique.
+\end{quoting}
+can be refactored into
+\begin{quoting}
+	For discrete probability measures constrained by a set of
+	moment conditions, the maximal-entropy distribution exists
+	if and only if a probability measure exists with the (*) form,
+	in which case they must be identical and unique.
+\end{quoting}
+
+Following the line of thought above, we should be able to construct the formal
+standard for simplicity desired by Hilbert; however, what about the part about
+showing a proof to be the simplest?  I guess that there probably exist proofs
+that cannot be demonstrated to be the simplest, and here I explain my guess
+with the notion of Kolmogorov complexity, which will be further discussed in
+Section~\ref{sec:kolmogorov}.  To show a proof to be the simplest, the minimal
+complexity of possible proofs probably needs to be sought, which seems to be
+closely related to the Kolmogorov complexity.  However, even notwithstanding the
+uncomputability of the Kolmogorov complexity, Chaitin's incompleteness theorem
+shows that there exists an upper bound for it that proofs could be shown to
+have or surpass.  So what if the complexity of the theorem to be proven is
+already higher than this upper bound?  Under this circumstance, even the
+minimal complexity of possible proofs cannot be demonstrated,
+which does not bode well for what Hilbert wanted.
+
+\section{Boltzmann's formula: an axiom or a theorem?}\label{sec:boltzmann}
+
+Back in an interview during the application for the postgraduate program I
+got enrolled to eventually, I was asked the question ``is Boltzmann's entropy
+formula, $S = k_\mathrm{B} \ln\varOmega$, an axiom or a theorem in statistical
+physics?'', by one of the interviewers.  My answer, ``it can be both'', was
+quite a surprise for the interviewers, judging by their reactions; I then
+explained what I meant was that one set of propositions can be based on
+multiple alternative basic sets of axioms, and that a proposition can be an
+axiom with some bases and meanwhile a theorem with other bases.  Perhaps
+because the full answer was still quite unexpected to the interviewers, which
+were mainly physicists, they did not ask further, but the question should
+obviously not stop at that point, and I will examine it closely in this section.
+
+An immediate follow-up question to my answer could be ``then which choice
+of axioms would be better?'', because \stress{all choices of axioms are not
+equal}, although they can be ``rebased'' onto each other: for example, a given
+set of axioms can be extended with a known theorem, and the resulting set of
+axioms would trivially be, although redundant, as consistent as the previous
+one.  Moreover, even among mutually equivalent minimal choices, some can be
+clumsy to use\footnote{When I was a PhD candidate, out of curiosity about
+functional programming, I attended a highly introductory report on category
+theory, and the reporter mentioned some mathematicians' attempts to rebase
+mathematics from set theory onto category theory.  While the effort can be
+academically interesting, I sort of doubt its practical significance: from
+the extremely limited parts I know, category-theoretical formulations of
+fundamental mathematical notions appear to be more complicated than their
+set-theoretical counterparts, so the former do not seem superior to the
+latter according to the model in this section.}: metaphorically, although
+many Turing-equivalent models of computation are available, computer scientists
+would most often use Turing machines, lambda calculus and a few other models
+for generic discussions, instead of cellular automata or even \verb|sed|.
+
+I approach the latter problem with a model based on graphs, which I call
+``\stress{deduction graphs}'', with propositions as their nodes and deductions
+as their edges, so the graphs are closely related to dependency graphs yet very
+different from the latter: first, there are often ``equivalent'' propositions
+that imply each other, so the graphs usually contain loops, unlike dependency
+graphs which are acyclic; second, a proposition may well be proven in multiple
+ways, so disjunctions, or in other words ``virtual nodes'', need to be included;
+third, some proofs are more complex than the others, so the edges are weighted.
+Given this model, we can compare choices of axioms based on the total path
+weights of the spanning processes from the different bases, which correspond
+to the intuitive notion of how complex it is to generate all the propositions.
+
+Deduction graphs are probably impractical for quantitative use in real-world
+applications in large part due to the formal systems being infinite, but they
+are very instructive in a conceptual sense, and we will refer to it multiple
+times in this part.  For example, the model helps to explain the criterion
+for importance of knowledge quoted in Section~\ref{sec:user}: by mastering
+notions that are common (linked to many other parts in the graph) and useful
+(simplifying otherwise complicated deductions), we would be able to
+understand the subject matter much more efficiently.  And before concluding
+this section, let's briefly come back to the original question on Boltamann's
+formula: I guess that it will be a theorem with almost all reasonable
+minimal choices of axioms, as long as entropy $S$ is a derived,
+instead of primitive, notion in statistical physics.
+
+\section{Kolmogorov complexity and knowledge organisation}\label{sec:kolmogorov}
+
+In previous sections, we have scratched the surface of the issue of lower
+bounds for complexities in certain scenarios multiple times: for instance,
+when considering how to demonstrate the simplicity of a proof for a given
+theorem (\cf~Section~\ref{sec:hilbert}), I examined the notion of minimal
+complexity of possible proofs; and earlier when discussing cohesion
+(\cf~Section~\ref{sec:coupling}), I defined it as the inherent coupling
+between submodules, which also correlates with some sort of inevitable
+complexity.  When considering the intrinsic complexities of objects,
+the \stress{Kolmogorov complexity}\cupercite{wiki:kolmogorov} is
+often used, and in this section we will examine it closely.
+
+In a nutshell, the Kolmogorov complexity of an object, usually encoded in a
+string, is the smallest length of computer programs that can be used to produce
+it, and its value has very limited dependence on the programming language used:
+the difference between complexity values from two languages has an upper bound
+that depends only on the pair of languages, and not on the string in question.
+The Kolmogorov complexity is an \stress{uncomputable} function, or in other
+words it is provably impossible to write a program to compute it for all inputs;
+furthermore, Chaitin's incompleteness theorem states that there exists an upper
+bound for provable lower bounds for the complexity, which only depends the
+language and the axiomatic system used for proofs, so we cannot even prove a
+string is more complex than this upper bound.
+
+You would certainly wonder, given such ``bad'' properties of the Kolmogorov
+complexity, is it still meaningful?  To my knowledge, it is indeed rarely used
+in practical measurements of complexity, and instead used mainly in proofs for
+impossibilites, like the uncomputability of certain functions.  Nevertheless,
+this does mean one thing: as can be easily seen above, the limit to information
+compression is the Kolmogorov complexity, so the uncomputability of the
+complexity and the unprovability of its lower bound under most circumstances
+imply that there will never be a formal end to the research on information
+compression.  Similar conclusions exist for other research fields, as
+the term ``full employment theorem\cupercite{wiki:employ}'' summarises;
+on a slightly philosophical level, while the ``bad'' properties show the
+limitations on formal theories available in these fields, it also means that
+\stress{human efforts will not be easily replaced by computer programs}.
+
+It is necessary to notice that the Kolmogorov complexity measures the intrinsic
+complexity of a known object, and does not easily extends to comparison between
+multiple possible but unknown objects, like the possible proofs of a theorem.
+Furthermore, it is even less applicable to problems that are closely related to
+information compression but are less formal, like the field of \stress{knowledge
+organisation} in library science, which I believe that in its general sense is
+the real-world counterpart to minimisation of system complexity in programming,
+and that has to be more or less minimalist therefore.  However, just like
+deduction graphs, even though the Kolmogorov complexity is not quantitatively
+applicable to practical problems (not exactly in fact, and we will see some
+indirect applications in Section~\ref{sec:ockham}), it is still instructive
+conceptually because of its nature as the \stress{descriptive complexity}.
+
+\section{Minimalism in science and technology}\label{sec:science}
+
+So far in this part, we have been mainly discussing minimalism in mathematics
+and hypothetically axiomatic physics, but minimalism can also be observed
+in other fields of science and technology, and especially in those with
+\stress{considerable and tangible costs of complexity}, including both
+financial and mental costs.  Traditional engineering is quite a good example
+for this, because the financial cost of complexity are still obvious even
+with the advancement of technology: as long as an engineering project is
+under a somewhat tight budget, a simple way to do same task would usually
+be preferred over a complex way, provided that the simple way does not imply
+some serious trade-off.  For instance, Jon Bentley wrote in \emph{Programming
+Pearls}\footnote{His column under the same name in \emph{Communications
+of the ACM} was where the word frequency sorting problem (\cf~Section~%
+\ref{sec:shell}) was originally discussed.} that\cupercite{bentley1999}
+\begin{quoting}
+	General Chuck Yeager (the first person to fly faster than
+	sound) praised an airplane's engine system with the words
+	``simple, few parts, easy to maintain, very strong''.
+\end{quoting}
+
+Minimalism is also an obvious pursuit by theoretical physicists:
+Fred Brooks, the author of \emph{The Mythical Man-Month},
+wrote in \emph{No Silver Bullet}\cupercite{brooks1987} that
+\begin{quoting}
+	Einstein repeatedly argued that there must be simplified
+	explanations of nature, because God is not capricious or
+	arbitrary.  No such faith comforts the software engineer.
+\end{quoting}
+This attitude reminds us of the reduction of system calls in Plan 9
+(\cf~Section~\ref{sec:plan9}); similar attitudes were also evident
+in other prominent figures in theoretical physics, such as Issac Newton
+(noticing his \emph{Principia Mathematica}) and James Clerk Maxwell
+(noticing his equations).  Minimalism in the form of elegant deductions,
+comparable to elegant implementations of requirements, can also be observed:
+one of my friends, who was major in mechanics, once mentioned that while many
+textbooks in fluid dynamics spend lots (sometimes one or two chapters) of
+text analysing gravity waves\footnote{Not to be confused with gravitational
+waves in general relativity.}, Lev Landau and Evgeny Lifshitz managed the
+exposition in just one section of around 10 pages in their \emph{Course of
+Theoretical Physics}, which even included a few pages of exercises with answers.
+
+The tradition to derive systematic theories from a small set of rules can surely
+be traced to earlier origins, and the \emph{Elements} by Euclid are usually
+considered as one among those most important original materials.  It is almost
+undisputed that geometry became an indispensable part of Western education
+exactly because of the \emph{Elements}, but the book had a problem with algebra:
+the algebraic propositions and deductions were all written as sentences, not
+formulae, perhaps due to the awkward number system at that time.  In the 20th
+century, the Bourbaki group of mathematicians\footnote{Whose use of the bending
+sign in warnings was the direct inspiration for Donald Knuth's ``\textdbend''
+sign.} went the opposite way during the course of constructing foundations
+of mathematics in a purely axiomatic way based on set theory: although their
+works were indeed highly influential and productive, the contents were written
+in an extremely austere and abstract way, with few explanatory remarks, a
+minimal number of examples, almost no pictures, and zero real-world application.
+While this style did not affect the logical correctness of Bourbaki's works,
+it created problem for human readers attempting to understand the contents;
+an in-depth analysis of this issue will be carried out in Section~%
+\ref{sec:cognitive}, and here I would just like to discuss one more thing
+that is perhaps worth some consideration in the end of this section.
+
+When discussing the possible outcomes in case the current foundations of
+mathematics were proven inconsistent\cupercite{gaillard2010}\footnote{In case
+you wonder why this is even a problem, note that \stress{Gödel's incompleteness
+theorems}\cupercite{wiki:godelthm} (actually the second theorem) show that these
+foundations cannot prove themselves to be consistent, so the theoretical problem
+does have some ground.}, it was noted that most researchers would be able to
+move on with alternative foundations.  After all, set theory was born in the
+1870s well after many other fields, and the set-theoretical presentations of
+many results are basically restatements in a different mathematical language:
+for example, V.\ I.\ Arnold was able to teach group theory, up to a topological
+proof for the insolubility of general quintic equations in radicals in half a
+year, to secondary school students in 1963--1964 without using any axiomatics%
+\cupercite{arnold1998, alekseev2004}\footnote{By the way, quite a few books by
+Dan Friedman, like \emph{The Little Schemer} and \emph{The Little Prover},
+achieved similar goals.}.  Similar observations also exist in physics, like
+the relative independence of results in phenomenological quantum mechanics
+from the actually underlying mechanisms, and that of results in macroscopic
+thermodynamics from basic principles of statistical physics.  All these
+prove the existence of \stress{relative separation of abstraction layers}
+in formal and semiformal systems, as with software systems: from the
+perspective of deduction graphs, we can convert axioms in a deduction
+graph to theorems in a new graph by adding more primitive axioms, and
+even though propositions that are already theorems may gain new proofs,
+the overall structure of the entire graph will not change very much.
+
+\section{Minimalism in scientific and non-scientific theories}\label{sec:ockham}
+
+In this part, I have already mentioned multiple scientific theories, eah of
+which based on a minimal set of fundamental hypotheses, which when formalised
+become axioms.  In Section~\ref{sec:science}, I noted that this tradition
+is closely related to the \emph{Elements} by Euclid; I did not restrict the
+tradition to science and technology, because it was actually also followed
+by many philosophers and even some theologians.  One prominent example that
+lies between these fields is the answer by Pierre-Simon Laplace when he
+was asked by Napoleon Bonaparte about the absence of God in his five-volume
+monumental work, \emph{Mécanique Céleste}: ``I had no need of that hypothesis''.
+This tradition is summarised as the princple called \stress{Ockham's razor}%
+\cupercite{wiki:ockham}, usually phrased as ``entities should not be multiplied
+without necessity''.  It should be noted the principle is a criterion about the
+choice between multiple theories when they are all consistent with available
+observations and make the same predictions, and does not imply that
+the simplest theory was most likely correct under all circumstances.
+
+Multiple attempts have been made to mathematically justify Ockham's razor
+using formulations related to probability, for example the theories about the
+minimal message length\cupercite{wiki:mml} and the minimal description length%
+\cupercite{wiki:mdl}.  Both MML and MDL took inspiration from the Kolmogorov
+complexity discussed in Section~\ref{sec:kolmogorov}, but unlike the Kolmogorov
+complexity which is hard to use in real-world applications, MML and MDL can
+be practically used in the choice of statistical models.  The MML and MDL
+approaches differ from each other quite subtly, but the general ideas remain
+highly similar: somehow represent a model, and concatenate it with the
+representation of observed data encoded using the model, and it can be proven
+that \stress{the model with the shortest combined representation is most likely
+to be correct}.  From this we can see a strong mathematical correlation with
+information compression, so MML and MDL are associated with the Kolmogorov
+complexity; and if we consider available observations as the data, and theories
+as the models, the simplest theory that efficiently explains the observations
+wins according to the result above, which is consistent with the intuitive
+principle of Ockham's razor.  The result is also easily reminiscent of the
+Unix philosophy in the sense of minimising the total complexity of the
+system, if we compare the intended applications to the data, and
+the implementations of supporting interfaces to the models.
+
+\section{Minimalism as an aesthetic in literature and arts}\label{sec:art}
+
+Pursuing simplicity is also an import aesthetic in literature and arts,
+and in this section we will briefly examine this aesthetic, mainly through
+literature.  \emph{The Elements of Style}, the prestigious American English
+style guide was listed by the \emph{Times} magazine in 2011 as one of the 100
+most influential English books since 1923; William Strunk Jr., its author,
+strongly emphasised ``\stress{omit needless words!}'', and made the following
+recommendation on writing styles in the book\footnote{Qiao Dong translated
+this 63-word maxim into 63 Chinese characters\cupercite{dongqiao1999}:
+``铿然有力之文必简洁。一句之中无赘字，一段之中无赘句，犹如丹青无冗枝，机器
+无废件。此说不求作者下笔句句精短，摒弃细节，概而述之；但求字字有着落耳。''}:
+\begin{quoting}
+	Vigorous writing is concise.  A sentence should contain no
+	unnecessary words, a paragraph no unnecessary sentences, for the
+	same reason that a drawing should have no unnecessary lines and
+	a machine no unnecessary parts.  This requires not that the writer
+	make all his sentences short, or that he avoid all details and
+	treat his subject only in outline, but that every word tell.
+\end{quoting}
+
+\emph{The Elements of Style} did not only concern literary works, so what it
+reflected was a common aesthetic in English writing, and a similar aesthetic
+already existed in China at least as early as about the 5th century.  \emph{The
+Literary Mind and the Carving of Dragons}, a book by Xie Liu who lived in
+the Southern and Northern Dynasties period, was the first systematic book in
+China on literary critique, and likewise considered works in all genres as
+literature.  Ao Li summarised the focus of the book as two points in his
+\emph{Complete Highlights of Masterpieces in Chinese Literature}:
+\begin{quoting}
+	One of them was to argue against the pompous style devoid of practicality,
+	and the other was to advocate for the pragmatic style that ``crucial
+	issues in military and politics be considered in writing''.
+\end{quoting}
+Shi-Jin Mou, the first secretary general of Chinese Society of
+\emph{The Literary Mind}, remarked on the fundamental stances in the
+book that\cupercite{moushijin1995}\footnote{It was noted in the same
+reference that \emph{The Literary Mind and the Carving of Dragons}
+was the result of the author's reaction to the pompous style
+prevalent at that time, and isn't this document actually similar?}
+\begin{quoting}
+	There should be rich contents to accompany the refined forms --
+	this is the absolute rule in literary creation, and is the supreme
+	standard in literary critiques by Xie Liu.  This fundamental
+	stance was followed throughout \emph{The Literary Mind}.
+\end{quoting}
+
+When evaluating literary works, phrases like ``piling up flowery language'',
+``flashy and without substance'', ``devoid of contents'' \etc{} are never
+compliments, which shows that the aesthetic above is well accepted in literature
+both inside and outside China.  On the other hand, also confirming this
+acceptance is the general appreciation of depictive devices that express rich
+connotations with subtle details, like the practice of exhibiting dynamics or
+emotions of characters with just a few strokes in painting, by both Chinese
+and Western people in literature and arts.  Another example is the advocation
+of ``distilling characters'' and the attention to ``eyes of poems'' in
+Chinese literature, for instance the following line from a poem
+\begin{quoting}
+	鸟宿池边树，僧敲月下门。
+\end{quoting}
+is widely praised exactly because the character ``敲'' provoked the
+imagination that the silence in the evening was interrupted by the sound
+of knocking, and meanwhile suggested (in comparison with the character
+``推'') that the person outside the door was a visiting guest instead of a
+returning host.  I believe that similar examples generally exist in various
+civilisations, and that the underlying aesthetic was, to a large extent, not
+transmitted from other civilisations.  And just like base-10 numbers emerged
+independently in multiple civilisations probably because each human has 10
+fingers (``digits''), \stress{the independent origination of minimalist
+aesthetics in disparate civilisations should be due to some deep reasons},
+and I will explore the reasons in the next section.
+
+\section{Minimalism from a cognitive perspective}\label{sec:cognitive}
+
+In Section~\ref{sec:intro}, I asked, ``is simplicity now only an aesthetic?'',
+and when reading here you should already know it is not, because there are
+plenty of practical reasons for pursuing simplicity.  In Section~\ref{sec:art},
+I noted that the independent origination of minimalist aesthetics in multiple
+civilisations should be attributed to some deep origin; actually, I believe
+that this aesthetic has its cognitive root, which is closely correlated with
+those practical causes, and is independent of the particular civilisation.
+In this section, I will discuss the cognitive basis of minimalism, and also
+examine some apparent ``exceptions'' to this basis; prepared with these
+analyses, we will able to proceed to the next and final two sections
+in this part.  I base my argument in this section on the basic hypothesis
+that \stress{most (if not all) ethics and aesthetics are results of practical
+requirements in real life}.  Why do we dislike people that jump the queue when
+there are many people waiting?  Because this behaviour sacrifices many people's
+time and energy for the benefits of a few people, and incites people to just
+wait in a crowded fashion, which reduces the throughput and may lead to safety
+risks.  Why do designers dislike Comic Sans?  Because this font, when used with
+anti-aliasing (which is the absolute norm today), has poor legibility\cupercite%
+{kadavy2019}; this reason might seem subtle, but would appear more intuitive
+if you recall that when you first learned to write, the teacher would
+almost instinctly discourage illegible handwriting.
+
+Paul Graham noted that when mathematicians and good programmers work on
+problems, they hold the problems in their heads in order to fully explore the
+problem scopes, so simplicity definitely matters in problem solving\cupercite%
+{graham2007}; he also noted that ordinary programmers working in typical
+office conditions rarely enter the state where their programs were fully loaded
+into their heads.  Considering that the latter kind of programmers can still
+produce mediocre programs that more or less achieve the stated goals, but
+mathematicians do not often enjoy such relaxation in requirements, this might
+provide an explanation for the observation in Section~\ref{sec:boltzmann}
+that mathematicians seem more minimalist than programmers.  Furtherly, I argue
+that the need to hold the problem in one's head when solving problems is not
+unique to mathematicians and programmers, because \stress{human are bad at
+multitasking}: borrowing notions from computer science, we can say that the
+cost for ``context switching'' in human mind is huge, so in order to avoid
+context switching and achieve optimal performance, all relevant subproblems
+of the problem has to be loaded into the head.  With simple yet powerful tools,
+we will be able to make many subproblems easier to understand, which increases
+our ability to hold larger problems in our heads, and I believe this is the
+cognitive root of our appreciation for these tools.  V.\ I.\ Arnold recalled
+his instinctive reaction when taught about the intrinsic connections between
+seemingly unrelated mathematical notions\cupercite{arnold1998}:
+\begin{quoting}
+	\emph{[... a more impressive example, omitted here for the sake of
+	brevity ...]} Jacobi noted the most fascinating property of mathematics,
+	that in it one and the same function controls both the presentations of
+	an integer as a sum of four squares and the real movement of a pendulum.
+	These discoveries of connections between heterogeneous mathematical objects
+	can be compared with the discovery of the connection between electricity
+	and magnetism in physics or with the discovery of the similarity in
+	the geology of the east coast of America and the west coast of Africa.
+\end{quoting}
+Similarly, I was totally amazed when I read about the
+origin of Aboriginal Linux\cupercite{landley2017}:
+\begin{quoting}
+	The original motivation of Aboriginal Linux was that back around
+	2002 Knoppix was the only Linux distro paying attention to the
+	desktop, and Knoppix's 700 megabyte live CD included the same
+	100 megabytes of packages Linux From Scratch built, which
+	provided a roughly equivalent command line experience as the
+	1.7 megabytes tomsrtbt which was based on busybox and uClibc.
+\end{quoting}
+
+V.\ I.\ Arnold's comment was meant in comparison with the style by
+the Bourbaki group (\cf~Section~\ref{sec:science}), and you would probably
+wonder, while simplicity is so desirable, why would untrained readers feel
+uncomfortable reading mathematical books written in that style?  I base my
+answer on the analysis of difference between humans and machines in Section~%
+\ref{sec:mcilroy}, which on a deeper level shows that humans and machines are
+respectively good at abstract and intuitive tasks.  Moreover, in order to fully
+understand the subject matter, humans also need repeated stimulation that covers
+its different aspects (which may also helps to explain why humans are good
+at intuition), and I guess this might be a product of the natural adaption
+to better recognition of important knowledge, as was discussed using deduction
+graphs.  All these tell us that although formal systems only need the abstract
+notations of propositions and deductions, human additionally require remarks,
+examples, pictures, and real-life applications to fully understand them;
+for this very reason, \stress{formal abstractions and informal pictures
+are mutually complementary, and equally important to us}: for example,
+consider the $\epsilon$-$\delta$ definition of limits in calculus and its
+informal version, ``the value of the mapping can be made as close to the
+limit as demanded by setting the argument sufficiently close to the specified
+input value'', which also captures the underlying topological nature.
+
+There is one more issue to consider at the end of this section: in the above, I
+noted that mathematicians are often not allowed to produce ``roughly passable''
+results just as programmers often do, but why?  Because mathematicians usually
+need to rigorously prove their results, or at least present conjectures which
+they strongly suspect to be true; in comparison, programmers consider software
+as engineering products, and are often willing to sacrifice provable correctness
+in exhange for lower cost in development and maintenance due to the inherent
+complexity of software systems\footnote{\label{fn:formal}As a matter of fact,
+\stress{formal verification} is quite widely used in the hardware industry
+(perhaps due to the relatively fixed sets of requirements for hardware), but
+it still sees very few large-scale applications in software.  A well-known
+example is the formal proofs for the seL4 microkernel\cupercite{wiki:sel4},
+which is one order of magnitude larger than the codebase itself, and the
+latter is already very small and well-designed.}.  So when formal proofs
+are too expensive, we have to resort to reasoning by ourselves,
+and as Tony Hoare\cupercite{hoare1981} noted:
+\begin{quoting}
+	There are two ways of constructing a software design: one way is to make
+	it so simple that there are obviously no deficiencies, and the other way
+	is to make it so complicated that there are no obvious deficiencies.
+\end{quoting}
+So we know that while machines only need to know executable instructions
+corresponding to programs, humans also need to somehow ensure the
+\stress{correctness of these programs}; and whether the method to ensure
+correctness is formal proofs or human reasoning, clear understandings
+of the internal mechanisms of programs will be necessary.  Therefore
+when evaluating a software system, we should not only measure its size,
+but also examine the cohesion and coupling in the system, which is exactly
+why I stressed the term ``cognitive complexity'' in Section~\ref{sec:complex}.
+
+\section{Limits to application of Unix philosophy in society}\label{sec:society}
+
+As we have seen in this part, apart from the Unix philosophy in programming,
+minimalism also has its relevance in science, technology, literature, arts
+and philosophy; and this is not coincidental, because minimalism is rooted
+in human cognition, probably as a result of high cost for human multitasking.
+A natural question after this is ``is the Unix philosophy somehow applicable
+to society?'', since society is in many aspects similar to a machine, and thus
+can more or less be analysed from the Unix viewpoint.  One important reason
+for regarding society as a machine is that due to the division of labour,
+the former can be conceptually divided into interacting groups of people,
+each group doing a set of different tasks, and groups can again be divided
+into subgroups doing different subtasks.  Following this line of thought,
+society can be roughly compared to a system composed of interacting
+modules, and therefore the Unix philosophy seems applicable.
+
+Given this background, it is certainly beneficial to somehow induce
+\stress{a proper level of separation of concerns} between different groups
+(and similarly between subgroups inside a single group) in society, and it can
+also be tempting to suggest extremely fine-grained division of labour such that
+each person performs a very small and well-defined job mechanically.  However,
+as was graphically shown in Charlie Chaplin's masterpiece \emph{Modern Times},
+making people work like dumb machines would actually be against human nature,
+and would result in much more damages than benefits to society.  I believe this
+is one fundamental reason why society often does not work like Unix, and this
+can be explained by the human need for diverse stimulation as was discussed
+in last section: if all you did throughout the day was some mechanical and
+monotonous job, you mind would get full of that job, and would become
+increasingly estranged from other kinds of human acts.  Therefore while it is
+desirable to produce minimalist works, it is also necessary to \stress{respect
+the human nature} and encourage people to often try something different and
+mentally challenging; from another perspective, diverse stimulation also
+helps to boost people's creativity, and therefore contribute
+positively to the vibrancy of the whole society.
+
+As was emphasised just now, humans are not completely comparable to machines,
+due to the human need for diverse stimulation; similarly, groups of humans
+are not completely comparable to modules in computer systems, and one main
+reason for this is that \stress{social groups, once formed, would pursue their
+interests}, unlike software/hardware modules which just work mechanically.  For
+instance, as was observed by people like Laurent Bercot\cupercite{ska:systemd},
+companies naturally tend to produce mediocre software, and Paul Graham
+attributed\cupercite{graham2007} this to companies wanting developers to be
+replaceable; this tendency (even if it is an inadvertent effect) is destined
+to be more serious for open-source companies that rely on selling support for
+revenues, because it is more profitable to produce software that is hard to
+maintain, and I seriously suspect this has been a contributing factor in the
+systemd debacle (\cf~Section~\ref{sec:foss}).  From this we know that the
+interactions between social groups are not purely cooperative, and similar
+to modules in Unix-ish high-security software systems\cupercite{djb:qmailsec},
+social groups should have limited mutual trust; on this aspect, Unix and
+society have reached some kind of agreement, although in different ways.
+
+\section{Minimalism for the average person}\label{sec:worklife}
+
+I wrote in Section~\ref{sec:user} about the essence of efficient Unix learning,
+and how to realise this goal; after reading all previous sections in this part,
+you should already know that these are in fact not specific to Unix, and are
+instead general principles for all kinds of learning processes.  So what is
+the actual role of Unix in learning?  In my opinion, the Unix philosophy
+naturally nurtures the minimalist habit, which is the key to efficient
+learning; in this section, I will discuss how this habit can be better
+fostered, and how it can actually benefit the average person.
+
+As I wrote before, efficient learning is basically about reducing the total
+complexity of learning, and we already have a conceptual model for it --
+deduction graphs (\cf~Section~\ref{sec:boltzmann}); using this model, I
+analysed the criterion in Section~\ref{sec:user} for importance of knowledge,
+and here I have some additions to the analysis.  We know that instead of
+learning by rote\footnote{Sometimes, learning by rote can be inevitable, and in
+this case the learner can consider using a flashcard program, which can often
+dramatically increase the efficiency of memorisation.  Mnemosyne and Anki are
+two open-source flashcard programs, but unfortunately both feel quite bloated.},
+it is usually much better to remember the important points and deduce the rest
+from them on demand; this means we can ``compress'' a deduction graph into the
+common and useful notions therein, and then walk from these notions to the
+demanded parts.  However, it must be stressed that \stress{what we remember is
+not only the important notions}, but also a rough impression on how they are
+related to other notions, and this impression is usually (if not always) based
+on prior knowledge: for example, when learning the multiplication table,
+acquaintance with addition and subtraction is very useful because it helps the
+learner to associate unfamiliar results with familiar ones (\eg~$7 \times 6 =
+7 \times 7 - 7 = 49 - 7 = 42$).  So for efficient learning, the prior knowledge
+which the impression mentioned above depends on is preferably something deeply
+rooted in our mind, which I believe can be simply called intuition: as was
+analysed in Section~\ref{sec:cognitive}, in order to fully understand something,
+we need diverse stimulation, and intuition (\eg~natural numbers and their basic
+operations) is a result of prior stimulation, which can help to reduce the
+amount of stimulation need for learning; this also supports the point in the
+same section that informal pictures are as important as formal abstractions.
+
+We know from the above that in order to learn efficiently, we should not only
+focus on the important notions, but also try to find connetions between them and
+the notions that we have already been acquainted with, and we can often begin
+the latter with actively \stress{identifying similarities between notions},
+like ``\verb|fork()|/\verb|exec()| is like the Prototype Pattern'', and
+``musical intervals between the 12 notes are similar to time intervals between
+the 12 hours on a clock''.  With this practice, we would be able to use prior
+knowledge to minimise the amount of information we need to remember, achieving
+the effect called ``compressing the book into a booklet'' (of the essentials);
+besides, when new connections between notions are discovered, understanding
+of the old notions involved are also deepened, and as was noted in Section~%
+\ref{sec:devel}, profound understanding about the subject matter is often the
+key to elegant inventions.  On a conceptual level, after the discovery of
+structural similarities between different deduction graphs, deductions from
+each graph can often offer invaluable insight into previously overlooked
+deductions from others; on this aspect, the analogy between bouncing macroscopic
+fluid droplets and microscopic particles governed by quantum mechanics, as well
+as Chinese Academician Wan-Xie Zhong's work on the computational analogy between
+classical dynamics and structural mechanics, serve as two good examples.
+
+So we have examined the correlation between multiple deduction graphs, and
+considered how prior knowledge can help us to master new notions; as was noted
+in the above, \stress{new knowledge can also help us to consider prior notions
+in new ways}: in other words, ``reviewing the old reveals the new''; this is
+exactly why we should foster the habit of revisiting old knowledge, and is why I
+mentioned in Section~\ref{sec:devel} that we should often consider refactoring.
+Now that the issue of habits is mentioned again, I find it appropriate to note
+that both intuition and habits are results of repeated stimulation, and their
+difference is that the former mainly concerns ``what something is'' (\eg~lemons
+are sour) while the latter mainly concerns ``how to do something'' (\eg~how to
+use some tableware).  \stress{Good intuition is highly rewarding, but often
+requires a certain amount of training to acquire}: for example, a person with
+adequate training in organic chemistry would immediately recognise the
+elegance in the synthesis route for orzane (through cyclocatene) in \parencite%
+{zxhxy2018}\footnote{This is obviously not the original source, but I really
+could not find one; as far as I know, this synthesis route can be at least
+traced to 2014, when I drew its final step on a T-shirt after seeing it.},
+but the training would not be trivial even for the most intelligent student
+with the most excellent teacher.  The same also holds for habits, which also
+serves as a warning to us: as was noted in Section~\ref{sec:society}, we should
+respect the human nature, but meanwhile it would be unwise to indulge ourselves
+in habits that results in more damages than benefits in the long run; as a
+metaphor, while slouching may feel more comfortable, it usually leads to
+myopia, hunchback and pigeon chest, all of which I can attest to be unhealthy.
+
+In the end of this part, I would like to consider an example in classical
+music before presenting the final points: it is perhaps not quite unfair
+to say most musicians agree that J.\ S.\ Bach is the greatest composer in
+the history of Western music, while L.\ van Beethoven and W.\ A.\ Mozart
+contend for the second place; however, almost nobody would dispute Mozart's
+talent being much higher than Bach's, but why?\footnote{A similar comparison
+can perhaps be made between Albert Einstein and John von Neumann, although the
+judgement on their greatness would be much more controversial.}  I think the
+answer is implied in an observation by one of my schoolmates: ``Mozart always
+had new musical ideas, while Bach constantly explored for new possibilities in
+existent ideas''; it is perhaps due to this very reason that elements in Bach's
+works are often called prototypes for musical styles that would appear as late
+as the 20th century.  The point I would like to make from this example is
+that \stress{while ``geniuses'' can easily think in depth, they are often not
+quite motivated to think very hard and rethink old ideas}; the reason is that
+there are so many sufficiently meaningful problems for them to solve, but this
+also leave some obscure yet important corners untouched.  In programming, an
+extremely important part of these corners is the simplification of software
+systems, which is often accessible even to the average programmer as long as
+he/she is determined enough; in practice this simplification is more relevant
+for us, the average programmers, so in my opinion we should feel more
+motivated to do it than ``geniuses'' are.  In addition, as was analysed
+above, the minimalist habit lets us concentrate on the essentials of problems,
+which naturally gives rise to deep thinking and therefore can often provide
+profound insights that are the key to difficult problems.  Sometimes, these
+insights are exactly the difference between the great programmers and us,
+and this is perhaps another explanation for the Dennis Ritchie quotation
+in Section~\ref{sec:user} -- by adhering to minimalism, even the
+ordinary programmer can become a ``genius''; because of this very
+reason, I conclude this part with the following quotation:
+\begin{quoting}
+	Common sense is instinct, and enough of it is genius.
+\end{quoting}
+

@@ -1,0 +1,148 @@
+\documentclass{article}
+\usepackage[UTF8, scheme = plain, zihao = 5, linespread = 1.3]{ctex}
+\usepackage{indentfirst}
+\input{up2020.cfg}
+\newcommand*{\cf}{\emph{cf.}}
+\newcommand*{\eg}{\emph{eg.}}
+\newcommand*{\vs}{\emph{vs.}}
+\newcommand*{\etc}{\emph{etc}}
+\newcommand*{\etal}{\emph{et al}}
+\newcommand*{\rnrs}[1]{\emph{R$^{#1}\!$RS}}
+\newcommand*{\colskipa}{\vspace{-0.5\baselineskip}}
+\newcommand*{\colskipb}{\vspace{-0.5\baselineskip}}
+
+\begin{document}
+\title{\textbf{Unix Philosophy 2020}}
+\author{Casper Ti.\ Vector \texttt{<CasperVector@gmail.com>}}
+\date{2019-08/2019-09}
+\maketitle
+\vspace{\baselineskip}
+\tableofcontents
+
+\newpartx{0.5}
+\specialsec{Foreword}
+
+I began learning Linux in the end of 2008, and using it in the beginning of
+2009, and I have always used Linux as my main operating system thereafter.
+During the course of using Linux and interacting with the ecosystem of
+Unix-like operating systems, I became attracted to the notion of the Unix
+philosophy, and have benefited enormously from it.  (For more details on the
+origin of this document, see the \hyperref[sec:afterword]{Afterword}.)
+This document is a compendium of my thoughts about the Unix philosophy,
+organised in three main parts, as summarised below.
+
+In the first part, we will first discuss the question ``\stress{what is the
+essence of the Unix philosophy}?'', and I will argue that it is the minimisation
+of the cognitive complexity of the system while almost satisfying the
+requirements.  These years, many people think the philosophy, which originated
+from legacy limitations on computational resources back in the 1970s, is no
+longer applicable in software development, so \stress{is the Unix philosophy
+still relevant}, and will it still be relevant in the 2020s?  My answer is
+``yes, and more relevant than when it was born''.  As a conclusion to this part,
+I will give my experience about \stress{how the Unix philosophy can be
+followed in actual development}, to the developer's advantage.
+
+In the second part, we will move our focus out of the field of programming, and
+explore \stress{the applicability of the Unix philosophy in science, technology
+and society, and the limits to that applicability}.  After the discussion on
+science and technology, I will consider minimalism in literature, arts and
+philosophy, and attempt to find a cognitive basis for minimalism and its limits;
+the theory on the cognitive limits to minimalism will then be used to explain
+why society often does not work like Unix.  As a conclusion, we will discuss
+\stress{how minimalism can be adhered, especially by the ordinary person},
+to boost one's efficiency in everyday work.
+
+In the third part, we will return to programming, but this time we will begin
+with a digression about Lisp and especially Scheme, which also encourage
+minimalism.  In order to understand the minimalism of Lisp, we will examine
+the notion of homoiconicity, which I find as important as complexity.  I will
+then try to answer ``\stress{what is the root of the antagonism between
+Unix and Lisp}?'', and finally explore the benefits and feasibility of
+\stress{a minimalist language framework which adopts the best
+from Lisp and C}, and which also avoids the weaknesses.
+
+Before actually diving into the main parts, it should be noted that this
+document is meant to be read critically, for two reasons.  First, what I write
+here is just my personal opinions about the Unix philosophy, and the latter
+is just one way, among the many ones, to model the world.  Second, I still
+know little about unfamiliar research fields like philosophy, cognitive
+science, and programming languages, so the contents about these topics are
+highly tentative, and there may well be points that turn out to be amateurish
+or even ludicrous.  I attempted to avoid making mistakes in this document,
+and please feel free to tell me if you find any.
+
+This document is an extended transcript of my technical report, \emph{Unix
+philosophy in the contemporary era}\cupercite{casper2018}, on 10 November 2018
+for the Linux Club of Peking University; I consider it as the culmination of
+my 10-year experience in the open-source community, and dedicate it to the
+50th anniversary of Unix\cupercite{salus2005}.  I enjoyed making the report
+as well as this document, and wish you could also have some fun reading
+through the document, whether you are a newcomer to the community,
+or an expert who has lived almost 2 times more than I have done.
+
+\input{up2020-en-1.tex}
+\input{up2020-en-2.tex}
+\input{up2020-en-3.tex}
+
+\newpart
+\begingroup
+\setlength{\hfuzz}{7.5pt}
+\printbibliography[heading = bibintoc, title = References]
+\endgroup
+\newpart
+\specialsec{Afterword}\label{sec:afterword}
+
+Soon after beginning to learn Linux, I bought the book \emph{Classic Shell
+Scripting}, which initiated my first enthusiastic experience in formal
+programming.  My interest was exactly because of the word frequency program
+mentioned in Section~\ref{sec:shell}, used by the book as an example for the
+power of the Unix philosophy.  (Note how this is similar to V.\ I.\ Arnold's
+reaction to L.\ A.\ Tumarkin's teaching practice -- \cf~Section
+\ref{sec:cognitive}.)  Although the Unix philosophy (under the name
+``Software Tools philosophy'') was followed throughout the book, I did
+not intentionally follow the philosophy until I attended the \emph{Linux
+Programming Environment} course in Autumn 2009 by Mr.\ Dong-Gang Cao
+at my university, where the notion was formally given and emphasised.
+
+My life with Linux was relatively peaceful, until systemd came into the picture:
+in 2011 and 2012, the developers of systemd pushed for the addition of logind
+as a dependency of GNOME 3\cupercite{poettering2011a}, and merged udev into
+systemd\cupercite{sievers2012}; vehement controversies and flame wars beginning
+from then only began to wane in the last two years\cupercite{slashdot:systemd},
+and it is my explicit wish that this document contributes to the demise of
+systemd and the proprietary practices associated with it.  ``Every cloud has
+a silver lining'': in the search for a systemd substitute I found the s6 project
+in Summer 2014, and studying the design and implementation of software in the
+style by Daniel J.\ Bernstein proved to be an invaluable practice in application
+of the Unix philosophy.  During the process, the questions ``is the Unix
+philosophy now outdated?'' and ``what is the social value of the Unix
+philosophy?'' became recurring issues in my mind, which resulted
+in the first two main parts of this document.
+
+In Spring 2018, I envisioned a somehow C-like language based on S-expressions
+when considering the inexpressiveness of C\cupercite{vector2018b}, roughly
+one year after stumbling upon scsh\cupercite{angelbeats2018}, although I
+became aware of the elegance of Lisp perhaps as early as 2012, mainly from
+the writings by Yin Wang (while he is highly controversial in the Chinese
+open-source community, he often makes very interesting points).  The
+inspiration for said C-like language can actually be traced earlier, when
+I began thinking about the possibility of a shell-like language that also
+supports Bernstein chainloading\cupercite{vector2016a} in the beginning of
+2016.  I finally came up with a practical minimalist plan for such a language%
+\cupercite{vector2018c} in Spring 2018, and meanwhile came across the idea of
+``Lisp / C reconciliation'', which grew into the third part of this document
+through a discussion thread\cupercite{stevel2018} in the Gentoo forums.
+
+Before ending this document, I would like to thank the Linux Club of Peking
+University and the skarnet software community, without which I would probably
+be yet another highly amateurish dabbler in Linux, and this document would
+have never come into existence.  I would also like to thank the general
+open-source community, including the Unix circle, the Lisp circle and more,
+encompassing people pro-systemd and anti-systemd, for providing rich and
+diverse technical materials and opinions, which is a priceless offering.
+Inspired by the musical settings in \emph{Thunderstorm} by Yu Cao,
+and the appendices to \emph{The \hologo{TeX}book} and \emph{The
+\hologo{METAFONT}book} by Donald Knuth, the structure of this
+document was modeled after the \emph{Mass in B Minor} by J.\ S.\ Bach.
+\end{document}
+

@@ -1,0 +1,971 @@
+\newpart
+\section{Unix 历史简介}\label{sec:intro}
+
+CTSS\cupercite{wiki:ctss}（最早发布于 1961 年）被广泛认为是历史上第一个
+分时操作系统；它也是一个相当成功的系统，而其成功催生了更加有野心得多的
+Multics\cupercite{wiki:multics} 项目（其开发开始于 1964 年）；然而尽管有
+MIT、GE 和 Bell 实验室的共同努力，Multics 直到 1969 年才产生首个可商用的
+系统\cupercite{multicians:history}，原因在于其就当时的人力和计算资源而言过于
+复杂\footnote{事实上，Multics 的硬件需求并不强于今日的低端家用路由器，而相比
+之下现在的 Linux 只能在经过高度裁剪之后才能运行在这样的硬件上。Multicians 网站
+上有一个页面\cupercite{multicians:myths}对关于 Multics 的常见误解进行澄清。}。
+Bell 实验室在 1969 年退出了 Multics 项目，而之前在此项目上工作的 Ken Thompson
+和 Dennis Ritchie 转而开发另一个操作系统来满足自己的需求，这个系统后来得名
+“Unix”\cupercite{wiki:unixhist}。为了让新系统在当时 Bell 实验室中一台（多少）
+闲置的 PDP-7 小型机上可用且可维护，Thompson 对 Multics 的设计进行了大规模简化，
+只保留了其中如层状文件系统和 shell 等等的少量关键元素\cupercite{seibel2009}。
+
+1970 年代见证了 Unix 的发展传播（详见 \parencite{wiki:unixhist}），我认为其中最
+重要的历史事件是 1976 年《Lions' Commentary on Unix v6》\cupercite{wiki:lions}%
+\footnote{Unix v6 的一个现代移植版本见 \parencite{wiki:xv6}。}一书的发表，因
+其极大地促进了 Unix 在各大学中的传播。1980 年代初期出现了来自多家供应商的商业
+Unix 版本，但 AT\&T（当时拥有 Bell 实验室）却因反托拉斯的限制而不能商业化 Unix；
+情况在 1983 年发生了变化，此时 Bell 系统被拆分，于是 AT\&T 迅速把 Unix 商业化，
+并限制其源代码的传播。源代码交流上的约束加剧了已经出现的 Unix 碎片化，造成了
+我们现在所称的“Unix 战争”\cupercite{raymond2003a}，而这一战争以及 Unix 圈对
+80x86 微型机潜力的忽视导致了 1990 年代 Unix 在流行度上令人惋惜的衰退。
+
+1991 年，Linus Torvalds 开始开发他自己的操作系统内核，而后者成为了 Linux；GNU
+项目（开始于 1985 年）所提供用户空间工具和 Linux 内核的结合达成了提供一个自由、
+开源、低成本的自托管类 Unix 系统的目标\footnote{386BSD 项目也达成了这一目标，但
+其首次发布是在 1992 年；此外，当时的一场诉讼以及社区内讧\cupercite{wiki:386bsd}%
+分散了 BSD 人的精力，而现在或许可以说从那时开始 BSD 再也没能在流行度上赶超
+Linux。}，从而催生了 GNU/Linux 这一生态系统，而后者可能是开源运动中最重要的
+阵地。当今最流行的类 Unix 系统毫无疑问是 Linux 和 BSD，而 Solaris、QNX
+等等商业系统只有较小的市场占有率；一个不流行但很重要的系统是 Plan 9 from
+Bell Labs（最早发布于 1992 年），而我将在第 \ref{sec:plan9} 节中对其进行介绍。
+
+在结束本节（截止目前主要是非技术的内容）之前，我希望强调 Thompson 和
+Ritchie 自己认为“影响了 Unix 设计”的三点技术考虑\cupercite{ritchie1974}，
+这三点都将在后面的章节中涉及：
+\begin{itemize}
+\item \stress{对程序员友好}：Unix 被设计为提升作为程序员的用户工作效率的系统；
+	另一方面，我们将在第 \ref{sec:user} 节中讨论 Unix 方法论对普通用户的价值。
+\item \stress{简洁}：1970 年前后 Bell 实验室中机器的硬件限制导致了 Unix 对
+	经济和优雅的追求；这样的限制早已过时，那么追求简洁只有审美意义了吗？
+	我们将在第 \ref{sec:quality}--\ref{sec:foss} 节讨论这一问题。
+\item \stress{自托管}：即使最早的 Unix 系统也能独立维护，而不
+	依赖运行其它系统的机器；这要求系统能自举，而后者的意义将在第
+	\ref{sec:security}、\ref{sec:benefits}--\ref{sec:howto} 节中讨论。
+\end{itemize}
+
+\section{Shell 编程一瞥}\label{sec:shell}
+
+上节提到，shell 是 Unix 从 Multics 中借鉴的少数设计元素之一；事实上，
+作为除图形界面外普通用户和系统交互的主要渠道\cupercite{ritchie1974}，shell
+也是 Unix 中最体现其设计思想的组件之一。作为例子，我们可以看经典的词频排序问题%
+\cupercite{robbins2005}——编写程序输出指定文本文件中出现最多的 $n$ 个单词及其
+频数，这一问题吸引了 Donald Knuth、Doug McIlroy 和 David Hanson 前来给出解答。
+Knuth 和 Hanson 的程序分别采用 Pascal 或 C 从头编写，两者的编写和调试均
+花费数小时；McIlroy 的程序是一个 shell 脚本，其编写只需一两分钟，
+且第一次运行即通过，这一脚本稍加修改后如下：
+\begin{quoting}
+\begin{Verbatim}
+#!/bin/sh
+tr -cs A-Za-z\' '\n' | tr A-Z a-z |
+sort | uniq -c |
+sort -k1,1nr -k2 | sed "${1:-25}"q
+\end{Verbatim}
+\end{quoting}
+
+其首行告诉 Unix 这是一个由 \verb|/bin/sh| 解释执行的程序，
+剩下各行命令由\stress{管道}“\verb@|@”分为 6 步：
+\begin{itemize}
+\item 第 1 步的 \verb|tr| 命令将除大小写英文字母和“\verb|'|”字符外的
+	所有字符（\verb|-c| 选项指定取补）替换为换行符 \verb|\n|，
+	其中 \verb|-s| 选项指定将连续多个换行符替换为单个。
+\item 第 2 步命令把所有大写字母替换为相应的小写字母；
+	经过这一步，输入的文本被变换为每行一个全小写单词的形式。
+\item 第 3 步的 \verb|sort| 命令将所有行按字典顺序排序，
+	于是相同的单词必然在相邻的行输出。
+\item 第 4 步的 \verb|uniq| 命令把连续多个相同的行替换为单个，在加上
+	\verb|-c| 选项之后会在行首添加该行重复的次数（即词频）。
+\item 第 5 步的 \verb|sort| 命令将各行根据每行第 1 字段（即上一步添加
+	的频数）的数值从大到小排序（\verb|-k1,1nr| 选项，其中 \verb|n|
+	默认从小到大，\verb|r| 则指定按相反规则），在频数相同时根据第
+	2 字段（即单词本身）按字典顺序排序（\verb|-k2| 选项）。
+\item 第 6 步的 \verb|sed| 命令只打印其输入中最靠前的若干行，
+	而行数由脚本执行时的第 1 个参数决定，该参数为空时默认行数为 25。
+\end{itemize}
+除了便于编写、调试之外，这个脚本也具有很强的可维护性，因为其各个步骤对输入的要求
+以及处理规则十分简洁清晰，我们可以轻松地替换其中一些步骤的具体实现：例如上述的分
+词判据显然很粗糙，其中并未考虑单词形态变化（如“look”“looking”和“looked”看成同一
+单词）等问题；如果要在上述脚本中实现这样的需求，我们只须把头两步替换为其它
+的分词程序（大概须要单独编写），并设法让它按和原来相同的接口进行输入/输出。
+
+和许多 Unix 工具（例如上文中用到的几个工具）类似，该脚本从\stress{标准输入}%
+（默认为键盘）读取输入，并将结果写到\stress{标准输出}（默认为当前终端）%
+\footnote{C 语言中的 \texttt{stdio.h} 指的就是标准输入/输出。}；利用 Unix 的%
+\stress{输入/输出重定向}机制可以实现从/到指定文件的输入/输出，例如在 shell
+中运行以下命令（假定上述脚本名为 \verb|wf.sh| 且已赋予执行权限）
+\begin{quoting}
+\begin{Verbatim}
+/path/to/wf.sh 10 < input.txt > output.txt
+\end{Verbatim}
+\end{quoting}
+即可将 \verb|input.txt| 中出现最多的 10 个单词及其频数输出到 \verb|output.txt|。
+显然，管道也是一种重定向机制，其把左边命令的输出重定向到右边命令的输入；换一个
+角度，如果把被管道连接的各个命令看成一个个过滤器，那么每个过滤器所做的就是相对
+简单的操作，而像上述脚本那样的编程方式本质上就是将复杂的文本处理任务分解为通过
+管道环环相扣的多个简单过滤步骤，并用相对现成的工具实现相应的过滤器。从上面的
+例子，我们已经可以初步感受到 Unix 工具组合起来所能达成的强大威力；然而，包括
+Windows 在内的其它一些系统中往往也有和 Unix 中输入/输出重定向和管道等等
+相似的机制，那么为什么我们在这些系统中不常见到类似的用法呢？请看下节。
+
+\section{软件工程中的内聚和耦合}\label{sec:coupling}
+
+内聚和耦合是软件工程中极为重要的概念，这里我们先来了解什么是耦合：考虑
+\parencite{litt2014a} 图中两种极端情形下模块之间的交互关系（可以是通过文本或
+二进制字节流的通信，通过数据包或其它载体的消息传递，子程序之间的调用关系等等），
+假如系统出现故障须要调试时，两者的调试难度分别如何？假如系统需求有变须要调整时，
+两者的维护难度分别如何？我想答案应该非常明显。同样是由 16 个模块构成的系统，
+模块之间交互关系的复杂程度决定了在调试、维护难度上的天壤之别，而\stress{耦合度}
+正好可以理解为对这种交互关系复杂程度的度量；显然，我们希望系统中各模块尽量
+低耦合，而上节的脚本易调试、易维护也正是其内部各命令之间低耦合的结果。
+
+事实上，低耦合是传统 Unix 工具的普遍特点，那么为什么这些工具能实现低耦合？
+从上节的脚本中，我们已经可以窥见其中端倪：它们不仅有着明确的输入/输出接口，而且
+从输入到输出有着清晰的处理规则，或者说它们的行为有着明确的目标；从系统和模块的
+角度来看，看作模块的各个 Unix 工具往往分别实现不同的单元操作，如字符转换
+（\verb|tr|）、排序（\verb|sort|）、去重和计数（\verb|uniq|）等等。Unix 工具在
+实现时内部往往也要划分子模块，但其子模块之间的耦合即使在最优设计下也不得不远高于
+工具之间的耦合；我认为\stress{内聚度}正是对这种模块之间本质性耦合的度量，而按照
+高内聚的原则来划分模块会自然地迫使各模块进行明确的分工，从而降低系统的耦合。
+
+我们已经看到，高内聚、低耦合是我们希望软件系统能具有的属性。你可能会问，许多
+Windows 程序也低耦合（例如记事本和画图程序互不依赖）且在一定程度上高内聚（例如
+记事本用于编辑文本，画图程序用于画图），那么我们为什么不经常把它们像 Unix 工具
+那样组合起来用呢？答案其实很显然——因为它们没有被设计成可组合；说得更明确一点，
+就是它们不能使用某种像管道一样的简洁通用的接口来协作，因此难以在自动化任务中方便
+地重用。相比之下，我们在上节中看到的 Unix 强大之处正是在于其强调用户所使用工具在
+自动化任务中的可重用性，而这也导致高内聚和低耦合的原则在传统 Unix 工具中几乎体现
+到了极致\cupercite{salus1994}。总结起来，对内聚和耦合的要求必须放在\stress{协作
+和重用}的背景下考虑，而追求协作和重用也自然地促进高内聚、低耦合的设计。
+
+截止目前，我们看到的例子都相对理想化或简单化，这里我再举两个更加实际且和近年
+热点话题十分相关的例子。Unix 系统在启动时首先由内核创建第一个进程，并由该进程
+创建其它一些进程，这些进程共同管理系统服务；因为其中第一个进程在系统初始化中的
+重要地位，这个进程往往被称为“\stress{init}”\cupercite{jdebp2015}。systemd 是
+目前最流行的 init 系统，其 init 功能十分复杂、机制缺乏文档描述；此外，除了名为
+\verb|systemd| 的 init 程序以及相关辅助程序之外，systemd 还包含了许多其它非
+init 的模块，而所有这些模块之间有着复杂且缺乏文档说明的交互关系（其一种比较
+夸张的描绘可见 \parencite{litt2014b}）。显然 systemd 是低内聚、高耦合的，
+但事实上这种低内聚、高耦合并非必需，因为 daemontools 式的设计（本文档
+以 s6 为其代表）比 systemd 简洁得多，但功能却不弱于 systemd。
+
+s6 的 init 程序 \verb|s6-svscan| 扫描指定目录（“scan directory”，如
+\verb|/service|）下的子目录，并对每个子目录（“service directory”，如
+\verb|/service/kmsg|）运行一个 \verb|s6-supervise| 进程，后者通过运行 service
+directory 中名为 \verb|run| 的可执行文件（如 \verb|/service/kmsg/run|）运行相应
+的系统服务；用户可以使用 s6 提供的命令行工具 \verb|s6-svc|/\verb|s6-svscanctl|
+来和 \verb|s6-supervise|/\verb|s6-svscan| 交互，而且可以利用 service directory
+和 scan directory 中一些辅助性的文件调整 \verb|s6-supervise| 和 \verb|s6-svscan|
+的行为\footnote{这样的配置方式可能显得不太直观，而第 \ref{sec:homoiconic} 节
+和脚注 \ref{fn:slew} 将解释这样设计的理由和好处。}。s6 只管理长期运行的服务，
+短期运行的 init 脚本由 s6-rc 负责，后者也通过 s6 提供的工具跟踪服务的启动
+状况以实现对服务间依赖的管理。上文提到这样的设计在功能上不弱于 systemd，
+我在这里举一个例子（一些更深入的例子见第 \ref{sec:exec} 节）：systemd
+支持服务模版，例如定义名为 \verb|getty@| 的模版后，\verb|getty@tty1| 服务
+将会在 \verb|tty1| 上运行 getty 程序；在 s6/s6-rc 中，类似的功能可以通过在
+\verb|run| 脚本中调用一个 5 行的库脚本\cupercite{gitlab:srvrc}来实现。
+
+\section{Do one thing and do it well}\label{sec:mcilroy}
+
+Unix 式的设计原则常被称为“\stress{Unix 哲学}”，其
+最流行的表述无疑源自 Doug McIlroy\cupercite{salus1994}：
+\begin{quoting}
+	This is the Unix philosophy:  Write programs that do one thing and
+	do it well.  Write programs to work together.  Write programs to
+	handle text streams, because that is a universal interface.
+\end{quoting}
+
+结合上节的讨论，我们不难注意到 McIlroy 所说的第 1 点强调的是高内聚、低耦合%
+\footnote{顺便提到，这也说明了高内聚、低耦合的要求事实上并不是面向对象编程
+独有的；事实上，有人认为\cupercite{chenhao2013}面向对象编程中所有的设计模式都
+可以在 Unix 中找到对应（一个例子见第 \ref{sec:exec} 节）。}，第 2 点强调的是
+程序的协作和重用，而第 3 点似乎稍显陌生：在第 \ref{sec:shell} 节中，我们的确
+看到了文本处理工具相结合所产生的威力，但断言文本是一种通用的接口的深层理由
+是什么？我认为这可以用\stress{人机接口}对人和对计算机的友好程度来解释（第
+\ref{sec:cognitive} 节将再次涉及这一问题），即文本流是介于二进制数据和图形
+界面之间的一种折衷选择：二进制数据方便计算机处理但很难被人理解，而且不同
+处理器对其处理方式的微妙区别还带来了以大小端问题为代表的编码可移植性问题；
+图形界面最方便人理解，但编写起来明显比文本接口复杂，且至今仍然不便协作%
+\footnote{有必要指出，我并不排斥图形界面，而只是认为其设计有必要考虑自动化
+的需求；而据我所知，图形界面的自动化至今仍然是一个不简单的课题。我目前
+认为像 AutoCAD 那样在图形界面之外还有一个命令行界面，而操作图形界面时
+在命令行上自动出现等价命令的设计应该是一种很好的思路。}；文本流
+既方便计算机处理也比较方便人理解，其虽然也涉及字符编码问题，
+但后者总体上仍比二进制信息可能遇到的编码问题简单很多。
+
+McIlroy 的表述并非没有争议，其中以文本流作为通信格式是不是最佳选择是最主要
+的争议焦点，我们将在第 \ref{sec:wib} 节中进一步讨论这一问题；此外，这一表述
+的确几乎涵盖了截止目前我们看到的让 Unix 强大的原因，但我认为其并不能完全代表
+Unix 哲学。有必要指出，管道的出现直接导致了 Unix 先驱对命令行程序协作和重用的
+追求\cupercite{salus1994}，而 McIlroy 是 Unix 管道的发明者，因此他的总结明显
+是立足于 shell 编程的。Shell 编程固然重要，但它远非 Unix 的全部：在接下来
+两节中，我们将看到 shell 编程之外的体现 Unix 哲学的一些重要例子，它们
+并不能被 McIlroy 的经典表述概括；然后在第 \ref{sec:complex}
+节中，我将提出我所认为的 Unix 哲学的本质。
+
+\section{\texttt{fork()} 和 \texttt{exec()}}\label{sec:exec}
+
+进程是操作系统中最重要的概念之一，因此用于管理进程的操作系统接口具有一定的
+重要性；每个进程都拥有一系列状态属性，如当前工作目录、指向打开文件的句柄
+（在 Unix 下称为\stress{文件描述符} 即 fd，例如第 \ref{sec:shell} 节用到
+的标准输入、标准输出，以及第 \ref{sec:complex} 节将涉及的\stress{标准错误
+输出}）等等，那么我们如何创建处于指定状态的进程呢？在 Windows 下，进程的创建
+通过 \verb|CreateProcess()| 系列的函数实现，后者一般需要约 10 个参数，其中部分
+参数又是包含多项信息的结构体，于是我们在创建进程时须要传递复杂的状态信息；
+注意到我们本来也需要系统接口来修改进程状态属性，进行这种修改的代码相当于是在
+\verb|CreateProcess()| 中重复了一次。在 Unix 下，进程的创建通过 \verb|fork()|
+函数实现，其新建一个和当前进程具有相同状态属性的子进程，后者可以通过
+\verb|exec()| 系列的函数把自身替换为其它程序；在 \verb|exec()| 前，子进程可以
+通过普通的系统接口修改自身的状态属性，这些属性在 \verb|exec()| 时保持不变。
+显然，\verb|fork()|/\verb|exec()| 只需要很少的信息，Unix 利用这一机制实现了
+进程创建和进程状态控制的解耦；此外考虑在到实际应用中，创建进程时子进程往往须要
+继承父进程的多数属性，\verb|fork()|/\verb|exec()| 事实上也明显简化了用户代码。
+
+你如果了解一些面向对象编程，那么应该不难注意到 \verb|fork()|/\verb|exec()|
+机制正好体现了“原型模式”的设计思路，而这一思路也启发我们思考创建系统服务进程的
+方式：在 systemd 中，服务进程由其 init 程序 \verb|systemd| 创建，后者读取各服务
+的配置文件，运行相应的服务程序，并根据配置文件在 \verb|exec()| 前设定服务进程的
+属性；在这样的设计下，进程创建和进程状态控制的相关代码自然都要包含在其 init
+中，也就是说 systemd 在概念意义上相当于是用 \verb|fork()|/\verb|exec()| 实现了
+\verb|CreateProcess()| 模式的服务进程创建。借鉴之前的思路，我们可以把进程状态
+控制从 init 模块完全解耦：例如在 s6 中，\verb|s6-supervise| 在 \verb|exec()|
+\verb|run| 程序之前几乎不修改任何的进程属性；\verb|run| 程序几乎总是脚本（部分
+实例可参考 \parencite{pollard2014}），其在设定自身的进程属性之后 \verb|exec()|
+实际的服务程序。利用连续 \verb|exec()| 实现进程状态控制的技巧被形象地称为
+\stress{Bernstein chainloading}，因为 Daniel J.\ Bernstein 在其 qmail（首次发布
+于 1996 年）和 daemontools（首次发布于 2000 年）软件中广泛应用了这种技巧；s6
+的作者进一步贯彻了这种技巧，他将 chainloading 的单元操作实现为一组分立的
+工具\cupercite{ska:execline}，利用它们可以实现一些相当有趣的
+需求（一个例子见脚注 \ref{fn:logtype}）。
+
+在创建服务进程时，chainloading 显然远比 systemd 的机制灵活，因为前者所用的模块
+具有高内聚、低耦合的优良特点，因此易调试、易维护；相比之下，systemd 提供的机制和
+同一版本下其它的 systemd 模块高耦合，所以在出现问题（例如 \parencite{edge2017}）
+时不易替换出问题的模块。因为 chainloading 有着简洁清晰的接口，我们在须要
+操作新出现的进程状态属性时可以轻松地实现相应的 chainloader，并将其集成到
+系统当中而无需升级：例如 systemd 对 Linux cgroup 的支持经常被其开发者作为
+systemd 的一大卖点\cupercite{poettering2013}，但 cgroup 的用户接口不过是对
+\verb|/sys/fs/cgroup| 目录树的操作，这在 chainloading 时很容易进行；现在已经有
+一些现成的 chainloader 可用\cupercite{pollard2019}，因此可以说 daemontools
+式设计在对 cgroup 的支持上有天然的优势。此外，chainloader 的可组合性让我们
+可以实现一些难以直接用 systemd 的机制描述的操作：例如我们可以先设定环境变量
+调整后续 chainloader 的行为，然后在 \verb|exec()| 服务程序前又把环境变量
+清空；一个更高级的例子见 \parencite{ska:syslogd}。
+
+有必要指出，\verb|fork()|/\verb|exec()| 的雏形在比 Unix 更早的操作系统中已经
+出现\cupercite{ritchie1980}，Thompson 和 Ritchie 等等人出于对实现简洁性的追求
+选择了通过这一机制来实现进程的创建，因此其并不完全是 Unix 中的原创；然而我们也
+看到，基于 \verb|fork()|/\verb|exec()| 及其思路可以简洁清晰地实现许多复杂任务，
+这从直觉上看和第 \ref{sec:shell} 节中体现的 Unix 设计理念是符合的。现在回到 Unix
+哲学的话题：\verb|fork()|/\verb|exec()| 体现了高内聚、低耦合的原则，方便了相关
+接口的协作和重用，因此我们可以勉强认为其满足上节中 Doug McIlroy 总结的前两条，
+尽管其不直接反映在 shell 编程中；然而这一机制并不涉及采用文本接口与否，
+因此它和 McIlroy 的最后一条没有太大关系，而我认为这说明 McIlroy
+对 Unix 哲学的表述并不能满意地概括 \verb|fork()|/\verb|exec()|。
+
+\section{从 Unix 到 Plan 9}\label{sec:plan9}
+
+1979 年发布的 Unix v7\cupercite{mcilroy1987} 已经具有了当今类 Unix 操作系统所
+基于的大多数概念（如文件、管道、环境变量），以及沿用至今的许多\stress{系统调用}%
+（用户空间请求内核服务的方式，如进行文件读写的 \verb|read()|/\verb|write()| 和
+上节提到的 \verb|fork()|/\verb|exec()|）；为了操作各种硬件设备的特殊属性，同时
+避免系统调用数随着 Unix 支持的设备种类数疯狂增长，这一版本的 Unix 中引入了系统
+调用 \verb|ioctl()|，后者是一个根据其参数的值操作各种设备属性的“多面手”，例如
+\begin{quoting}
+\begin{Verbatim}
+ioctl (fd, TIOCGWINSZ, &winSize);
+\end{Verbatim}
+\end{quoting}
+将文件描述符 \verb|fd| 所对应串口终端的窗口尺寸存入结构体 \verb|winSize| 中。
+在直到这时（乃至之后少数几年）的 Unix 中，虽然有文件、管道、硬件设备等等不同的
+系统资源要操作，这些操作基本都通过文件接口来实现（例如对 \verb|/dev/tty| 的
+读写被内核解释为对终端的操作），换言之“一切皆是文件”；当然正如刚提到的，为了
+操作各种硬件的特殊属性，出现了 \verb|ioctl()| 这样一个例外。和当今的类 Unix
+系统相比，这时的 Unix 主要有两大本质区别：没有网络支持，也没有图形界面；
+遗憾的是，这两项功能的加入让 Unix 越来越明显地偏离了“一切皆是文件”的设计。
+
+Berkeley socket\cupercite{wiki:sockets}在 1983 年作为 TCP/IP 网络协议栈的用户
+接口在 4.2BSD 中出现，并在 1989 年随着相关代码被其版权方置入公有领域开始成为
+最主流的互联网接口；伴随 socket 而来的是一系列新系统调用，如 \verb|send()|、%
+\verb|recv()|、\verb|accept()| 等等。socket 在形式上和传统的 Unix 文件类似，但
+前者暴露了过多的网络协议细节，这使它的操作比后者复杂得多，其一个典型实例可见
+\parencite{pike2001}；此外，引入 socket 后系统调用之间出现重复，如 \verb|send()|
+和 \verb|write()| 类似，\verb|getsockopt()|/\verb|setsockopt()| 和已经很丑陋的
+\verb|ioctl()| 类似。在此之后，Unix 的系统调用开始不断膨胀：例如目前 Linux 有
+多于 400 个系统调用\cupercite{kernel:syscalls}，而相比之下 Unix v7 只有约 50
+个\cupercite{wiki:unixv7}；这带来的一个直接后果是系统接口整体复杂化且统一性被
+削弱，导致学习成本增加。诞生于 1984 年的 X Window 系统\cupercite{wiki:xwindow}%
+（即现在常说的 X 或 X11）有和 Berkeley socket 类似的问题，而且比后者更严重：%
+socket 至少在形式上和文件相似，而 X 的“窗口”和其它资源则根本不以文件的形式
+出现；此外虽然 X 没有像 socket 那样引入新的系统调用，但是它的可以类比于
+系统调用的基本操作数比socket 相关的系统调用数大得多，而这还是在
+只考虑 X 的核心模块而不包含任何扩展的情况下。
+
+在上面的分析之后，我们自然要问，怎样在 Unix 中以符合其设计理念的方式实现对网络和
+图形界面的支持？Plan 9 from Bell Labs（一般简称 Plan 9）在很大程度上正是 Unix
+先驱对这一课题进行探索的产物\cupercite{raymond2003b}。之前提到，\verb|ioctl()|
+和 \verb|setsockopt()| 等等系统调用是为了操作各种系统资源的特殊
+属性而产生的，而这些操作似乎并不容易映射到对文件系统的操作；但从另一方面看，对
+资源属性的操作也是通过用户空间和内核之间的通信完成的，只不过这种通信中传递的是
+代表资源属性操作的特殊数据。在这一思路下，Plan 9 大量采用\stress{虚拟文件系统}%
+来代表各类系统资源（例如网络由 \verb|/net| 代表），从而贯彻“一切皆是文件”的设计%
+\cupercite{pike1995}；和各种资源文件（如 \verb|/net/tcp/0/data|）关联的控制文件
+（如 \verb|/net/tcp/0/ctl|）实现对资源属性的操作，不同的\stress{文件服务器}把
+文件操作映射到各类资源操作，而传统的\stress{挂载}操作将目录树关联到文件服务器。
+文件服务器通过网络透明的 \stress{9P 协议}进行通信，因此 Plan 9 天然地是一个
+分布式操作系统；为了实现进程之间、机器之间的相对独立性，Plan 9 中每个进程
+有自己独立的\stress{命名空间}（例如一对父子进程所见的 \verb|/env| 可以
+互相独立，由此实现环境变量的独立性），相应地普通用户也能执行挂载操作。
+
+利用上述机制，我们可以在 Plan 9 中只基于其约 50 个系统调用\cupercite%
+{aiju:9syscalls}异常轻松地执行许多复杂任务：例如通过挂载远程机器上的
+\verb|/proc| 可以实现远程调试，而通过挂载远程机器上的 \verb|/net| 可以实现
+VPN 的需求；又例如通过对 \verb|/net| 设置权限可以调整用户的网络权限，而通过对
+\verb|/dev/mouse|、\verb|/dev/window| 等等设置权限可以约束用户对图形界面的访问。
+再回到 Unix 哲学的话题：从直觉上看 Plan 9 的设计的确体现了 Unix 哲学，但如果
+说上节分析的 \verb|fork()|/\verb|exec()| 还勉强符合第 \ref{sec:mcilroy} 节中
+McIlroy 对 Unix 哲学的表述的话，Plan 9 所贯彻的“一切皆是文件”设计理念恐怕
+很难用这一表述来概括；可见 McIlroy 的表述并不太完备，我们需要一个更好的总结。
+
+\section{Unix 哲学：最小化系统复杂度}\label{sec:complex}
+
+从前两节，我们已经看到 Doug McIlroy 的总结并不能满意地概括 Unix
+哲学的全部；这一总结（特别是其第 1 点）的确可以认为是最主流的，
+但除此之外其它的总结也有很多\cupercite{wiki:unixphilo}：
+\begin{itemize}
+\item Brian Kernighan 和 Rob Pike 强调将软件系统设计成易组合使用的多个小工具，
+	每个工具可以相对独立地完成一类简单任务，它们组合起来使用便可完成复杂任务。
+\item Mike Gancarz\footnote{有趣的是，他是 X Window 系统（见第
+	\ref{sec:plan9} 节）的设计者之一。}把 Unix 哲学总结为 9 条规则。
+\item Eric S.\ Raymond 在《Unix 编程艺术》中总结了 17 条规则。
+\item 除此之外也有不少其它的表述，例如上节提到的“一切皆是文件”。
+\end{itemize}
+我认为对 Unix 哲学的不同表述都有一定的参考价值，但它们本身也须要总结，正如上节
+中提到 Plan 9 通过虚拟文件系统、9P 协议和命名空间，只用约 50 个系统调用实现了
+其它系统用几百个系统调用实现的需求一样。在第 \ref{sec:shell}、\ref{sec:exec}%
+--\ref{sec:plan9} 节中，我们判断一个系统符合 Unix 哲学的直观依据都是它用少而
+简洁的机制和工具实现了通过其它途径实现起来更加复杂的需求，也就是说它们降低了
+系统的复杂度；基于这样的观察，我认为 Unix 哲学的本质在于\stress{在几乎
+满足需求的前提下最小化系统的认知复杂度}，其中 3 处限制解释如下：
+\begin{itemize}
+\item 前提是\stress{几乎}满足需求，因为所考虑的需求往往可以分为核心部分
+	（例如实现对网络和图形界面的支持）和非核心部分（例如支持 Berkeley socket
+	和 X Window 系统），其中一些非核心部分可以舍弃或者用更好的方式实现。
+\item 要求考虑\stress{系统}的总复杂度，因为系统中的模块之间存在交互，只考察其中
+	部分模块将导致它们依赖的模块对它们的行为造成的影响被忽略：例如假设某个需求
+	可以实现成 \parencite{litt2014a} 图中的两种形式，但两种实现有着相同的用户
+	接口，在这种情形下我们显然不能以接口相同为由说两者符合 Unix 哲学的程度相同。
+\item 明确所讨论的复杂度是\stress{认知}复杂度，因为如上述比较所示（一个更
+	实际的比较可见 \parencite{github:acmetiny}/\parencite{gitlab:emca}），
+	一个系统结构的优劣并不只取决于其代码尺寸，我们还须要考虑其中模块内聚和
+	耦合的程度，而后者本质上是系统对人而非机器所表现的属性，对此我将在第
+	\ref{sec:cognitive} 节进一步讨论。
+\end{itemize}
+
+我们来看一个比较新的例子。在以 sysvinit 为代表的一些 init 系统中，长期运行的
+系统服务通过 \verb|fork()| 脱离用户 shell 的控制，实现后台运行\cupercite%
+{gollatoka2011}：当用户在 shell 中运行服务程序时，该程序 \verb|fork()| 出一个
+子进程，然后父进程退出，这时 shell 因为用户运行的（父）进程已经结束而等待用户的
+下一命令，而子进程因父进程已结束而自动成为 init 的子进程，不再受用户 shell 的
+控制。然而要控制服务的状态就要知道它的进程 ID 即 PID，上述子进程的 ID 除了存入
+一个“PID 文件”之外没有太好的办法传递，而 PID 文件又是一个丑陋的机制：如果服务
+进程崩溃，PID 文件将失效，而 init 系统无法得到实时的通知\footnote{事实上 init
+会在其子进程结束时得到通知，但通过这一机制来监控 \texttt{fork()} 的服务程序会
+制造更多的复杂度，而且并不能干净地解决问题（例如，要是服务在写 PID 文件前就
+崩溃了，该怎么办？）；所有其它“修复”PID 文件的尝试都被类似问题困扰，而这些
+问题在使用 process supervision 时都不复存在。}；此外原 PID 可能被
+后续的新进程取代，使 init 系统将其它进程误认为是服务进程。
+
+在 s6 中（其它 daemontools 类系统以及 systemd 的做法与此类似），服务进程是
+\verb|s6-supervise| 的子进程，其退出时内核会立刻通知 \verb|s6-supervise|；用户
+可以通过 s6 提供的工具通知 \verb|s6-supervise| 改变服务的状态，服务进程因完全
+独立于用户 shell 而不再须要通过 \verb|fork()| 来进入后台。s6 的这种机制称为%
+\stress{process supervision}，由上述分析可见 init 系统利用这一机制可以实时跟踪
+服务状态，而不用担心随 PID 文件而来的一系列问题；此外，因为在 supervision 机制下
+服务进程在退出后永远由原父进程（如 \verb|s6-supervise|）重启，不像 sysvinit 机制
+下在开机时由 init 的某个近亲进程创建，而重新启动时由用户 shell 创建，前一机制
+下服务运行环境的可重复性要强很多。Supervision 机制的一个表面问题是服务不能像
+sysvinit 那样通过 init 脚本的结束来通知 init 系统自身已经就绪，而需要另外的
+机制；s6 的就绪通知机制\cupercite{ska:notify}非常简洁，且可通过
+工具\cupercite{ska:sdnwrap}模拟 systemd 的机制。
+
+Process supervision 更大的优势在于对系统日志的处理。在 sysvinit 机制下，为了脱离
+用户 shell 的控制，服务进程须要将其在 \verb|exec()| 时从 shell 继承来的指向用户
+终端的文件描述符重定向到其它位置（一般为 \verb|/dev/null|），于是其日志在不直接
+写到磁盘时就必须通过其它方式保存。这就是 syslog 机制的来源，其让各个服务进程将
+日志输出到被系统日志程序监听的 \verb|/dev/log|，这使得所有系统日志要在被混合到
+一起之后再由日志程序根据指定规则分类和过滤\footnote{\label{fn:logtype}事实上，
+因为 \texttt{/dev/log} 是一个 socket（准确地说，须要是一个 \texttt{SOCK\_STREAM}
+socket\cupercite{bercot2015d}），日志程序原则上可以对日志来源进行有限的的判断
+从而对日志流进行一定的分组，而用 s6 作者编写的工具不难实现这一需求\cupercite%
+{ska:syslogd, vector2019b}。}，这些操作因为涉及字符串匹配而可能在日志量很大时
+成为系统的一个性能瓶颈。在 supervision 机制下，我们可以为每个服务进程创建一个
+相应的日志进程\cupercite{ska:s6log}\footnote{遗憾的是 systemd 并没有这么做，而是
+像 syslog 机制一样把所有日志混合到一起之后再处理。顺便提到，这里的各个日志进程
+可以分别以不同的低权限用户身份运行，从而实现高度的权限分离；此外原则上只要对这里
+的日志程序作些修改，就可以实现防止日志被篡改\cupercite{marson2013}的特性，后者
+常被 systemd 支持者当作其独有特性来吹嘘。}，并通过 chainloading 把前者的标准错误
+输出定向到后者的标准输入，这样服务进程只须写标准错误输出即可传输日志信息；因为
+各日志进程只须对相应服务（而非整个系统）的日志进行分类和过滤，这些操作的资源消耗
+可以被最小化。不仅如此，利用“\stress{fd holding}”的技巧\cupercite{ska:fdhold}%
+（它顺便还可以用来实现所谓“socket activation”），我们可以建立强容错的日志
+信道，保证日志信息在服务进程和日志进程中任意一方崩溃重启时不丢失。
+
+由上述分析可见 process supervision 能明显简化对系统服务及其日志的管理，
+其一个非常典型的例子是对 sysvinit 机制下 MySQL 服务管理的极大简化%
+\cupercite{pollard2017}；因为这一机制用简洁清晰（极小化系统认知复杂度）
+的方式实现了管理系统服务和日志的需求（而且还能干净利落地实现用旧机制
+实现起来很麻烦的新需求），所以我认为其非常符合 Unix 哲学。
+
+\section{Unix 哲学和软件质量}\label{sec:quality}
+
+第 \ref{sec:intro} 节提到 Unix 诞生时的资源限制导致了其对经济和优雅的追求，
+而正因如此当今不少人认为 Unix 哲学已经过时；我认为对此可以从软件质量的角度来
+分析，即软件系统符合 Unix 哲学与否是不是和其质量相关。软件质量有许多定义，
+其中一种\cupercite{wiki:quality}将其分为\stress{可靠性}、\stress{可维护性}、%
+\stress{安全性}、\stress{性能}和\stress{尺寸}共 5 方面，显然其中后 2 方面主要
+面向机器，而前 3 方面主要面向人。既然硬件资源限制是 Unix 哲学产生的最主要原因，
+我们就先来看和机器更相关的 2 个方面：在硬件资源比 Unix 诞生之初丰富若干个数量级
+的当今，就我们感知到的软件性能和尺寸而言，遵循 Unix 哲学是不是已经不那么重要了
+呢？我倾向于给出否定的结论，对此我以目前多数用户最平常的需求之一——网页浏览为例。
+
+随着硬件的不断升级，我们的浏览体验似乎应该越来越流畅，但我们实际感受到的却
+往往并非如此：虽然下载文件的速度和观看视频的分辨率日益增长，但是我们在许多网站
+上感受到的网页加载速度似乎并没有随之快速增长；这一观察或许具有一定的主观性，但
+Google 的“Accelerated Mobile Pages”和 Facebook 的“Instant Articles”等等框架的
+出现大概可以佐证这一现象的存在性。除此之外，浏览器占用大量内存的问题并未随着
+时间的推移而消失，这在一定程度上说明除了性能问题外，尺寸问题在长远意义上
+并没有随着硬件的升级被满意地解决；这在软件领域内是一个普遍的
+问题，其一个经典概括是\cupercite{wiki:wirth}
+\begin{quoting}
+	Software efficiency halves every 18 months, compensating Moore's law.
+\end{quoting}
+我认为，我们如果只满足于编写就性能和尺寸而言在同时期的硬件上刚好够用的软件，
+那么或许可以不考虑 Unix 哲学；但是如果希望编写性能和尺寸不随新版本
+发布逐步恶化的软件，那么 Unix 哲学仍然有其价值。
+
+现在考虑和人更相关的 3 个方面，其中安全性将在下节专门讨论，所以我们现在着重关注
+可靠性和可维护性。不可否认，当今的程序员资源和编程工具与 Unix 诞生之初有着天壤
+之别，这也是当今主流类 Unix 系统能远复杂于 Multics（见第 \ref{sec:intro} 节）的
+原因；但另一方面，我认为这些方面的进步远不足以和 Tony Hoare 在其获得 Turing 时
+的报告中总结的规律\cupercite{hoare1981}（不少计算机科学家有类似的观点）相对抗：
+\begin{quoting}
+	Almost anything in software can be implemented, sold, and even used, given
+	enough determination.  There is nothing a mere scientist can say that will
+	stand against the flood of a hundred million dollars.  But there is one
+	quality that cannot be purchased in this way, and that is reliability.
+	\stress{The price of reliability is the pursuit of the utmost simplicity.}
+	It is a price which the very rich find most hard to pay.
+\end{quoting}
+Hoare 的关注点在于可靠性，但我认为可维护性在很大程度上也受此规律的制约，
+复杂度和可维护性（我将开发成本看作其一方面）之间关系的一个例子可见
+\parencite{rbrander2017}。下文中我将以 s6 和 systemd 为例
+论证复杂度和可靠性、可维护性之间的关系。
+
+如第 \ref{sec:coupling} 节所述，init 是 Unix 系统启动后的第一个进程，而事实上
+它也是系统中整个进程树的根节点，其崩溃（退出）将导致内核崩溃\footnote{但 init
+可以 \texttt{exec()}，这使得 \texttt{switch\_root} 等机制成为可能；此外，s6
+正是利用 init 的 \texttt{exec()} 实现了系统启动初期/关机末期相关代码和 init
+系统主要子模块的解耦\cupercite{ska:pid1}。}，所以它必须非常可靠；init 拥有 root
+权限，因此它也必须具有高安全性。之前也提到，和 s6 的设计完全相反，systemd 的
+init 模块过于复杂，而且和其它模块之间有太多太复杂的交互关系，这导致其 init 行为
+难以满意地控制，例如 \parencite{ayer2016} 和 \parencite{edge2017} 就是这造成
+实际问题的例子。类似地，systemd 低内聚、高耦合的架构使其它模块存在和 init 模块
+类似的难调试、难维护的问题：systemd 未解决的 bug 报告数量随着时间不断增长，至今
+没有任何进入某种平台期（遑论开始减少）的趋势\cupercite{waw:systemd}；相比之下，%
+s6/s6-rc 和相关的几个软件包一旦报告任何 bug（其数量很少）几乎总是可以在一周之内
+修复，而即使把其它被 systemd 在功能上模拟的项目也算进来，它们的 bug 总量也不像
+systemd 那样增长\footnote{我们还可以把规模巨大且开发很快的 Linux 内核和 systemd
+对比：前者通过周期性暂停加入新特性（\stress{feature freeze}）并专注修复本周期内
+发现的 bug（\stress{bug converge}）有效地控制了其 bug 数的增长；systemd 开发者
+没有这样做，也没有采取其它项目管理手段来控制 bug 数增长，这说明他们在软件开发中
+缺乏合理规划（当然这可能是因为觉得根本无法有效地修复 bug 而不引入新问题）。}。
+
+从用户的角度看，systemd 的行为过于复杂，这使其文档只能描述其最典型的应用场景，而
+大量未被开发者考虑到的情形成为真正的“corner case”（例如 \parencite{dbiii2016}；
+\parencite{vr2015} 对这类问题的技术根源进行了相当细致的分析），这些情形下
+systemd 的行为很难从文档推断；而且有时即使碰巧成功用 systemd 实现了需求，
+相应的配置也因 systemd 行为的影响因素太多而缺乏可重复性（例如
+\parencite{fitzcarraldo2018}/\parencite{magsforumtechno.2019}）。相比之下，
+一个熟悉 shell 编程以及和进程相关基本概念的用户花 2--3 个小时就可以从容地阅读完
+s6/s6-rc 的核心文档，之后用户就可以用 s6/s6-rc 实现自己需要的系统配置，其中
+如果遇到问题绝大部分都可以在很快的时间内找到原因，而且很难遇到因 s6/s6-rc
+自身造成的问题\cupercite{gitlab:slewman}。此外，systemd 的行为变化太快%
+\cupercite{hyperion.2019}，这在其行为已经十分复杂的背景下无疑是雪上加霜；
+相比之下，s6/s6-rc 和相关的几个软件包在出现（少数）破坏后向兼容性的变更时有
+明确的说明，这结合相关工具良定义的行为使得更新带来的不确定性被减少到最低程度。
+
+systemd 有着比 s6 多几乎两个数量级的开发者，而且应用了覆盖测试和 fuzzing
+等等比较先进的开发方法，但是即使这样它的质量也远远不如 s6，这充分说明人力资源的
+增加和编程工具的进步仍然远远不能替代对软件简洁性的追求。如果说就软件性能和尺寸
+而言还可以认为 Unix 哲学重要性不如以前的话，我认为由上述分析可知，就可靠性和
+可维护性而言\stress{Unix 哲学从未过时，而且比它诞生之时更加重要}：由资源限制的
+消失引起的对简洁性的忽视加剧了低质量软件的横行，systemd 只是其在系统编程领域
+的一种极端体现\cupercite{ska:systemd}；以前资源限制强迫程序员追求简洁，现在
+我们在很大程度上只能靠自律贯彻 Unix 哲学，这比以前更难\footnote{类似的
+现象并不只在编程领域有，例如 1990 年代 Microsoft Publisher 等软件的
+出现让普通人也能进行基本的排版工作\cupercite{kadavy2019}，但由此
+也助长了人们对基本排版原则的忽视\cupercite{suiseiseki2011}。}。
+
+\section{Unix 哲学和软件安全性}\label{sec:security}
+
+在 Edward Snowden 披露了美国的 PRISM 项目之后，信息安全成为近年受到持续关注的
+话题，所以本文档专门用一节的篇幅来讨论 Unix 哲学和软件安全性的关系。如果假设软件
+中的缺陷只有极少数是由怀有恶意者植入，那么安全漏洞和其它缺陷一样都基本是开发者在
+无意中引入的；由此我认为可以假定软件系统的认知复杂度决定其缺陷数，因为编程工作
+不过是和其它脑力劳动类似的任务，而同一个人花费等量精力制造的同类产品中错误数量
+理应相近。软件系统的缺陷（包括安全漏洞和其它缺陷）随新代码而产生，随分析和调试
+而消失，而分析和调试的困难程度显然取决于软件的代码量和内聚/耦合程度，也就是
+系统的认知复杂度；至此我们可以看到，\stress{软件的复杂度是决定其包括安全漏洞
+在内各种缺陷产生和消失的关键因素}（这大概也能解释 systemd 中未解决 bug 数为何
+持续增长），因此追求简洁的 Unix 哲学对于软件安全性有着极为重要的意义。
+
+不少软件缺陷出现的根源在于这些软件在设计上的本质缺陷，而在信息安全中很大程度上
+与此对应的就是密码协议的缺陷；相应地，对于之前的纯理论分析我给出两个例子，一个
+关于密码协议，另一个关于密码协议的实现。密码协议因其强数学化的特点而可以进行数学
+化的分析，而信息安全领域也普遍认为没有经过充分理论分析的密码协议缺乏实用意义%
+\cupercite{schneier2015}；然而正是在这样的背景下，一些被广泛使用的密码协议却复杂
+到了难以分析的程度，其中一个典型例子是以 IPsec 为代表的 IP 安全协议\footnote{我
+认为近年新出现的 cjdns（以及后续的 Yggdrasil 等）从协议上看可能是很有潜力的
+方案，因其是一个强制端到端加密（避免监控和篡改，简化上层协议）的网状网（简化
+路由，且使 NAT 不再必要），使用直接从公钥生成的 IPv6 地址作为网络标识符（杜绝
+IP 地址伪装），且总体设计比较简洁。有必要说明，我很讨厌 cjdns 现在的实现，后者
+从构建系统到自身代码都显得过于臃肿；我甚至怀疑，几乎相同的协议如果由 s6 的作者
+来实现，最后的代码量可能不到现在的十分之一。}。Niels Ferguson 和 Bruce Schneier
+在分析了 IPsec 之后认为\cupercite{ferguson2003}：
+\begin{quoting}
+	On the one hand, IPsec is far better than any IP security protocol that has
+	come before: Microsoft PPTP, L2TP, etc.  On the other hand, we do not
+	believe that it will ever result in a secure operational system.  It is far
+	too complex, and the complexity has lead to a large number of ambiguities,
+	contradictions, inefficiencies, and weaknesses.  It has been very hard work
+	to perform any kind of security analysis; we do not feel that we fully
+	understand the system, let alone have fully analyzed it.
+\end{quoting}
+并提出了以下的规则：
+\begin{quoting}
+	\stress{Security's worst enemy is complexity.}
+\end{quoting}
+类似地，David A.\ Wheeler 在讨论如何避免再次出现和臭名昭著的
+Heartbleed（源于 OpenSSL 自己实现的内存分配器掩盖了其中的
+缓冲区溢出问题）相似的安全漏洞时指出\cupercite{wheeler2014}：
+\begin{quoting}
+	I think \stress{the most important approach for developing secure software
+	is to simplify the code so it is obviously correct}, including avoiding
+	common weaknesses, and then limit privileges to reduce potential damage.
+\end{quoting}
+
+随着物联网的迅速发展，连接到互联网的嵌入式设备数量正在不断增长，2020 年代很可能
+会成为物联网的年代，这为我们带来至少两方面的问题：第一，这些无处不在的设备上出现
+的安全漏洞不仅会催生规模前所未有的僵尸网络，而且因相关设备的实际用途而可能对物理
+世界的安全造成非常现实的危害，这使得安全性成为物联网首先要面对的课题之一；第二，
+这些联网设备的硬件资源往往十分有限，因此软件的性能和尺寸将必然成为物联网开发中的
+重要因素。正因如此，我认为\stress{Unix 哲学在 2020 年代仍将体现其重要价值}。
+
+在结束本节之前，我想稍微离题去考察编译器后门的问题，这种后门使编译器在处理特定
+程序时自动植入恶意代码：显然人们在发现异常后怀疑到编译器时会想到从干净的源代码
+产生编译器本身，但如果处理编译器源代码所用的就是系统中那个脏的编译器（例如
+多数的 C 编译器本身就是用 C 语言写的，因此它们可以编译自身，即\stress{自举}%
+\footnote{系统引导的“booting”正是 bootstrapping 的简称，而编译器的自举是
+self-bootstrapping。}），它在编译自身源代码时自动植入上述植入器的代码，这种
+情况下我们该怎么办？这种极其隐蔽的后门被称为 \stress{Trusting Trust} 后门，
+其从 Ken Thompson\footnote{顺便提到，他是一位国际象棋爱好者；你注意到了“预测
+对方行动”的模式了吗？} 获得 Turing 奖时的报告\cupercite{thompson1984}开始广为
+人知，并因这一报告的标题而得名。对抗 Trusting Trust 的一种通用思路是“Diverse
+Double-Compiling”\cupercite{wheeler2009}，即利用另一编辑器编译可疑编译器的
+干净源代码，并和后者自编译的产物比对来判断是否有 Trusting Trust 后门；另外
+有一种思路是避免用编译器自举，而从底层的机器码开始逐步构建编译器\cupercite%
+{nieuwenhuizen2018}，我将在第 \ref{sec:benefits} 节展开讨论这一思路。
+
+\section{Unix 哲学和自由/开源软件}\label{sec:foss}
+
+“自由软件”\cupercite{wiki:free}和“开源软件”\cupercite{wiki:oss}这两个概念在
+外延上很相近，但在内涵上又有明显的区别：前者强调\stress{（运行、）学习、分发和
+改善软件的自由}，后者强调\stress{使用、修改和分发软件源代码的便利}。在本文档中，
+我不打算进一步分析两者的异同，而只是基于上述总结就它们对软件提出共同要求的一方面
+展开讨论：显然，两者都要求用户拥有学习和改善软件源代码，从而在合理范围内调整软件
+行为以满足自身需求的权利；相应地，我希望在本节表达的核心观点在于这些权利的授予
+并不代表用户对软件的行为有着充分的控制，而这在极端情况下允许了\stress{形式上
+自由/开源但实质上接近专有/闭源的软件项目}存在。当然，并非所有用户都有能力学习和
+改善软件源代码，所以本节对所涉及软件项目的比较都从同一位具有适度
+计算机科学和软件工程背景的用户的角度出发。
+
+我们知道，只发布被混淆源代码的软件是没有资格被称为自由/开源软件的，因为混淆让
+源代码难以被人理解，或者说增加了源代码的认知复杂度；另一方面，从之前的分析，我们
+也知道低内聚、高耦合的软件系统也具有很高的认知复杂度，而有些自由/开源软件项目也
+受此问题的影响，例如当今主流的开源浏览器 Chromium、Firefox，以及之前多次提到的
+systemd。可以注意到，用户对后面这些软件行为的控制被明显削弱了：对于 Chromium
+和 Firefox，其典型标志是在出现蔑视用户需求的更新（如 \parencite{beauhd2019,
+namelessvoice2018}）时，用户除了向其开发团队请愿之外少有其它选择\footnote{%
+Firefox 有 Waterfox、Pale Moon 等等替代品，但这些替代品因人力资源的限制而在
+安全更新等方面落后于 Firefox\cupercite{hoffman2018}。}；对于 systemd 而言，
+其典型标志则是用户在遇到各种（见第 \ref{sec:quality} 节）从一开始就不该存在的
+“corner case”（例如 \parencite{ratagupt2017}）时，在其开发者设法修复之前因为
+无力自行改进 systemd 的行为只能想方设法绕过问题，而且 systemd 开发者还可能
+直接拒绝考虑相关需求（例如 \parencite{akcaagac2013}/\parencite{junta2017}%
+\footnote{借助早在本世纪初就已存在的 chainloading 技巧（见第 \ref{sec:complex}
+节），我们可以完全避免 systemd 中 \texttt{journald} 所用的二进制日志格式，同时
+却比 \texttt{journald} 更加简洁、可靠地实现后者实现的绝大部分用户需求。此外即使
+抛开 \texttt{journald} 本身多余与否这一点，我也至今没有看到日志信息强制通过其
+转发到 syslog 日志服务的任何技术优势，而加入让 syslog 服务直接监听日志信息的
+功能对 systemd 开发者似乎一点都不难：只要允许设定 \texttt{journald} 不监听
+\texttt{/dev/log} 即可。} 和 \parencite{freedesktop:sepusr}\footnote{然而
+其不支持在无 initramfs 时分开挂载 \texttt{/usr} 的论据可谓非常薄弱%
+\cupercite{saellaven2019a}。}）。事实上，用户对上述软件的控制还不如对一些提供
+源代码但限制分发的软件，例如第 \ref{sec:wib}--\ref{sec:howto} 节中将提到的
+Chez Scheme 的旧版本。由此可见，从 s6 等允许高度控制的软件和旧 Chez Scheme 等
+允许充分控制的软件，到 systemd 等只允许很有限控制的软件和传统的专有/闭源软件，%
+\stress{从用户对软件行为的控制上看，自由/开源和专有/闭源的界限已经开始模糊}。
+
+上述分析是从纯技术方面入手的，用户对自由/开源软件行为的控制被削弱的确主要是因为
+这些软件低内聚、高耦合的架构，然而我认为其中有一个重要的例外：接下来，通过和专有
+软件的对比，我将论证 \stress{systemd 在开源界内开启了采用专有式手段进行推广的
+先河}。systemd 的支持者和反对者多数都同意 systemd 成为主流 Linux 发行版中默认
+init 系统的最重要转折点是它在 Debian 发布的“jessie”版本中成为默认\cupercite%
+{sfcrazy2014, paski2014}\footnote{这两次投票中所用判定规则在原场合下的合理性都
+受到了争议\cupercite{dasein2015, coward2017}，不过无论如何 Debian 一方的决定
+是否合理并不影响 systemd 开发者自身行为的不义性。类似地，elogind 的存在不能否定
+systemd 开发者期望 \texttt{logind} 和 systemd 捆绑的既定事实，因此也不能否定
+上述的不义性，而相同的结论对下文所述的 udev 以及 kdbus 相关事件也成立。}，而且
+同意造成后者的最主要原因是 GNOME~3 开始依赖 systemd 中 \verb|logind| 所提供的
+接口\cupercite{bugaev2016}。然而，虽然名义上被依赖的只是 \verb|logind| 接口%
+\cupercite{vitters2013}，systemd 开发者很快明确表示 \verb|logind| 一开始就是
+设计成和 systemd 捆绑在一起的\cupercite{poettering2013}，这造成了 GNOME~3 对
+systemd 的事实依赖；另一方面，我至今没有看到任何可信的关于 systemd \verb|logind|
+相对于 2015 年出现的 elogind 优势的分析，因此 systemd 开发者是在明知没有
+技术优势的前提下实施了 \verb|logind| 和 systemd 的捆绑。
+
+在此之后，systemd 开发者又企图把 udev 捆绑到 systemd\cupercite{poettering2012}，
+并试图通过推动 kdbus 进入 Linux 内核\footnote{在其他内核开发者的提问（例如
+\parencite{lutomirski2015}）之下，其技术理由\cupercite{hartman2014}逐渐被证明
+站不住脚，而 kdbus 最终也没有进入内核。}来增加 eudev 项目独立实现和 udev 兼容
+接口时的开发成本\cupercite{poettering2014}。考虑到 systemd 开发者对其之前承诺%
+\cupercite{poettering2011a, sievers2012}的明显背弃，以及他们在明知缺乏技术优势%
+\cupercite{cox2012}的前提下不顾 eudev、mdev 等等类似项目执意推动 kdbus 的行为，
+我觉得完全可以认定 systemd 开发者有意实施了典型的“\stress{embrace、extend、%
+extinguish}”\cupercite{wiki:eee}（EEE）手段，导致了非必要的\stress{提供商依赖}：
+\begin{itemize}
+\item 在自己的项目中开发可被下游项目使用的技术，
+	这类技术可能扩展了现有的类似技术。
+\item 游说下游项目使用上述的技术（在此过程中可能作出低耦合的虚假承诺）；在有
+	扩展功能时推动这些功能的使用，从而为和自己竞争的其它项目制造兼容性问题。
+\item 自己的项目形成事实标准之后，在明知没有技术优势的背景下将上述技术
+	捆绑到自己的项目，从而排挤其它“不兼容”的项目。
+\end{itemize}
+不可否认的是开源界不是世外桃源，其中充满了纷争乃至所谓“圣战”，但据我所知以前
+没有任何一次纷争涉及的开发者像 systemd 开发者这么明目张胆地使用 EEE 那样的手段%
+\footnote{例如 GNU 软件常被抨击为过度臃肿，并因特性的堆砌而排挤了更简洁的类似
+软件，然而这些软件多数有较强的的可替代性；GCC 或许是被下游项目硬性依赖最多的
+GNU 软件之一，但一方面其特性集似乎不容易低耦合地实现（例如和 GCC 竞争的 LLVM
+在架构上似乎并不比其好太多），另一方面我们没有确切证据其表明开发者在无技术优势
+的前提下有意以紧耦合的方式加入新特性。}。我认为自由/开源软件的开发者应该具有比
+专有/闭源软件的开发者更高的道德标准，因此这样的手段虽然并不违反各大开源许可证%
+\footnote{顺便提到，TiVo 化\cupercite{wiki:tivo} 也不违反多数开源许可证。}，但
+却显得比专有/闭源软件社区中的同类行为更加卑鄙，或者如 s6 的作者所言\cupercite%
+{bercot2015a, bercot2015b}（我称之为“\stress{自由/开源的恶意臃肿软件}”）：
+\begin{quoting}
+	systemd is as proprietary as open source can be.
+\end{quoting}
+
+尽管 systemd 的闹剧尚未收场（第 \ref{sec:devel}--\ref{sec:user} 节将讨论如何加速
+其进程），我们仍然可以对其反映出的问题进行反思：这场闹剧的根源在哪里，如何防止
+这样的闹剧再次出现？如第 \ref{sec:quality} 节所述，我认为 systemd 闹剧在技术
+上的根本原因是由硬件资源限制的消失引起的对软件简洁性的忽视，而这导致的低内聚、
+高耦合在具有关键意义的系统软件中被其开发者“创新性地”和 EEE 的手段结合之后就造成
+了现在这样的提供商依赖；为了避免这样的闹剧再次上演，我们须要意识到\stress{自由/%
+开源软件应当牵手 Unix 哲学}，因为只有这样才能斩断 EEE 在开源界借低内聚、高耦合
+之尸还魂的途径。有一种观点（例如 \parencite{bugaev2016}）认为 systemd 及其中
+模块正好符合 Unix 哲学，但现在我们应该已经很明白这种观点并不正确，由此应当
+吸取的教训是在讨论 Unix 哲学时必须清醒地认识到我们讨论的是\stress{系统的总
+复杂度}：和原来通过 shell 充分重用已有工具的系统相比，在看到 systemd 高内聚、
+低耦合的架构，它复杂的外部依赖关系\cupercite{github:sdreadme}（增加了 systemd
+和外部的耦合），及其对系统中已有工具中功能的重新实现\cupercite{wosd:arguments}%
+\footnote{这些重新实现少有比原来做得更好的，其中一部分（如 \parencite%
+{wouters2016, david2018}）甚至可谓灾难；对此 systemd 支持者惯用的说辞是“这些
+功能可以被关掉”（全然不顾其有无技术优势的问题），以及“你行你上”（完全无视
+“谁污染谁治理”\cupercite{torvalds2014}的原则）。}（忽略了协作和重用）
+时，我们会认为它“小巧、极简、轻量级”还是“庞大、混沌、冗余、
+资源密集”\cupercite{poettering2011b}？
+
+在本节末尾我希望强调，systemd 的闹剧对开源界是一场巨大的挑战，但同时也是重要的
+机遇：如上文所述，它让我们清楚地看到盲目忽视 Unix 哲学造成的严重后果，不吸取
+这一惨痛教训的结果将必然是“亦使后人而复哀后人也”；systemd 注定要被钉在开源界的
+耻辱柱上，但另一方面它也促使我们再次审视那些优秀的软件系统（包括 Plan 9 和
+daemontools 等等“非主流”软件），并从中学习如何在实际工作中贯彻 Unix 哲学。
+关于这方面的更多细节，我将在第 \ref{sec:devel}--\ref{sec:user} 节中进一步讨论，
+在这里我只就自由/开源软件的话题做最后两点补充：第一，追求简洁能\stress{为志愿者
+节省时间和精力}（这些没有固定资金支持的人在开源界中大量存在，而且做出了巨大的
+贡献），让他们更容易专注于最有意义的项目，这在新需求随着技术进步不断涌现的当今
+尤为重要；第二，简洁清晰的代码会自然地鼓励用户参与开发过程，\stress{增加对
+自由/开源软件的有效复查}，从而促进软件质量的提升，这或许是从源头上防止
+Heartbleed 灾难重演、使 Linus 规则\cupercite{wiki:eyeball}
+\begin{quoting}
+	Given enough eyeballs, all bugs are shallow.
+\end{quoting}
+成为现实的一种途径。
+
+\section{极简主义实践：开发者视角}\label{sec:devel}
+
+我在上节末尾提到追求简洁能节省时间和精力，这事实上是一种简化的表述：为了让软件
+简洁，开发者须要花费相当多的时间和精力进行架构设计，因此在短期内其可见的产出或许
+不如用脏乱差方案快速解决问题的开发者；然而一旦实现了相同的需求，和臃肿晦涩的代码
+相比，简洁清晰的代码会具有更高的可靠性、可维护性和安全性，因此从长远上看将节约
+开发者在整个软件生命周期内花费的时间精力。在商业开发中，有时为了抢占市场，迅速
+推出新特性，须要把简洁性放到次要地位来实现像 Facebook 那样的“move fast and break
+things”，但我认为追求简洁从长远看仍然应该是常态：一方面，抢占市场在开源界是比较
+少见的需求，因为原则上本身优秀的项目可以凭质量取胜\footnote{\label{fn:plan9}这里
+说“原则上”是因为有一些微妙的“例外”，我以没能取代 Unix 的 Plan 9 为例说明。Plan
+9 至今有 4 个正式发布版\cupercite{wiki:plan9}，其中 1992 年的第 1 版只对大学
+发布，1995 年的第 2 版只对非商业用途开放，只有 2000、2002 年的第 3、4 版是真正
+开源的，这让它完全错过了通过自由传播来获得影响力的最佳时机。另一方面，在 2000 年
+Plan 9 开源后，其圈子内的人们因为较为激进的极简主义（从 \parencite{catv:hsoft}
+可见一斑）而根本不去实现一些需求，例如带有 JavaScript 功能的网页浏览器；我认为
+这些需求的确丑陋，但不去实现它们的后果自然是用户很难适应，毕竟非平滑过渡在软件
+领域是一个具有普遍性的难题。此外，近年来上层开发越来越不注重简洁性（你如果自行
+编译过构建 TensorFlow 所用的 Bazel 程序，也许就会对此有直观的体会；Google 明明
+聘请了 Ken Thompson 和 Rob Pike 等等人，其软件系统却仍然如此臃肿，对此我感到
+费解），这也使 Plan 9 和“现代”的需求渐行渐远，而我编写本文档的一个重要目的也是
+提升大家对极简主义的认知。}，所以经常要有意抢占市场的项目令我不得不联想到低的
+软件质量和以 embrace、extend、extinguish 为代表的卑劣手段；另一方面，用来抢占
+市场的特性多数不会被迅速丢弃，因此为了保持软件系统的可维护性，重构是迟早要
+进行的。由此可知在软件开发，特别是开源开发中，追求简洁的 Unix 哲学
+的确是一条值得贯彻的原则，而本节就将讨论如何实际贯彻这一原则。
+
+在进入具体细节之前，我们有必要确定总体的实践原则：既然要追求简洁，我们就应当
+树立以简洁为荣的观念，以用最小可行程序\cupercite{armstrong2014}实现既定需求
+作为编程能力的标准之一，而非只看代码产量；为此我们应当牢记 Ken Thompson 的话，%
+\stress{以生产负代码\textmd{\cupercite{wiki:negcode}}为荣、经常考虑重构}：
+\begin{quoting}
+	One of my most productive days was throwing away 1000 lines of code.
+\end{quoting}
+只有追求简洁的态度显然不够，我们还需要具体的方法来提升编写简洁代码的能力，
+其中\stress{观摩现有的优秀软件项目以及相关讨论}是实现自我提升的一条重要途径，
+而我个人建议从 s6 作者的项目\cupercite{ska:software}、Plan 9\cupercite%
+{wiki:plan9}、suckless 系列项目\cupercite{suckless:home}和 cat-v 网站%
+\cupercite{catv:hsoft}\footnote{我认为 cat-v 网站明显地较为激进，因此建议
+理性看待其内容。}上关于软件的讨论开始学习。在总体较为合理的基础（例如 Unix）
+之上设计简洁系统的关键在于\stress{巧妙地重用现有的机制}，这需要对这些机制
+本质属性的深刻理解，其中一些典型的例子如下，它们尤其值得我们学习：
+\begin{itemize}
+\item 第 \ref{sec:plan9} 节所述的将对系统资源属性的操作看作用户空间和
+	内核之间传递特殊数据的通信，这种通信可以映射到对控制文件的操作，
+	从而避免使用 \verb|ioctl()| 系列的系统调用。
+\item qmail\cupercite{bernstein2007} 借助 Unix 中的用户权限机制实现其访问
+	控制，借助文件系统实现其邮箱别名机制，并利用 \verb|inetd| 的思路（其实是
+	UCSPI\cupercite{bernstein1996}）实现了传输层和用户层代码的分离。
+\item LMDB\cupercite{wiki:lmdb} 借助 \verb|mmap()|、写入时复制等等
+	机制用几千行代码实现了具有优良属性和优异性能的键{--}值存储，
+	其中通过基于 B+ 树的分页跟踪机制避免了垃圾回收。
+\item 在讨论发布{--}订阅式（总线式）消息传递的实现策略时，s6
+	的作者指出\cupercite{bercot2016}其中传输的数据需要基于
+	引用计数的垃圾回收，而 Unix 的文件描述符正好满足这一需求。
+\end{itemize}
+
+刚刚提到，在总体较为合理的基础上设计简洁系统的关键在于巧妙重用，但如果遇到
+不合理的地方怎么办呢？事实上，当今主流的类 Unix 系统中从底层到上层都有很多
+不合理之处，而有眼光的人并未对这些问题视而不见，例如：
+\begin{itemize}
+\item 如第 \ref{sec:plan9} 节所述，BSD socket 机制和 X Window 系统是 Unix
+	走向臃肿的里程碑，而 Plan 9 正是 Unix 先驱对以此为代表的问题深入思考的
+	产物；类似地如第 \ref{sec:complex} 节所述，process supervision 正是
+	Daniel J.\ Bernstein 等人对系统服务及其日志的管理方式进行反思的产物。
+\item 当今通用的 C 标准库接口并不理想\cupercite{ska:djblegacy}，作为可移植标准的
+	POSIX 只是对类 Unix 系统中已经存在的行为加以统一，而不论其美丑。Bernstein
+	在编写 qmail 等软件时仔细审视了这些接口，并通过对系统调用（如 \verb|read()|%
+	/\verb|write()|）和一些不太糟糕的标准库函数（如 \verb|malloc()|）的小心封装
+	定义了一组质量高得多的接口；这组接口被其他开发者从 qmail 等软件中分离出来，
+	并有了多个后继，其中我认为最好的是 s6 作者的 skalibs\footnote{s6 的作者指出%
+	\cupercite{ska:libskarnet}在很多情况下，用 skalibs 编写的程序静态链接产生的
+	可执行文件要比用标准库或其它工具库编写的类似物小一个数量级。顺便提到，动态
+	链接原先是为了解决臃肿的 X Window 系统占用空间过多的问题而产生的，类似问题
+	随着硬件条件的改善而已经被极大减轻，因此动态链接造成的各种麻烦使得关注
+	简洁性的开发者比以前更加倾向于使用静态链接\cupercite{catv:dynlink}。}。
+\item 类 Unix 系统中普遍使用的 Bourne shell（\verb|/bin/sh|，及其后继
+	\verb|bash|、\verb|zsh| 等等）有着相当古怪的接口\cupercite{ska:diesh}，
+	例如以 \verb|$str| 所存储的字符串为名的变量的值一般要借助危险的 \verb|eval|
+	来访问，因为我们不能使用 \verb|$$str| 或 \verb|${$str}|；但这些怪癖并不是
+	所有 shell 的通病，例如 Plan 9 的 \verb|rc| shell 就避免了
+	Bourne shell 的多数问题\cupercite{vector2016b}。
+\end{itemize}
+类似地，我们应该养成\stress{用批判的眼光看待现有软件}的习惯：例如传播软件自由
+的 GNU 项目生产了许多质量平庸的软件\cupercite{bercot2015c}，格外关注安全性的
+OpenBSD 对 POSIX 的支持甚至比 macOS 的还糟糕\cupercite{bercot2017}，曾是开源界
+“杀手应用”的 Apache 实现臃肿低效；这些问题绝不影响上述项目的重大意义，但我们
+不应就此安于现状。进一步地，我们应当冷静地看待当前的成果和潮流，\stress{关注
+本质而非表象}：例如在读到这里的时候，你应该已经初步了解 systemd 中
+许多特性的本质是什么，它们和 systemd 的架构有几分必然联系；在第
+\ref{sec:homoiconic} 节中，我将用另外一些例子演示我对“语言特性”
+这一概念的理解，后者或许能帮助你换一个角度看待当今流行的一些程序语言。
+
+有必要指出，本文档中提到的做出重大贡献的人自己也会犯错：例如“silly qmail
+syndrome”\cupercite{simpson2008}的本质原因是 Bernstein 没有正确实现邮件队列、
+邮件分拣（写入端）和邮件传输（读取端）构成的 SPOOL 系统，后者是操作系统中
+比较有用的一个概念；Tony Hoare 在其 Turing 奖报告\cupercite{hoare1981}中建议
+编译器采用单步处理的方案，然而我们将在第 \ref{sec:wib} 节中看到多步处理可以
+做得比单步处理更简洁、清晰、可靠；Plan 9 的设计者出于对硬件价格的考虑而在
+Bell 实验室采用多台终端连接到少数中心服务器的网络架构，并且提到 Plan 9 完全
+可以在个人电脑上使用但他们不认同这种做法\cupercite{pike1995}，这样的设计
+在硬件十分廉价、对中心化服务器信任度下跌的当今显然已经不太适用。那么
+既然任何人都有可能犯错，我们应该相信谁？我认为关键在于两点：
+\begin{itemize}
+\item \stress{具体问题，具体分析}：考察论据和论证，注意论据是否适用于当前的
+	应用场景\footnote{类似地，本文档有意偏离了学术界中避免引用 Wikipedia 的
+	惯例，这也是本文档只有“参考资料”而非“参考文献”的原因；其理由在于我希望为
+	读者提供（多少）更加生动活泼，而且不断更新的材料。}。例如众所周知 C 编程中
+	应当避免使用 \verb|goto| 语句，但包括 Linux 内核在内的许多项目都在异常处理
+	中大量使用“\verb|goto| chain”\cupercite{shirley2009}，因为避免 \verb|goto|
+	是为了防止复杂的来回跳转把代码变为烂面条，而相反 goto chain 不仅不损害代码
+	的可读性，而且具有比所有等价写法更好的可读性。类似地，第 \ref{sec:complex}
+	节中将 Unix 哲学的本质总结为复杂度问题不是为了好看，而是为了
+	在用 Unix 哲学判断系统优劣时正确领会其精神。
+\item \stress{广泛调查，兼听则明}：倾听各方观点，从而尽量使自己了解问题的
+	全貌。例如 systemd 的暂时“成功”在很大程度上要归因于 Linux 圈大多数人
+	只对 sysvinit、systemd、Upstart 和 OpenRC 有比较充分的了解，而几乎忽略了
+	daemontools 式的设计及其潜力；在充分了解各种 init 系统的设计，以及各方支持
+	者、反对者对它们的比较之后，你自然会明白应当选择怎样的 init 系统。类似地，
+	部分 systemd 支持者必然会不遗余力攻击本文档的观点，而我只希望你充分阅读
+	本文档和相关的参考资料，然后结合自己了解的各方观点形成自己的结论。
+\end{itemize}
+
+在结束本节之前，我希望额外讨论一些关于 systemd 的问题。首先，systemd 的闹剧并未
+收场，而我们只有加紧完善其替代品、使它们在实际实现的需求上趋于完备才能加速这一
+进程，因此我呼吁所有对 systemd 的糟糕属性感到失望的开发者参与或关注这些替代品的
+开发。其次，尽管我们有 eudev、elogind 等项目，但是它们的母项目本身代码质量平庸
+（否则很难被 systemd 捆绑），因此在这上面和有充足人力资源的 systemd 项目赛跑必然
+导致一定的劣势；反过来看，我们应当着重支持 mdevd、skabus 等等从头开始、追求简洁
+清晰的替代项目，在标准上用“良币驱逐劣币”。最后，“\stress{己所不欲，勿施于人}”，
+我们在参与陌生的开源项目时应当对其习惯保持必要的尊重，避免像 systemd 开发者
+那样强加自身观点于他人的倾向，这在和 init 系统无关的项目中同样重要：例如因为
+多方面因素的影响，不同人追求简洁的程度不一样，但只要这样的个人选择是在充分
+调查、仔细权衡之后作出的，而且不侵犯他人的选择权，我们就有必要尊重这种选择。
+
+\section{极简主义实践：用户视角}\label{sec:user}
+
+上节提到，对开发者而言，追求简洁在短期内可能不利，但从长期看能节省时间和精力，
+而类似的结论对普通用户也成立：例如 Windows 固然有“用户友好”的图形界面，但一旦
+涉及一点稍微复杂的任务而没有现成的工具时，在 Windows 下我们仍然要借助其和类 Unix
+系统中 shell 类似的一些工具（批处理、VBScript、PowerShell，或者 Python 等跨平台
+语言）；由此可见，如果你希望能“自己动手，丰衣足食”，那么你迟早须要学习使用那些
+不“用户友好”的工具，而我们在第 \ref{sec:shell} 节中已经比较直观地看到通过 shell
+把 Unix 工具组合起来产生的巨大威力，所以这样的学习的确会带来丰厚的回报。我认为
+shell 并不难学习，关键在于理解其基本用法，而不是如上节提到的 Bourne shell 的
+各种怪癖；我建议在初步学习 Bourne shell 之后认真学习一遍 \verb|rc|\cupercite%
+{github:rc}，因为其简洁清晰地体现了 shell 编程的核心，这样再回过来看 Bourne
+shell 时就知道哪些地方相对次要了。
+
+进一步地，正如 shell 和图形界面的关系一样，简洁的软件系统和复杂的软件系统之间
+有着类似的关系，这里我以 RHEL/CentOS 和 Alpine Linux\footnote{顺便提到，如果
+多数发行版应该被称为“某某 GNU/Linux”\cupercite{instgentoo:interj}，那么 Alpine
+是不是应该被称为“Alpine BusyBox/musl/Linux”？}为例。Red Hat 的系统像 Windows
+一般大而“全”，在严格按照其开发者设想的方式使用时一般能如预期地工作，但其系统中
+为了使这些“设想的方式”更加“用户友好”而进行了许多额外且缺少文档的封装；由此产生
+的问题是出现故障时系统因其高复杂度而难以调试，而且用户在有特殊需求时不得不
+想方设法绕过上述的封装，还要担心绕过时对其它系统组件行为的潜在影响\cupercite%
+{saellaven2019b}。与此相反，Alpine Linux 采用 musl、BusyBox 等等简洁的组件构建其
+基础系统，并且尽量避免不必要的封装和依赖，这使其虽然明显不如 Red Hat 系统“用户
+友好”，但是对于有基本 Unix 背景的用户而言非常稳定可靠、容易调试和定制。显然，
+这让我们联想到第 \ref{sec:quality} 节中 systemd 和 s6/s6-rc 的对比，由此可以
+直观地感受到软件复杂度不仅影响开发者，而且对用户体验也有明显的影响，正如
+Erlang 语言的设计者 Joe Armstrong 所述\footnote{我清楚地知道原文是对
+面向对象编程的评论，事实上隐含状态如全局变量一样是引入耦合的因素，
+因此对状态缺乏隔离的面向对象系统有和复杂软件系统异曲同工的
+高耦合问题，这一问题在系统中有多层封装、继承时尤为严重。}：
+\begin{quoting}
+	The problem with object-oriented languages is they've got all this implicit
+	environment that they carry around with them.  You wanted a banana but what
+	you got was a gorilla holding the banana and the entire jungle.
+\end{quoting}
+如第 \ref{sec:foss} 节所述，我认为软件复杂度对用户体验的影响在自由/开源软件系统
+中尤为重要，因为其内部构造对用户开放，从而给了用户自行进行调试和定制的可能。
+
+基于上述原因，我认为\stress{即使是普通用户，在选择软件系统时也应注意考察其
+复杂度}，优先采用 musl、BusyBox、s6/s6-rc、Alpine Linux 以及 \verb|rc|、vis、%
+abduco/dvtm 等等简洁软件；在简洁但问世不太久的软件（如 BearSSL）和复杂但经过
+相对仔细复查的软件（例如 LibreSSL/OpenSSL）之间选择时，只要前者的作者有良好
+的职业记录而且认为其软件足够实用，优先采用前者；不得不在多套臃肿的软件之间选择
+时，优先采用相对简洁且经过实践检验的软件，例如在使用基于 systemd 的系统时尽量
+使用通用工具、避开 systemd 中的重新实现。另一方面，即使轻量级替代品不足以实现
+自己的主要需求，我们也可以支持或关注它们，以便在其功能足够完善时尽早迁移：例如
+我是在 s6-rc 首次发布前一年多开始注意到 s6 项目的，在 s6-rc 推出（从而使系统支持
+服务间依赖和短期运行的 init 脚本）之后，我便开始准备将自己的系统向 s6/s6-rc
+迁移，并在其推出一年后实现了首个系统的迁移。s6 相关的软件在 systemd 成为 Debian
+的默认 init 系统时诚然不能满足一般用户的需求，这也是 systemd 成功获得其统治地位
+的一个技术原因；但目前 s6/s6-rc 已经非常接近满足一般用户需求的标准\cupercite%
+{vector2018a, vector2019a}\footnote{此外我猜想所有在实际应用中足够有用的
+systemd 功能都可以在基于 s6/s6-rc 的基础架构中实现，其中许多功能的代码量
+将不到 systemd 中对应功能的 $1/5$。}，同时还拥有 systemd 开发者声称
+却未能兑现的优良属性\cupercite{poettering2011b}，因此我请求所有
+感兴趣的用户积极关注和参与 s6/s6-rc 和相关软件的开发。
+
+有时用户对软件系统的选择权受限于工作需求等等因素，而我认为在这种情况下用户可以
+在当前约束下以尽量简洁清晰的方式使用其系统，并注意为更理想的解决方案留出余地，
+从而\stress{最小化未来可能发生的迁移所需的成本}：例如多数 Linux 发行版的系统维护
+脚本用 Bourne shell 而非 \verb|rc| 写成，而用户可能须要对其中一些进行定制（这
+也是上文中没有建议只学习 \verb|rc| 而跳过 Bourne shell 的原因），此时用户可以把
+定制的部分写成简洁清晰且尽量符合 \verb|rc| 用法的形式，以备在合适时把被定制的
+脚本用 \verb|rc| 重写；又例如我因为工作原因须要和使用 systemd 的 CentOS 7
+打交道，我选择的策略是在自己可控的机器上完成大部分工作，并尽量
+在虚拟机中以最简的方式操作 CentOS 7，从而减少对其依赖。
+
+如果你因为自己惯用的软件系统（Linux 发行版或桌面环境）而不情愿地使用 systemd，
+我建议你积极尝试简洁的软件，逐渐摆脱那些和 systemd 强耦合的软件，并从此牢记
+systemd 闹剧教给我们的教训：在这并不平静的开源界，\stress{只有掌握了简洁性这件
+秘密武器，才能在遇到和 systemd 类似的危险陷阱时将命运掌握在自己手里}，从容躲避
+而不是束手就擒\footnote{即使对从源代码编译一切、可定制性很强的 Gentoo，希望使用
+GNOME~3 又不用 systemd 的用户也曾长期必须翻越重重障碍\cupercite{dantrell2019}，
+而希望不借助 initramfs 分开挂载 \texttt{/usr} 的用户在面对盲目采取 systemd
+做法的开发者\cupercite{saellaven2013}时至今须要自行维护补丁集\cupercite%
+{stevel2011}。}。为此我认为用户有必要特别警惕系统中诸如 GNOME 的那些臃肿的组件，
+在发现其有和可疑项目紧耦合的趋势时及时考虑如 Fluxbox、Openbox、awesome、i3 等等
+轻量级替代品：在那些臃肿项目和恶意臃肿软件开始耦合之后，其开发者即使毫无恶意也
+未必能承担清除自己项目中被感染部分所需的成本\cupercite{vitters2013}，这是臃肿
+项目的高复杂度造成的自然结果。进一步地，我认为应当对主要开发者受诸如 Red Hat
+这样同一家商业公司资助的那些过度臃肿的软件项目\cupercite{saellaven2019a}保持
+必要的警惕\footnote{我们也有必要进一步对由商业公司主导的复杂标准保持警惕，例如
+现在由各大浏览器厂商及其背后公司主导的 HTML5；此外我也要对虽在 Red Hat 却勇于和
+systemd 开发者斗争的 BusyBox 开发者\cupercite{vlasenko2011}表示由衷的敬佩。}：
+因为从 Chromium 和 Firefox 的例子（见第 \ref{sec:foss} 节）可见开源界的公司一样
+可能牺牲用户利益来换取商业利益，所以如果这些臃肿项目的开发者受到指使而合谋实施
+embrace、extend、extinguish ，我们将面临腹背受敌的局面；退一步说，即使 EEE
+行为不是受公司指使，纵容员工采用下作手段制造垄断、在自身和开源界之间制造利益
+冲突的公司也是十分可鄙的，对此我们应当用自己的包管理器投票以表达对它们的唾弃。
+
+你可能会注意到，本节标题中写明了“用户视角”，但本节所涉及部分软件的简洁性往往在
+用户具有一定背景时才能充分理解；事实上，第 \ref{sec:intro} 节已经提到 Unix 被
+设计为提升程序员工作效率的系统，而我们也看到 Unix 的确是在其内部机制被用户充分
+了解时工作得最好。然而多数用户用于理解其所用系统运行机制的精力毕竟有限，这是不是
+意味着只有程序员才能用好类 Unix 系统呢？我觉得并非如此，只是之前没有相关背景的
+Unix 用户须要克服对编程的排斥，\stress{从好的工具和教程入门}，这并不会花费过多的
+精力：例如假设在粗略学习 Bourne shell 之后仔细阅读 \verb|rc| 的文档，然后再回顾
+Bourne shell，即使新手在进行充分练习的前提之下也能用一两天的时间学会基本的 shell
+编程；如果再用另外一两天时间学习和 Unix 进程相关的基本概念，这位用户就可以开始
+学习使用 s6/s6-rc 了。入门之后，用户在学习中如果能注意以下几点，将能事半功倍：
+\begin{itemize}
+\item \stress{注意判断所学知识的重要性}：时常思考自己学到的知识中哪些具有
+	更强的\stress{普适性}和\stress{有用性}，正如 \parencite{dodson1991}
+	所述（我们将在第 \ref{sec:boltzmann} 节进一步讨论这一论断）：
+\begin{quoting}
+	Self-adjoint operators are very common
+	and very useful (hence very important).
+\end{quoting}
+\item \stress{勇于求助，善于求助}：在遇到自己难以解决的问题时充分
+	利用开源社区的力量，但在求助时要注意尽量简明、可重复地表达
+	遇到的问题，并务必给出自己想到的思路。
+\item \stress{避免过度编程}：如上节所述，以简洁为荣，追求用简洁清晰的方法
+	解决问题；在日常工作中避免小题大做，小批量的操作可以考虑手工完成。
+\end{itemize}
+
+在结束本部分之前，我希望引用 Dennis Ritchie 的名言：
+\begin{quoting}
+	Unix is very simple, it just needs a genius to understand its simplicity.
+\end{quoting}
+这句话可以说是既对也错，说对是因为用好 Unix 需要对其运行机制的本质理解，说错
+是因为勇于学习的人在合理的引导之下并不难达成这一目标：我认为高效学习 Unix
+的本质在于\stress{最小化完成实际任务所需学习过程的总复杂度}，其关键在于
+培养降低总复杂度的习惯；这种习惯将个人的工作和生活与 Unix 哲学联系起来，
+而我将在第 \ref{sec:worklife} 节中阐述这种习惯的重要意义。
+
