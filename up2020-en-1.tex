@@ -48,7 +48,7 @@ and kickstarted the GNU/Linux ecosystem, which is perhaps the most important
 frontier in the open-source movement.  Currently, the most popular Unix-like
 systems are undisputedly Linux and BSD, while commercial systems like Solaris
 and QNX have minute market shares; an unpopular but important system,
-which I will introduce in Section~\ref{sec:plan9}, is Plan 9
+which I will introduce in Section~\ref{sec:plan9}, is Plan~9
 from Bell Labs (first released in 1992).
 
 Before ending this section which has hitherto been mostly non-technical,
@@ -345,7 +345,7 @@ not modify any process attribute before \verb|exec()|ing into the \verb|run|
 program; the \verb|run| program is almost always a script (\cf~\parencite%
 {pollard2014} for some examples), which sets its own attributes before
 \verb|exec()|ing into the actual service program.  The technique of implementing
-process state control with continuous \verb|exec()|s is expressively called
+process state control with consecutive \verb|exec()|s is expressively called
 \stress{Bernstein chainloading}, because of Daniel J.\ Bernstein's extensive use
 of this technique in his software qmail (first released in 1996) and daemontools
 (first released in 2000); Laurent Bercot, the author of s6, pushed this
@@ -358,7 +358,7 @@ than systemd's mechanism, because the modules of the former possess the
 excellent properties of high cohesion and low coupling, and are therefore easy
 to debug and maintain; in comparison, the mechanism in systemd is tightly
 coupled to other modules from the same version of systemd, so we cannot easily
-replace the malfunctioning modules when problems (like \parencite{edge2017})
+replace the malfunctioning modules when problems (\eg~\parencite{edge2017})
 arise.  Because of the simple, clear interface of chainloading, when new process
 attributes emerge, we can easily implement the corresponding chainloader, and
 then integrate it into the system without upgrading: for instance, systemd's
@@ -376,8 +376,8 @@ environment before finally \verb|exec()|ing into the service program;
 
 It is necessary to note that primitive forms of \verb|fork()|/\verb|exec()|
 appeared in operating systems earlier than Unix\cupercite{ritchie1980}, and
-Thompson, Ritchie \etal{} chose to implement process creation with this
-mechanism out of a pursuit for simplicity of the implementation, so the
+Ken Thompson, Dennis Ritchie \etal{} chose to implement process creation with
+this mechanism out of a pursuit for simplicity of the implementation, so the
 mechanism was not exactly an original idea in Unix; nevertheless we have also
 seen that based on \verb|fork()|/\verb|exec()| and its line of thought we can
 implement many complicated tasks in simple, clear ways, so the mechanism does
@@ -392,7 +392,7 @@ textual interfaces, so it is not quite related to McIlroy's last point,
 and I find this to be a sign that \verb|fork()|/\verb|exec()| cannot
 be satisfactorily covered by McIlroy's formulation.
 
-\section{From Unix to Plan 9}\label{sec:plan9}
+\section{From Unix to Plan~9}\label{sec:plan9}
 
 Unix v7\cupercite{mcilroy1987} already had most notions seen currently
 (\eg~files, pipes and environment variables) and many \stress{system
@@ -450,7 +450,7 @@ even when we only count the core modules of X without any extension.
 
 After the analysis above, we would naturally wonder, how can we implement the
 support for networking and graphical interfaces in Unix, in a way that follows
-its design principles?  Plan 9 from Bell Labs (often simply called ``Plan 9'')
+its design principles?  Plan~9 from Bell Labs (often simply called ``Plan~9'')
 is, to a large extent, the product of the exploration on this subject by Unix
 pioneers\cupercite{raymond2003b}.  As was mentioned before, system calls like
 \verb|ioctl()| and \verb|setsockopt()| were born to handle operations on
@@ -459,7 +459,7 @@ on the file system; but on a different perspective, operations on resource
 attributes are also done through communication between the userspace and the
 kernel, and the only difference is that the information passed in the
 communication is special data that represent operations on resource attributes.
-Following this line of thought, Plan 9 extensively employs \stress{virtual file
+Following this line of thought, Plan~9 extensively employs \stress{virtual file
 systems} to represent various system resources (\eg~the network is represented
 by \verb|/net|), in compliance with the ``everything is a file'' design%
 \cupercite{pike1995}; control files (\eg~\verb|/net/tcp/0/ctl|) corresponding
@@ -467,15 +467,15 @@ to various resource files (\eg~\verb|/net/tcp/0/data|) implement operations
 on resource attributes, different \stress{file servers} map file operations
 to various resource operations, and the traditional \stress{mounting}
 operation binds directory trees to file servers.  Because file servers use
-the network-transparent \stress{9P protocol} to communicate, Plan 9 is
+the network-transparent \stress{9P protocol} to communicate, Plan~9 is
 naturally a distributed OS; in order to implement the relative independence
-between processes and between machines, each process in Plan 9 has its own
+between processes and between machines, each process in Plan~9 has its own
 \stress{namespace} (\eg~a pair of parent and child processes can see mutually
 independent \verb|/env|, this way the independence of environment variables
 is implemented), so normal users can also perform mounting.
 
 With the mechanisms mentioned above, we can perform many complicated tasks in
-Plan 9 in extremely easy ways using its roughly 50 system calls\cupercite%
+Plan~9 in extremely easy ways using its roughly 50 system calls\cupercite%
 {aiju:9syscalls}: for instance, remote debugging can be done by mounting
 \verb|/proc| from the remote system, and the requirements of VPN can be
 implemented by mounting a remote \verb|/net|; another example is that the
@@ -483,7 +483,7 @@ modification of users' networking permissions can be performed by setting
 permissions on \verb|/net|, and that the restriction of user access to one's
 graphical interface can be done by setting permissions on \verb|/dev/mouse|,
 \verb|/dev/window| \etc.  Again back to the topic of Unix philosophy: on an
-intuitional level, the design of Plan 9 is indeed compliant to the philosophy,
+intuitional level, the design of Plan~9 is indeed compliant to the philosophy,
 but even if \verb|fork()|/\verb|exec()|, analysed in last section, could be
 said to roughly compliant to Doug McIlroy's formulation on the philosophy in
 Section~\ref{sec:mcilroy}, I am afraid that the ``everything is a file''
@@ -508,7 +508,7 @@ the one by McIlroy\cupercite{wiki:unixphilo}:
 \end{itemize}
 I believe that the various formulations of the philosophy are all of some value
 as references, but they themselves also need to be summarised, just like how
-Plan 9, as was mentioned in last section, implemented requirements, which need
+Plan~9, as was mentioned in last section, implemented requirements, which need
 several hundreds of system calls elsewhere, with only about 50 system calls
 by using virtual file systems, the 9P protocol and namespaces.  In Sections~%
 \ref{sec:shell}~\& \ref{sec:exec}--\ref{sec:plan9}, our intuitive criteria
@@ -699,21 +699,21 @@ the beginning phase of booting and the final phase of shutdown\cupercite%
 permissions, it also has to be highly secure.  Again as was mentioned before,
 contrary to the design of s6, the init module of systemd is overly complex,
 and has too much, too complex interaction with other modules, which makes
-the behaviours of systemd's init difficult to control in a satisfactory manner,
-for instance \parencite{ayer2016} and \parencite{edge2017} are examples for
-actual problems this has led to.  Similarly, the systemd architecture, which
-has low cohesion and high coupling, makes other modules difficult to debug and
+the behaviours of systemd's init difficult to control in a satisfactory
+manner, for instance \parencite{ayer2016, edge2017} are examples for actual
+problems this has led to.  Similarly, the systemd architecture, which has
+low cohesion and high coupling, makes other modules difficult to debug and
 maintain just like the init module: the number of unresolved bugs with systemd
 grows incessantly over time, still without any sign of leveling off (let alone
 sustainably decreasing)\cupercite{waw:systemd}.  In comparison, with s6/s6-rc
 and related packages, the fix for any bug (there have been very few) almost
 always arrives within one week of the bug report, and even if we also count
 other projects with functionalities emulated by systemd, the number of bugs
-still does not grow in systemd's fashion\footnote{We can also compare the Linux
-kernel, which is of a huge size and developed rapidly, with systemd: through
+still does not grow in systemd's fashion\footnote{We can also compare systemd
+with the Linux kernel, which is of a huge size and developed rapidly: through
 periodically pausing the addition of new features (\stress{feature freeze})
 and concentrating on fixing bugs discovered in the current period (\stress{bug
-converge}), the former effectively controlled its bug growth; systemd developers
+converge}), the latter effectively controlled its bug growth; systemd developers
 do not do the same thing, and nor do they control its bug growth by other means
 of project management, which shows that they lack proper planning in software
 development (of course, this may be because they do not even feel they are
@@ -722,8 +722,8 @@ able to effectively fix bugs without creating new problems).}.
 From the perspective of the user, systemd's behaviours are too complex, and
 consequently its documentation can only describe most typical application
 scenarios, and many use cases unconsidered by its developers become truly
-``corner cases'' (\eg~\parencite{dbiii2016}; \parencite{vr2015} is a
-very detailed analysis on the origins of this kind of problems) where the
+``corner cases'' (\eg~\parencite{dbiii2016}; for a very detailed analysis
+on the origin of this kind of problems, \cf~\parencite{vr2015}) where the
 behaviours of systemd are very difficult to deduce from the documentation.
 Sometimes, even if the requirement happens to be successfully implemented
 with systemd, the corresponding configuration lacks reproducibility because
@@ -735,7 +735,7 @@ to implement the desired configuration with s6/s6-rc; a vast majority of
 problems that can arise will be easily traceable to the causes, and problems
 with s6/s6-rc themselves are very rare\cupercite{gitlab:slewman}.  Furthermore,
 the behaviours of systemd change too fast\cupercite{hyperion.2019}, which
-further complicates problems considering that the behaviours are already
+further complicates problems considering that these behaviours are already
 very complex; in comparison, clear notices are given when those rare
 backward-incompatible changes occur in s6/s6-rc and related packages,
 which in combination with the well-defined behaviours of related
@@ -1044,9 +1044,9 @@ from the blind omission of the Unix philosophy, and the result of not learn the
 lesson from it would inevitably be to ``make later generations lament the later
 generations''; systemd is destined to be introduced into the hall of shame in
 the open-source community, but on the other hand it also urges us to re-examine
-those excellent software systems (including ``unpopular'' software like Plan 9
+those excellent software systems (including ``unpopular'' software like Plan~9
 and daemontools), and to learn from them how to apply the Unix philosophy in
-actual work.  More details on this will be discussed in Section~\ref{sec:devel}%
+actual work.  More details on this will be discussed in Sections~\ref{sec:devel}%
 --\ref{sec:user}, and here I only give two additional comments regarding
 FOSS.  First, the pursuit for simplicity can \stress{save time and energy for
 volunteers} (which exist in large numbers, do not have constant cash support,
@@ -1081,11 +1081,11 @@ in the long run, for two reasons.  First, seizing the market is a fairly rare
 requirement in open-source development because in principle naturally excellent
 software projects can succeed by their quality\footnote{\label{fn:plan9}Here
 I say ``in principle'' because there are some subtle ``exceptions'', and I use
-Plan 9 as an example.  Plan 9 has four formal releases hitherto\cupercite%
+Plan~9 as an example.  Plan~9 has four formal releases hitherto\cupercite%
 {wiki:plan9}, where the first release was only available for universities, the
 second only for non-commercial purposes, and only the third and forth releases
 were truly open-source, so it completely missed the best opportunities to gain
-influence through free distribution.  On the other hand, after Plan 9 was made
+influence through free distribution.  On the other hand, after Plan~9 was made
 open-source in 2000, due to the quite aggressive minimalism (you can have a
 glimpse of this at \parencite{catv:hsoft}) of people in its circle, they flatly
 refused to implement requirements like web browsers supporting JavaScript; I
@@ -1096,7 +1096,7 @@ severe disregard of simplicity in upper-level development (if you have once
 compiled the Bazel program used to built TensorFlow, you would perhaps have an
 intuitive experience for this; despite the employment of Ken Thompson and Rob
 Pike \etal{} at Google, these software systems are so strikingly bloated, which
-leaves me puzzled) also contributed to the diverge between Plan 9 and ``modern''
+leaves me puzzled) also contributed to the diverge between Plan~9 and ``modern''
 requirements, and one important goal of this document is to raise the awareness
 for minimalism.}, so projects that often have this need invariably remind
 me of low software quality and dirty practices represented by ``embrace,
@@ -1123,7 +1123,7 @@ we also need actual methods to improve our abilities to write simple code, while
 among them \stress{studying available excellent software projects and related
 discussions} is an important way to achieve such improvement.  I personally
 recommend beginning the study from projects by Laurent Bercot\cupercite%
-{ska:software}, the Plan 9 project\cupercite{wiki:plan9}, the suckless family
+{ska:software}, the Plan~9 project\cupercite{wiki:plan9}, the suckless family
 of projects\cupercite{suckless:home} and the discussions on the cat-v website%
 \cupercite{catv:hsoft}\footnote{I find the cat-v site significantly aggressive,
 and therefore suggest critical reading of its contents.}.  The key to
@@ -1161,7 +1161,7 @@ and insightful people do not ignore them, for instance:
 \begin{itemize}
 \item As was noted in Section~\ref{sec:plan9}, the BSD socket mechanism and
 	the X Window System were landmarks in Unix's evolution toward a bloated
-	system, and Plan 9 was the result of Unix pioneers' in-depth thinking
+	system, and Plan~9 was the result of Unix pioneers' in-depth thinking
 	on issues represented by them; similarly, as was noted in Section~%
 	\ref{sec:complex}, process supervision was the result of reflections on the
 	management of system services and their logs by Daniel J.\ Bernstein \etal.
@@ -1190,7 +1190,7 @@ and insightful people do not ignore them, for instance:
 	whose name is stored in \verb|$str| usually has to be accessed
 	through the dangerous \verb|eval|, because \verb|$$str| and \verb|${$str}|
 	cannot be used; nevertheless, these pecularities are not inherent
-	weaknesses in all shells, for example the \verb|rc| shell from Plan 9
+	weaknesses in all shells, for example the \verb|rc| shell from Plan~9
 	avoided most pitfalls in the Bourne shell\cupercite{vector2016b}.
 \end{itemize}
 Similarly, we should get used to \stress{looking upon existing software
@@ -1218,9 +1218,9 @@ useful notion in operating systems; Tony Hoare, in his Turing Award lecture%
 \cupercite{hoare1981}, recommended compilers to use the single-pass scheme,
 but we will see in Section~\ref{sec:wib} that multi-pass processing can be
 simpler, clearer and more reliable than single-pass processing; the designers
-of Plan 9 adopted a networking architecture with multiple terminals connecting
+of Plan~9 adopted a networking architecture with multiple terminals connecting
 to a few central servers at Bell Labs due to concerns about hardware prices,
-and noted that although Plan 9 can be used on personal computers they rejected
+and noted that although Plan~9 can be used on personal computers they rejected
 that kind of usage\cupercite{pike1995}, but this design is evidently not quite
 applicable nowadays with cheap hardware and people increasingly distrusting
 centralised servers.  Thus when anyone can make mistakes,
