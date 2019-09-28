@@ -22,7 +22,7 @@ made major simplifications to the Multics design and only adopted certain key
 elements like the hierarchical file system and the shell\cupercite{seibel2009}.
 
 The 1970s saw the growth and spread of Unix (\cf~\parencite{wiki:unixhist}
-for details), and in my opinion the most important historical event
+for the details), and in my opinion the most important historical event
 during this period was the publication of \emph{Lions' Commentary on Unix
 v6}\cupercite{wiki:lions}\footnote{For a modern port of Unix v6, \cf~%
 \parencite{wiki:xv6}.} in 1976, which greatly spurred the propagation of Unix
@@ -37,7 +37,7 @@ wars, in combination with the negligence of 80x86 PCs' potentials by the Unix
 circle, led to the pitiful decline in popularity of Unix in the 1990s.
 
 In 1991, Linus Torvalds started working on his own operating system kernel,
-which went on to become Linux; the combination of user-space tools from the
+which went on to become Linux; the combination of userspace tools from the
 GNU project (starting from 1985) and the Linux kernel achieved the goal of
 providing a self-hosting Unix-like environment that is free / open-source and
 low-cost\footnote{The 386BSD project also reached this goal, but its first
@@ -59,10 +59,10 @@ will be discussed in later sections:
 \begin{itemize}
 \item \stress{Friendliness to programmers}: Unix was designed to boost
 	the productivity of the user as a programmer; on the other hand,
-	we will discuss the value of the Unix methodology from
+	we will also discuss the value of the Unix methodology from
 	a user's perspective in Section~\ref{sec:user}.
-\item \stress{Simplicity}: the hardware limitations of machines accessible
-	in Bell Labs around 1970 resulted in the pursuit for economy and elegance
+\item \stress{Simplicity}: the hardware limitations on machines accessible
+	at Bell Labs around 1970 resulted in the pursuit for economy and elegance
 	in Unix; as the limitations are no more, is simplicity now only an
 	aesthetic?  Let's see in Sections~\ref{sec:quality}--\ref{sec:foss}.
 \item \stress{Self-hosting}: even the earliest Unix systems were able to be
@@ -98,10 +98,11 @@ Its first line tells Unix this is a program interpreted by \verb|/bin/sh|,
 and the commands on the rest lines are separated by the
 \stress{pipe} ``\verb/|/'' into six steps:
 \begin{itemize}
-\item In the first step, the \verb|tr| command converts all characters, except
-	for (uppercase and lowercase) English letters and \verb|'| (the \verb|-c|
-	option means to complement), into the newline character \verb|\n|, and
-	the \verb|-s| option means to squeeze multiple newlines into only one.
+\item In the first step, the \verb|tr| command converts all
+	characters, except for (uppercase and lowercase) English
+	letters and ``\verb|'|'' (the \verb|-c| option means to complement),
+	into the newline character \verb|\n|, and the \verb|-s| option
+	means to squeeze multiple newlines into only one.
 \item In the second step, the command converts all uppercase letters into
 	corresponding lowercase letters; after this step, the input text is
 	transformed into a form where each line contains a lowercase word.
@@ -161,7 +162,7 @@ usage in these systems?  Please read the next section.
 
 Cohesion and coupling are extremely important notions in software engineering,
 and here we first try to understand what coupling is.  Consider the interactions
-(\eg~communication through text or binary byte stream, message passing using
+(\eg~communication through text or binary byte streams, message passing using
 data packets or other media, calling between subroutines) between modules in
 the two extreme cases from the figure in \parencite{litt2014a}.  When some
 faults occur, how difficult will the debugging processes be with the two
@@ -179,11 +180,11 @@ Low coupling is actually a common feature of traditional Unix tools, so why can
 they be loosely coupled?  A tip of the iceberg has already been shown in the
 script from the last section: the tools not only have well-defined input/output
 interfaces, but also have clear processing rules from the input to the output,
-or in other words they behaviours are clearly guided; from the perspective of
+or in other words their behaviours are clearly guided; from the perspective of
 systems and modules, each Unix tool, when considered as a module, usually does
 a different unit operation, like character translation (\verb|tr|), sorting
 (\verb|sort|), deduplication / counting (\verb|uniq|) and so on.  When Unix
-tools are implemented, each of them usually need to be partitioned into
+tools are implemented, each of them usually needs to be partitioned into
 submodules, but the submodules are always much more tightly coupled than the
 tools themselves are, even with a most optimal design.  I consider the
 \stress{degree of cohesion} to be the measure of this kind of inherent coupling
@@ -236,8 +237,8 @@ of \verb|s6-supervise| and \verb|s6-svscan|\footnote{This configuration method
 may seem unintuitive, but its rationale and benefits will be explained in
 Section~\ref{sec:homoiconic} and Footnote~\ref{fn:slew}.}.  Only longrun
 services are managed by s6, while oneshot init scripts are managed by s6-rc,
-which also uses s6's tools to track the startup status of services in order to
-manage the dependencies between services.  It was mentioned above that this
+which also uses s6's tools to track the startup status of services in order
+to manage the dependency between them.  It was mentioned above that this
 design is not weaker than systemd in functionalities, and here I give one
 example (\cf~Section~\ref{sec:exec} for some in-depth examples): systemd
 supports service templates, for instance after a template called \verb|getty@|
@@ -543,8 +544,8 @@ and the three restrictions in my formulation are explained below:
 
 Let's see a fairly recent example.  In some init systems, represented by
 sysvinit, longrun system services detach themselves from the control of the
-user's shell, in order to implement backgrounding\cupercite{gollatoka2011}: when
-the service program is run by the user from the shell, it \verb|fork()|s a
+user's shell, in order to implement backgrounding\cupercite{gollatoka2011}:
+when the service program is run by the user from the shell, it \verb|fork()|s a
 child process, and then the parent process exits, so the shell waits for another
 command from the user because the user-run (parent) process has exited, while
 the child process is reparented to init upon exiting of the parent process, and
@@ -573,7 +574,7 @@ worrying about the pack of problems with PID files.  In addition, since the
 service process is only restarted by its parent (\eg~\verb|s6-supervise|)
 after exiting with supervision, in comparison with the sysvinit mechanism
 where the service process is created by a close relative of init on system
-startup and created by a user shell when restarting, the former mechanism
+startup but created by a user's shell when restarting, the former mechanism
 has much better reproducibility of service environments.  An apparent
 problem with supervision is that services cannot notify the init system
 about its readiness by exiting of the init script as with sysvinit,
@@ -619,7 +620,7 @@ From the analyses above, we can see that process supervision can greatly
 simplify the management of system services and their logs, and one typical
 example for this is the enormous simplification to the management of MySQL
 services\cupercite{pollard2017}.  Because this mechanism can, in a simple
-and clear way (minimises the cognitive complexity of the system), implement
+and clear way (minimising the cognitive complexity of the system), implement
 the requirements for managing system services and their logs (and cleanly
 implement new requirements that are troublesome to do with the old
 mechanism), I find it highly conformant to the Unix philosophy.
@@ -804,7 +805,7 @@ which uses IPv6 addresses generated from public keys as network identifiers
 that I detest the current implementation of cjdns, which seems too bloated
 from the build system to the actual codebase; I even suspect that if an almost
 identical protocol was implemented by Laurent Bercot, the codebase might
-have been less than a tenth of its current size.}.  After analysing IPsec,
+have been less than $1/10$ of its current size.}.  After analysing IPsec,
 Niels Ferguson and Bruce Schneier remarked\cupercite{ferguson2003} that
 \begin{quoting}
 	On the one hand, IPsec is far better than any IP security protocol that has
@@ -1227,7 +1228,7 @@ centralised servers.  Thus when anyone can make mistakes,
 who should we trust?  I find two key points:
 \begin{itemize}
 \item \stress{Analyse specific issues specifically}: examine the proof and its
-	bases, and note whether the bases are still applicable to the current
+	bases, and note whether the bases are still applicable in the current
 	scenario\footnote{Similarly, this document intentionally deviates from the
 	academic convention that avoids citing Wikipedia, which is why I list only
 	``References'', and not a ``Bibliography''; the reason is that I want to

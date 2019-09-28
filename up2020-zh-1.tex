@@ -40,7 +40,7 @@ Ritchie 自己认为“影响了 Unix 设计”的三点技术考虑\cupercite{r
 这三点都将在后面的章节中涉及：
 \begin{itemize}
 \item \stress{对程序员友好}：Unix 被设计为提升作为程序员的用户工作效率的系统；
-	另一方面，我们将在第 \ref{sec:user} 节中讨论 Unix 方法论对普通用户的价值。
+	另一方面，我们也将在第 \ref{sec:user} 节中讨论 Unix 方法论对普通用户的价值。
 \item \stress{简洁}：1970 年前后 Bell 实验室中机器的硬件限制导致了 Unix 对
 	经济和优雅的追求；这样的限制早已过时，那么追求简洁只有审美意义了吗？
 	我们将在第 \ref{sec:quality}--\ref{sec:foss} 节讨论这一问题。
@@ -104,7 +104,7 @@ sort -k1,1nr -k2 | sed "${1:-25}"q
 \end{Verbatim}
 \end{quoting}
 即可将 \verb|input.txt| 中出现最多的 10 个单词及其频数输出到 \verb|output.txt|。
-显然，管道也是一种重定向机制，其把左边命令的输出重定向到右边命令的输入；换一个
+显然，管道也是一种重定向机制，它把左边命令的输出重定向到右边命令的输入；换一个
 角度，如果把被管道连接的各个命令看成一个个过滤器，那么每个过滤器所做的就是相对
 简单的操作，而像上述脚本那样的编程方式本质上就是将复杂的文本处理任务分解为通过
 管道环环相扣的多个简单过滤步骤，并用相对现成的工具实现相应的过滤器。从上面的
@@ -236,18 +236,18 @@ Unix 哲学。有必要指出，管道的出现直接导致了 Unix 先驱对命
 \verb|run| 程序之前几乎不修改任何的进程属性；\verb|run| 程序几乎总是脚本（部分
 实例可参考 \parencite{pollard2014}），其在设定自身的进程属性之后 \verb|exec()|
 实际的服务程序。利用连续 \verb|exec()| 实现进程状态控制的技巧被形象地称为
-\stress{Bernstein chainloading}，因为 Daniel J.\ Bernstein 在其 qmail（首次发布
-于 1996 年）和 daemontools（首次发布于 2000 年）软件中广泛应用了这种技巧；s6
-的作者进一步贯彻了这种技巧，他将 chainloading 的单元操作实现为一组分立的
-工具\cupercite{ska:execline}，利用它们可以实现一些相当有趣的
-需求（一个例子见脚注 \ref{fn:logtype}）。
+\stress{Bernstein chainloading}，因为 Daniel J.\ Bernstein 在其 qmail（首次
+发布于 1996 年）和 daemontools（首次发布于 2000 年）软件中广泛应用了这种
+技巧；s6 的作者 Laurent Bercot 进一步贯彻了这种技巧，他将 chainloading
+的单元操作实现为一组分立的工具\cupercite{ska:execline}，利用它们
+可以实现一些相当有趣的需求（一个例子见脚注 \ref{fn:logtype}）。
 
 在创建服务进程时，chainloading 显然远比 systemd 的机制灵活，因为前者所用的模块
 具有高内聚、低耦合的优良特点，因此易调试、易维护；相比之下，systemd 提供的机制和
 同一版本下其它的 systemd 模块高耦合，所以在出现问题（如 \parencite{edge2017}）
 时不易替换出问题的模块。因为 chainloading 有着简洁清晰的接口，我们在须要
 操作新出现的进程状态属性时可以轻松地实现相应的 chainloader，并将其集成到
-系统当中而无需升级：例如 systemd 对 Linux cgroup 的支持经常被其开发者作为
+系统当中而无需升级：例如 systemd 对 Linux cgroup 的支持经常被其开发者当作
 systemd 的一大卖点\cupercite{poettering2013}，但 cgroup 的用户接口不过是对
 \verb|/sys/fs/cgroup| 目录树的操作，这在 chainloading 时很容易进行；现在已经有
 一些现成的 chainloader 可用\cupercite{pollard2019}，因此可以说 daemontools
@@ -328,7 +328,7 @@ VPN 的需求；又例如通过对 \verb|/net| 设置权限可以调整用户的
 \verb|/dev/mouse|、\verb|/dev/window| 等等设置权限可以约束用户对图形界面的访问。
 再回到 Unix 哲学的话题：从直觉上看 Plan~9 的设计的确体现了 Unix 哲学，但如果
 说上节分析的 \verb|fork()|/\verb|exec()| 还勉强符合第 \ref{sec:mcilroy} 节中
-McIlroy 对 Unix 哲学的表述的话，Plan~9 所贯彻的“一切皆是文件”设计理念恐怕
+Doug McIlroy 对 Unix 哲学的表述的话，Plan~9 所贯彻的“一切皆是文件”设计原则恐怕
 很难用这一表述来概括；可见 McIlroy 的表述并不太完备，我们需要一个更好的总结。
 
 \section{Unix 哲学：最小化系统复杂度}\label{sec:complex}
@@ -340,7 +340,7 @@ McIlroy 对 Unix 哲学的表述的话，Plan~9 所贯彻的“一切皆是文�
 \item Brian Kernighan 和 Rob Pike 强调将软件系统设计成易组合使用的多个小工具，
 	每个工具可以相对独立地完成一类简单任务，它们组合起来使用便可完成复杂任务。
 \item Mike Gancarz\footnote{有趣的是，他是 X Window 系统（见第
-	\ref{sec:plan9} 节）的设计者之一。}把 Unix 哲学总结为 9 条规则。
+	\ref{sec:plan9} 节）的设计者之一。} 把 Unix 哲学总结为 9 条规则。
 \item Eric S.\ Raymond 在《Unix 编程艺术》中总结了 17 条规则。
 \item 除此之外也有不少其它的表述，例如上节提到的“一切皆是文件”。
 \end{itemize}
@@ -374,7 +374,7 @@ McIlroy 对 Unix 哲学的表述的话，Plan~9 所贯彻的“一切皆是文�
 控制。然而要控制服务的状态就要知道它的进程 ID 即 PID，上述子进程的 ID 除了存入
 一个“PID 文件”之外没有太好的办法传递，而 PID 文件又是一个丑陋的机制：如果服务
 进程崩溃，PID 文件将失效，而 init 系统无法得到实时的通知\footnote{事实上 init
-会在其子进程结束时得到通知，但通过这一机制来监控 \texttt{fork()} 的服务程序会
+会在其子进程退出时得到通知，但通过这一机制来监控 \texttt{fork()} 的服务程序会
 制造更多的复杂度，而且并不能干净地解决问题（例如，要是服务在写 PID 文件前就
 崩溃了，该怎么办？）；所有其它“修复”PID 文件的尝试都被类似问题困扰，而这些
 问题在使用 process supervision 时都不复存在。}；此外原 PID 可能被
@@ -389,7 +389,7 @@ McIlroy 对 Unix 哲学的表述的话，Plan~9 所贯彻的“一切皆是文�
 服务进程在退出后永远由原父进程（如 \verb|s6-supervise|）重启，不像 sysvinit 机制
 下在开机时由 init 的某个近亲进程创建，而重新启动时由用户 shell 创建，前一机制
 下服务运行环境的可重复性要强很多。Supervision 机制的一个表面问题是服务不能像
-sysvinit 那样通过 init 脚本的结束来通知 init 系统自身已经就绪，而需要另外的
+sysvinit 下那样用 init 脚本的结束来通知 init 系统自身已经就绪，而需要另外的
 机制；s6 的就绪通知机制\cupercite{ska:notify}非常简洁，且可通过
 工具\cupercite{ska:sdnwrap}模拟 systemd 的机制。
 
@@ -401,19 +401,19 @@ Process supervision 更大的优势在于对系统日志的处理。在 sysvinit
 一起之后再由日志程序根据指定规则分类和过滤\footnote{\label{fn:logtype}事实上，
 因为 \texttt{/dev/log} 是一个 socket（准确地说，须要是一个 \texttt{SOCK\_STREAM}
 socket\cupercite{bercot2015d}），日志程序原则上可以对日志来源进行有限的的判断
-从而对日志流进行一定的分组，而用 s6 作者编写的工具不难实现这一需求\cupercite%
-{ska:syslogd, vector2019b}。}，这些操作因为涉及字符串匹配而可能在日志量很大时
-成为系统的一个性能瓶颈。在 supervision 机制下，我们可以为每个服务进程创建一个
-相应的日志进程\cupercite{ska:s6log}\footnote{遗憾的是 systemd 并没有这么做，而是
-像 syslog 机制一样把所有日志混合到一起之后再处理。顺便提到，这里的各个日志进程
-可以分别以不同的低权限用户身份运行，从而实现高度的权限分离；此外原则上只要对这里
-的日志程序作些修改，就可以实现防止日志被篡改\cupercite{marson2013}的特性，后者
-常被 systemd 支持者当作其专利来吹嘘。}，并通过 chainloading 把前者的标准错误
-输出定向到后者的标准输入，这样服务进程只须写标准错误输出即可传输日志信息；因为
-各日志进程只须对相应服务（而非整个系统）的日志进行分类和过滤，这些操作的资源消耗
-可以被最小化。不仅如此，利用“\stress{fd holding}”的技巧\cupercite{ska:fdhold}%
-（它顺便还可以用来实现所谓“socket activation”），我们可以建立强容错的日志
-信道，保证日志信息在服务进程和日志进程中任意一方崩溃重启时不丢失。
+从而对日志流进行一定的分组，而用 Laurent Bercot 编写的工具不难实现这一需求%
+\cupercite{ska:syslogd, vector2019b}。}，这些操作因为涉及字符串匹配而可能在日志
+量很大时成为系统的一个性能瓶颈。在 supervision 机制下，我们可以为每个服务进程
+创建一个相应的日志进程\cupercite{ska:s6log}\footnote{遗憾的是 systemd 并没有这么
+做，而是像 syslog 机制一样把所有日志混合到一起之后再处理。顺便提到，这里的各个
+日志进程可以分别以不同的低权限用户身份运行，从而实现高度的权限分离；此外原则上
+只要对这里的日志程序作些修改，就可以实现防止日志被篡改\cupercite{marson2013}的
+特性，后者常被 systemd 支持者当作其专利来吹嘘。}，并通过 chainloading 把前者的
+标准错误输出定向到后者的标准输入，这样服务进程只须写标准错误输出即可传输日志
+信息；因为各日志进程只须对相应服务（而非整个系统）的日志进行分类和过滤，这些
+操作的资源消耗可以被最小化。不仅如此，利用“\stress{fd holding}”\cupercite%
+{ska:fdhold}的技巧（它顺便还可以用来实现所谓“socket activation”），我们可以建立
+强容错的日志信道，保证日志信息在服务进程和日志进程中任意一方崩溃重启时不丢失。
 
 由上述分析可见 process supervision 能明显简化对系统服务及其日志的管理，
 其一个非常典型的例子是对 sysvinit 机制下 MySQL 服务管理的极大简化%
@@ -534,9 +534,9 @@ systemd 有着比 s6 多几乎两个数量级的开发者，而且应用了覆�
 方案，因其是一个强制端到端加密（避免监控和篡改，简化上层协议）的网状网（简化
 路由，且使 NAT 不再必要），使用直接从公钥生成的 IPv6 地址作为网络标识符（杜绝
 IP 地址伪装），且总体设计比较简洁。有必要说明，我很讨厌 cjdns 现在的实现，后者
-从构建系统到自身代码都显得过于臃肿；我甚至怀疑，几乎相同的协议如果由 s6 的作者
-来实现，最后的代码量可能不到现在的十分之一。}。Niels Ferguson 和 Bruce Schneier
-在分析了 IPsec 之后认为\cupercite{ferguson2003}：
+从构建系统到自身代码都显得过于臃肿；我甚至怀疑，几乎相同的协议如果由 Laurent
+Bercot 来实现，最后的代码量可能不到现在的十分之一。}。Niels Ferguson 和
+Bruce Schneier 在分析了 IPsec 之后认为\cupercite{ferguson2003}：
 \begin{quoting}
 	On the one hand, IPsec is far better than any IP security protocol that has
 	come before: Microsoft PPTP, L2TP, etc.  On the other hand, we do not
@@ -659,13 +659,13 @@ extinguish}”\cupercite{wiki:eee}（EEE）手段，导致了非必要的\stress
 不可否认的是开源界不是世外桃源，其中充满了纷争乃至所谓“圣战”，但据我所知以前
 没有任何一次纷争涉及的开发者像 systemd 开发者这么明目张胆地使用 EEE 那样的手段%
 \footnote{例如 GNU 软件常被抨击为过度臃肿，并因特性的堆砌而排挤了更简洁的类似
-软件，然而这些软件多数有较强的的可替代性；GCC 或许是被下游项目硬性依赖最多的
-GNU 软件之一，但一方面其特性集似乎不容易低耦合地实现（例如和 GCC 竞争的 LLVM
-在架构上似乎并不比其好太多），另一方面我们没有确切证据其表明开发者在无技术优势
-的前提下有意以紧耦合的方式加入新特性。}。我认为自由/开源软件的开发者应该具有比
-专有/闭源软件的开发者更高的道德标准，因此这样的手段虽然并不违反各大开源许可证%
-\footnote{顺便提到，TiVo 化\cupercite{wiki:tivo} 也不违反多数开源许可证。}，但
-却显得比专有/闭源软件社区中的同类行为更加卑鄙，或者如 s6 的作者所言\cupercite%
+软件，然而这些软件多数有较强的的可替代性；GCC 或许是被下游项目硬性依赖最多的 GNU
+软件之一，但一方面其特性集似乎不容易低耦合地实现（例如和 GCC 竞争的 LLVM 在架构
+上似乎并不比其好太多），另一方面我们没有确切证据其表明开发者在无技术优势的前提下
+有意以紧耦合的方式加入新特性。}。我认为自由/开源软件的开发者应该具有比专有/闭源
+软件的开发者更高的道德标准，因此这样的手段虽然并不违反各大开源许可证\footnote%
+{顺便提到，TiVo 化\cupercite{wiki:tivo} 也不违反多数开源许可证。}，但却显得比
+专有/闭源软件社区中的同类行为更加卑鄙，或者如 Laurent Bercot 所言\cupercite%
 {bercot2015a, bercot2015b}（我称之为“\stress{自由/开源的恶意臃肿软件}”）：
 \begin{quoting}
 	systemd is as proprietary as open source can be.
@@ -743,10 +743,10 @@ Google 明明聘请了 Ken Thompson 和 Rob Pike 等等人，其软件系统却�
 	One of my most productive days was throwing away 1000 lines of code.
 \end{quoting}
 只有追求简洁的态度显然不够，我们还需要具体的方法来提升编写简洁代码的能力，
-其中\stress{观摩现有的优秀软件项目以及相关讨论}是实现自我提升的一条重要途径，
-而我个人建议从 s6 作者的项目\cupercite{ska:software}、Plan~9\cupercite%
-{wiki:plan9}、suckless 系列项目\cupercite{suckless:home}和 cat-v 网站%
-\cupercite{catv:hsoft}\footnote{我认为 cat-v 网站明显地较为激进，因此建议
+其中\stress{观摩现有的优秀软件项目以及相关讨论}是实现自我提升的一条重要
+途径，而我个人建议从 Laurent Bercot 的项目\cupercite{ska:software}、Plan~9%
+\cupercite{wiki:plan9}、suckless 系列项目\cupercite{suckless:home}和 cat-v
+网站\cupercite{catv:hsoft}\footnote{我认为 cat-v 网站明显地较为激进，因此建议
 理性看待其内容。}上关于软件的讨论开始学习。在总体较为合理的基础（例如 Unix）
 之上设计简洁系统的关键在于\stress{巧妙地重用现有的机制}，这需要对这些机制
 本质属性的深刻理解，其中一些典型的例子如下，它们尤其值得我们学习：
@@ -760,9 +760,9 @@ Google 明明聘请了 Ken Thompson 和 Rob Pike 等等人，其软件系统却�
 \item LMDB\cupercite{wiki:lmdb} 借助 \verb|mmap()|、写入时复制等等
 	机制用几千行代码实现了具有优良属性和优异性能的键{--}值存储，
 	其中通过基于 B+ 树的分页跟踪机制避免了垃圾回收。
-\item 在讨论发布{--}订阅式（总线式）消息传递的实现策略时，s6
-	的作者指出\cupercite{bercot2016}其中传输的数据需要基于
-	引用计数的垃圾回收，而 Unix 的文件描述符正好满足这一需求。
+\item 在讨论发布{--}订阅式（总线式）消息传递的实现策略时，%
+	Laurent Bercot 指出\cupercite{bercot2016}其中传输的数据需要
+	基于引用计数的垃圾回收，而 Unix 的文件描述符正好满足这一需求。
 \end{itemize}
 
 刚刚提到，在总体较为合理的基础上设计简洁系统的关键在于巧妙重用，但如果遇到
@@ -778,10 +778,10 @@ Google 明明聘请了 Ken Thompson 和 Rob Pike 等等人，其软件系统却�
 	在编写 qmail 等软件时仔细审视了这些接口，并通过对系统调用（如 \verb|read()|%
 	/\verb|write()|）和一些不太糟糕的标准库函数（如 \verb|malloc()|）的小心封装
 	定义了一组质量高得多的接口；这组接口被其他开发者从 qmail 等软件中分离出来，
-	并有了多个后继，其中我认为最好的是 s6 作者的 skalibs\footnote{s6 的作者指出%
-	\cupercite{ska:libskarnet}在很多情况下，用 skalibs 编写的程序静态链接产生的
-	可执行文件要比用标准库或其它工具库编写的类似物小一个数量级。顺便提到，动态
-	链接原先是为了解决臃肿的 X Window 系统占用空间过多的问题而产生的，类似问题
+	并有了多个后继，其中我认为最好的是 skalibs\footnote{其作者指出\cupercite%
+	{ska:libskarnet}在很多情况下，用 skalibs 编写的程序静态链接产生的可执行
+	文件要比用标准库或其它工具库编写的类似物小一个数量级。顺便提到，动态链接
+	原先是为了解决臃肿的 X Window 系统占用空间过多的问题而产生的，类似问题
 	随着硬件条件的改善而已经被极大减轻，因此动态链接造成的各种麻烦使得关注
 	简洁性的开发者比以前更加倾向于使用静态链接\cupercite{catv:dynlink}。}。
 \item 类 Unix 系统中普遍使用的 Bourne shell（\verb|/bin/sh|，及其后继
