@@ -84,14 +84,15 @@ intended to use another form called M-expressions (short for meta expressions)
 for source code, and let the computer translate them to S-expressions; however,
 programmers generally preferred to use S-expression directly.  M-expressions
 are homoiconic just like S-expressions, and a format closely related to the
-former is used by Mathematica, the computational software.}; for example, the
-factorial function can be written in Scheme and Python respectively as\footnote%
-{They are not exactly equivalent: first, Scheme does not have a \texttt{return}
-primitive, and instead use expressions in \stress{tail positions} as well
-as \stress{continuations}\cupercite{wiki:cont} to return values; second,
-\texttt{(define (fn (args ...)) ...)} is a shorthand for \texttt{(define
-fn (lambda (args ...) ...))} in Scheme, while Python's \texttt{lambda} is
-severely limited (\cf~Section~\ref{sec:homoiconic} for an example).}:
+former is used by Mathematica, the computational software.}; for example,
+the factorial function can be written in Scheme and Python respectively as%
+\footnote{They are not exactly equivalent: first, Scheme does not have a
+\texttt{return} primitive, and instead use expressions in \stress{tail
+positions} as well as \stress{continuations}\cupercite{wiki:cont} (also
+\cf~Footnote~\ref{fn:cps}) to return values; second, \texttt{(define (fn
+(args ...)) ...)} is a shorthand for \texttt{(define fn (lambda (args
+...) ...))} in Scheme, while Python's \texttt{lambda} is severely
+limited (\cf~Section~\ref{sec:homoiconic} for an example).}:
 \colskipa\begin{multicols}{2}
 \begin{quoting}
 \begin{Verbatim}
@@ -197,11 +198,11 @@ hardcoded in non-homoiconic languages can be implemented as elegant extensions
 to the core language.  For example, goroutines, which are usually considered
 one of the main features of Go, are essentially \stress{syntactic sugar} for
 interfaces to lightweight coroutines in the libthread\cupercite{lucent2002}/%
-libtask\cupercite{swtch:libtask} model\footnote{Another model is based on
-the \stress{continuation-passing style}\cupercite{wiki:cps}.}, and they are
-hardcoded in Go exactly because new syntaxes cannot be easily added in Go.
-The example about goroutines might seem slightly abstract because we
-have not seen code transformations in action, and here I give
+libtask\cupercite{swtch:libtask} model\footnote{\label{fn:cps}Another model is
+based on the \stress{continuation-passing style}\cupercite{wiki:cps}.}, and
+they are hardcoded in Go exactly because new syntaxes cannot be easily added
+to Go.  The example about goroutines might seem slightly abstract because
+we have not seen code transformations in action, and here I give
 an example that is both more concrete and more advanced.
 
 Anonymous functions, essentially $\lambda$-expressions, are very useful
@@ -296,9 +297,9 @@ but considering that functions are only evaluated when applied to some
 arguments, \verb|f3| can be transformed into the function above on the left,
 with ancillary functions on the right.  Moreover, I did not tell you $x$ and
 $y$ might be \verb|None| instead of numbers, but following the line of thought
-above, we can further transform \verb|f4| into\footnote{Incidentally,
-this is reminiscent of the continuation-passing style, which is
-in fact not a coincidence\cupercite{troelskn2009}.}
+above, we can further transform \verb|f4| into\footnote{Incidentally, this is
+reminiscent of the continuation-passing style (\cf~Footnote~\ref{fn:cps}),
+which is in fact not a coincidence\cupercite{troelskn2009}.}
 \begin{quoting}
 \begin{Verbatim}
 f5 = lambda x, y: check(
@@ -660,7 +661,7 @@ system's complexity is minimised and the programmer's productivity is maximised:
 as has already been seen in Section~\ref{sec:benefits}, the reconciliation, even
 in a very primitive form, can already contribute greatly to the reduction in the
 complexity of Unix systems; I believe that further simplification of these
-systems will attract more people to explore fundamental aspects of computer
+systems will attract more people to explore the fundamental aspects of computer
 systems, just like how the Raspberry Pi reignited the enthusiasm for low-level
 development.  And even if our efforts might not result in production-ready
 Nil-based systems finally, I am completely convinced that insightful

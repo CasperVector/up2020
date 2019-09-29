@@ -65,10 +65,10 @@ Report on the Algorithmic Language Scheme》及其后续版本（一般简称为
 具有同像性，而一个和前者紧密相关的格式被计算软件 Mathematica 使用。}；例如
 阶乘函数在 Scheme 和 Python 中分别可以写成\footnote{它们并不完全等价：首先，%
 Scheme 没有 \texttt{return} 原语，而是使用\stress{延续}\cupercite{wiki:cont}%
-以及\stress{尾位置}表达式来返回值；第二，在 Scheme 中 \texttt{(define (func
-(args ...)) ...)} 是 \texttt{(define func (lambda (args ...) ...))}
-的简写，而 Python 中的 \texttt{lambda} 在使用上有严重的限制
-（一个例子见第 \ref{sec:homoiconic} 节）。}：
+（另见脚注 \ref{fn:cps}）以及\stress{尾位置}表达式来返回值；第二，在 Scheme
+中 \texttt{(define (fn (args ...)) ...)} 是 \texttt{(define fn (lambda
+(args ...) ...))} 的简写，而 Python 中的 \texttt{lambda} 在使用上
+有严重的限制（一个例子见第 \ref{sec:homoiconic} 节）。}：
 \colskipa\begin{multicols}{2}
 \begin{quoting}
 \begin{Verbatim}
@@ -153,11 +153,11 @@ Gödel 编码\cupercite{wiki:godelnum}和停机问题\cupercite{wiki:halt}。}�
 利用这种宏，我们可以轻松地定义新语法，于是许多硬编码在非同像语言中的%
 \stress{语言特性}可以实现为对核心语言的优雅扩展。例如一般被当作 Go
 语言主要特点之一的 goroutine 本质上是 libthread\cupercite{lucent2002}/%
-libtask\cupercite{swtch:libtask} 模式轻量级协程\footnote{另一种模式是
-基于\stress{continuation-passing style}\cupercite{wiki:cps}（CPS）的。}%
-所提供接口的\stress{语法糖}，它们被硬编码在 Go 中的原因正是 Go 不能
-轻松地添加新语法。这个关于 goroutine 的例子可能稍显抽象，因为我们没有
-看到实际工作中的代码变换，于是我在这里给出一个更具体且更高级的例子。
+libtask\cupercite{swtch:libtask} 模式轻量级协程\footnote{\label{fn:cps}%
+另一种模式是基于\stress{continuation-passing style}\cupercite{wiki:cps}%
+（CPS）的。}所提供接口的\stress{语法糖}，它们被硬编码在 Go 中的原因正是
+Go 不能轻松地添加新语法。这个关于 goroutine 的例子可能稍显抽象，因为我们
+没有看到实际工作中的代码变换，于是我在这里给出一个更具体且更高级的例子。
 
 匿名函数本质上就是 $\lambda$ 表达式，它在作
 函数参数时很有用，正如下列 Python 代码所示：
@@ -239,11 +239,12 @@ divide = lambda a, b: \
 \end{Verbatim}
 \end{quoting}
 \end{multicols}\colskipb
-这一例子并没有在上面结束，因为 $1 - x$ 可能为零，而我希望函数在这种情形下返回
-\verb|None|；但考虑到函数只在应用到具体参数时求值，我们可以将 \verb|f3| 变换为
-上面左侧的函数，其中涉及的辅助函数在右侧。此外，我没有告诉你 $x$ 和 $y$ 可能是
-\verb|None| 而非数值，但我们可以沿用上述思路，将 \verb|f4| 变换为\footnote%
-{顺便提到，这令人联想到 CPS，而这种关联并非巧合\cupercite{troelskn2009}。}
+这一例子并没有在上面结束，因为 $1 - x$ 可能为零，而我希望函数在这种
+情形下返回 \verb|None|；但考虑到函数只在应用到具体参数时求值，我们可以将
+\verb|f3| 变换为上面左侧的函数，其中涉及的辅助函数在右侧。此外，我没有
+告诉你 $x$ 和 $y$ 可能是 \verb|None| 而非数值，但我们可以沿用上述思路，
+将 \verb|f4| 变换为\footnote{顺便提到，这令人联想到 CPS（见脚注
+\ref{fn:cps}），而这种关联并非巧合\cupercite{troelskn2009}。}
 \begin{quoting}
 \begin{Verbatim}
 f5 = lambda x, y: check(
@@ -259,7 +260,7 @@ f5 = lambda x, y: check(
 Haskell，你可能意识到这本质上是在使用 monad。\verb|f5| 的一个 Haskell
 对应物可以写成下面左侧的形式，后者等价于右侧使用 Haskell 中硬编码语法糖的
 形式\footnote{\texttt{return} 在 Haskell 中只是一个函数，而右侧的两个
-\texttt{return} 严格对英语左侧的两个 \texttt{Just}，其原因是 Haskell 中的
+\texttt{return} 严格对应于左侧的两个 \texttt{Just}，其原因是 Haskell 中的
 类型论要求。}。那么 Scheme 和 S 表达式在这里扮演什么角色呢？正如刚刚提到的，
 上述语法糖是硬编码在 Haskell 中的，而在 Scheme 中它可以实现为语法扩展。
 % XXX: hackish.
