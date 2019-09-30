@@ -1,19 +1,19 @@
 \newpart
 \section{Unix 历史简介}\label{sec:intro}
 
-CTSS\cupercite{wiki:ctss}（最早发布于 1961 年）被广泛认为是历史上第一个
-分时操作系统；它也是一个相当成功的系统，而其成功催生了更加有野心得多的
-Multics\cupercite{wiki:multics} 项目（其开发开始于 1964 年）；然而尽管有
-MIT、GE 和 Bell 实验室的共同努力，Multics 直到 1969 年才产生首个可商用的
-系统\cupercite{multicians:history}，原因在于其就当时的人力和计算资源而言过于
-复杂\footnote{事实上，Multics 的硬件需求并不强于今日的低端家用路由器，而相比
-之下现在的 Linux 只能在经过高度裁剪之后才能运行在这样的硬件上。Multicians 网站
-上有一个页面\cupercite{multicians:myths}对关于 Multics 的常见误解进行澄清。}。
-Bell 实验室在 1969 年退出了 Multics 项目，而之前在此项目上工作的 Ken Thompson
-和 Dennis Ritchie 转而开发另一个操作系统来满足自己的需求，这个系统后来得名
-“Unix”\cupercite{wiki:unixhist}。为了让新系统在当时 Bell 实验室中一台（多少）
-闲置的 PDP-7 小型机上可用且可维护，Thompson 对 Multics 的设计进行了大规模简化，
-只保留了其中如层状文件系统和 shell 等等的少量关键元素\cupercite{seibel2009}。
+CTSS\cupercite{wiki:ctss}（最早发布于 1961 年）被广泛认为是历史上第一个分时
+操作系统；它也是一个相当成功的系统，而其成功催生了更加有野心得多的 Multics%
+\cupercite{wiki:multics} 项目（其开发开始于 1964 年）；然而尽管有 MIT、GE 和
+Bell 实验室的共同努力，Multics 直到 1969 年才产生首个可商用的系统\cupercite%
+{multicians:history}，原因在于其就当时的人力和计算资源而言过于复杂\footnote{%
+\label{fn:multics}事实上，Multics 的硬件需求并不强于今日的低端家用路由器，而相比
+之下现在的 Linux 只能在经过高度裁剪之后才能运行在这样的硬件上。Multicians 网站上
+有一个页面\cupercite{multicians:myths}对关于 Multics 的常见误解进行澄清。}。Bell
+实验室在 1969 年退出了 Multics 项目，而之前在此项目上工作的 Ken Thompson 和
+Dennis Ritchie 转而开发另一个操作系统来满足自己的需求，这个系统后来得名“Unix”%
+\cupercite{wiki:unixhist}。为了让新系统在当时 Bell 实验室中一台（多少）闲置的
+PDP-7 小型机上可用且可维护，Thompson 对 Multics 的设计进行了大规模简化，只
+保留了其中如层状文件系统和 shell 等等的少量关键元素\cupercite{seibel2009}。
 
 1970 年代见证了 Unix 的发展传播（详见 \parencite{wiki:unixhist}），我认为其中最
 重要的历史事件是 1976 年《Lions' Commentary on Unix v6》\cupercite{wiki:lions}%
@@ -439,7 +439,7 @@ socket\cupercite{bercot2015d}），日志程序原则上可以对日志来源进
 Google 的“Accelerated Mobile Pages”和 Facebook 的“Instant Articles”等等框架的
 出现大概可以佐证这一现象的存在性。除此之外，浏览器占用大量内存的问题并未随着
 时间的推移而消失，这在一定程度上说明除了性能问题外，尺寸问题在长远意义上
-并没有随着硬件的升级被满意地解决；这在软件领域内是一个普遍的
+也并没有随着硬件的升级被满意地解决；这在软件领域内是一个普遍的
 问题，其一个经典概括是\cupercite{wiki:wirth}
 \begin{quoting}
 	Software efficiency halves every 18 months, compensating Moore's law.
@@ -450,7 +450,7 @@ Google 的“Accelerated Mobile Pages”和 Facebook 的“Instant Articles”�
 
 现在考虑和人更相关的 3 个方面，其中安全性将在下节专门讨论，所以我们现在着重关注
 可靠性和可维护性。不可否认，当今的程序员资源和编程工具与 Unix 诞生之初有着天壤
-之别，这也是当今主流类 Unix 系统能远复杂于 Multics（见第 \ref{sec:intro} 节）的
+之别，这也是当今主流类 Unix 系统能远复杂于 Multics（见脚注 \ref{fn:multics}）的
 原因；但另一方面，我认为这些方面的进步远不足以和 Tony Hoare 在其获得 Turing 时
 的报告中总结的规律\cupercite{hoare1981}（不少计算机科学家有类似的观点）相对抗：
 \begin{quoting}
@@ -603,23 +603,23 @@ systemd。可以注意到，用户对后面这些软件行为的控制被明显�
 namelessvoice2018}）时，用户除了向其开发团队请愿之外少有其它选择\footnote{%
 Firefox 有 Waterfox、Pale Moon 等等替代品，但这些替代品因人力资源的限制而在
 安全更新等方面落后于 Firefox\cupercite{hoffman2018}。}；对于 systemd 而言，
-其典型标志则是用户在遇到各种（见第 \ref{sec:quality} 节）从一开始就不该存在的
-“corner case”（例如 \parencite{ratagupt2017}）时，在其开发者设法修复之前因为
-无力自行改进 systemd 的行为只能想方设法绕过问题，而且 systemd 开发者还可能
-直接拒绝考虑相关需求（例如 \parencite{akcaagac2013}/\parencite{junta2017}%
-\footnote{借助早在本世纪初就已存在的 chainloading 技巧（见第 \ref{sec:complex}
-节），我们可以完全避免 systemd 中 \texttt{journald} 所用的二进制日志格式，同时
-却比 \texttt{journald} 更加简洁、可靠地实现后者实现的绝大部分用户需求。此外即使
-抛开 \texttt{journald} 本身多余与否这一点，我也至今没有看到日志信息强制通过其
-转发到 syslog 日志服务的任何技术优势，而加入让 syslog 服务直接监听日志信息的
-功能对 systemd 开发者似乎一点都不难：只要允许设定 \texttt{journald} 不监听
-\texttt{/dev/log} 即可。} 和 \parencite{freedesktop:sepusr}\footnote{然而
-其不支持在无 initramfs 时分开挂载 \texttt{/usr} 的论据可谓非常薄弱%
-\cupercite{saellaven2019a}。}）。事实上，用户对上述软件的控制还不如对一些提供
-源代码但限制分发的软件，例如第 \ref{sec:wib}--\ref{sec:howto} 节中将提到的
-Chez Scheme 的旧版本。由此可见，从 s6 等允许高度控制的软件和旧 Chez Scheme 等
-允许充分控制的软件，到 systemd 等只允许很有限控制的软件和传统的专有/闭源软件，%
-\stress{从用户对软件行为的控制上看，自由/开源和专有/闭源的界限已经开始模糊}。
+其典型标志则是用户在遇到各种从一开始就不该存在（见第 \ref{sec:quality} 节）
+的“corner case”（例如 \parencite{ratagupt2017}）时，在其开发者设法修复之前
+只能想方设法绕过问题，而且开发者还可能直接拒绝考虑相关需求（例如 \parencite%
+{akcaagac2013}/\parencite{junta2017}\footnote{借助早在本世纪初就已存在的
+chainloading 技巧（见第 \ref{sec:complex} 节），我们可以完全避免 systemd 中
+\texttt{journald} 所用的二进制日志格式，同时却比 \texttt{journald} 更加简洁、
+可靠地实现后者实现的绝大部分用户需求。此外即使抛开 \texttt{journald} 本身多余
+与否这一点，我也至今没有看到日志信息强制通过其转发到 syslog 日志服务的任何
+技术优势，而加入让 syslog 服务直接监听日志信息的功能对 systemd 开发者似乎
+一点都不难：只要允许设定 \texttt{journald} 不监听 \texttt{/dev/log} 即可。}
+和 \parencite{freedesktop:sepusr}\footnote{然而其不支持在无 initramfs 时
+分开挂载 \texttt{/usr} 的论据可谓非常薄弱\cupercite{saellaven2019a}。}）。
+事实上，用户对上述软件的控制还不如对一些提供源代码但限制分发的软件，例如第
+\ref{sec:wib}--\ref{sec:howto} 节中将提到的 Chez Scheme 的旧版本。由此可见，
+从 s6 等允许高度控制的软件和旧 Chez Scheme 等允许充分控制的软件，到 systemd
+等只允许很有限控制的软件和传统的专有/闭源软件，\stress{从用户对软件
+行为的控制上看，自由/开源和专有/闭源的界限已经开始模糊}。
 
 上述分析是从纯技术方面入手的，用户对自由/开源软件行为的控制被削弱的确主要是因为
 这些软件低内聚、高耦合的架构，然而我认为其中有一个重要的例外：接下来，通过和专有
@@ -698,7 +698,7 @@ extinguish}”\cupercite{wiki:eee}（EEE）手段，导致了非必要的\stress
 daemontools 等等“非主流”软件），并从中学习如何在实际工作中贯彻 Unix 哲学。
 关于这方面的更多细节，我将在第 \ref{sec:devel}--\ref{sec:user} 节中进一步讨论，
 在这里我只就自由/开源软件的话题做最后两点补充：第一，追求简洁能\stress{为志愿者
-节省时间和精力}（这些没有固定资金支持的人在开源界中大量存在，而且做出了巨大的
+节省时间精力}（这些没有固定资金支持的人在开源界中大量存在，而且做出了巨大的
 贡献），让他们更容易专注于最有意义的项目，这在新需求随着技术进步不断涌现的当今
 尤为重要；第二，简洁清晰的代码会自然地鼓励用户参与开发过程，\stress{增加对
 自由/开源软件的有效复查}，从而促进软件质量的提升，这或许是从源头上防止
@@ -710,8 +710,8 @@ Heartbleed 灾难重演、使 Linus 规则\cupercite{wiki:eyeball}
 
 \section{极简主义实践：开发者视角}\label{sec:devel}
 
-我在上节末尾提到追求简洁能节省时间和精力，这事实上是一种简化的表述：为了让软件
-简洁，开发者须要花费相当多的时间和精力进行架构设计，因此在短期内其可见的产出或许
+我在上节末尾提到追求简洁能节省时间精力，这事实上是一种简化的表述：为了让软件
+简洁，开发者须要花费相当多的时间精力进行架构设计，因此在短期内其可见的产出或许
 不如用脏乱差方案快速解决问题的开发者；然而一旦实现了相同的需求，和臃肿晦涩的代码
 相比，简洁清晰的代码会具有更高的可靠性、可维护性和安全性，因此从长远上看将节约
 开发者在整个软件生命周期内花费的时间精力。在商业开发中，有时为了抢占市场，迅速
@@ -728,8 +728,8 @@ Plan~9 至今有 4 个正式发布版\cupercite{wiki:plan9}，其中 1992 年的
 平滑过渡在软件领域是一个具有普遍性的难题。此外，近年来上层开发越来越不注重简洁性
 （你如果自行编译过构建 TensorFlow 所用的 Bazel 程序，也许就会对此有直观的体会；%
 Google 明明聘请了 Ken Thompson 和 Rob Pike 等等人，其软件系统却仍然如此臃肿，
-对此我感到费解），这也使 Plan~9 和“现代”的需求渐行渐远，而我编写本文档的一个重要
-目的也是提升大家对极简主义的认知。}，所以经常要有意抢占市场的项目令我不得不联想
+对此我感到费解），这也使 Plan~9 和“现代”的需求渐行渐远，而我编写本文档的一个
+重要目的也是提升大家对极简主义的认知。}，所以经常要抢占市场的项目令我不得不联想
 到低的软件质量和以 embrace、extend、extinguish 为代表的卑劣手段；另一方面，用来
 抢占市场的特性多数不会被迅速丢弃，因此为了保持软件系统的可维护性，重构是迟早
 要进行的。由此可知在软件开发，特别是开源开发中，追求简洁的 Unix 哲学
@@ -746,8 +746,8 @@ Google 明明聘请了 Ken Thompson 和 Rob Pike 等等人，其软件系统却�
 其中\stress{观摩现有的优秀软件项目以及相关讨论}是实现自我提升的一条重要
 途径，而我个人建议从 Laurent Bercot 的项目\cupercite{ska:software}、Plan~9%
 \cupercite{wiki:plan9}、suckless 系列项目\cupercite{suckless:home}和 cat-v
-网站\cupercite{catv:hsoft}\footnote{我认为 cat-v 网站明显地较为激进，因此建议
-理性看待其内容。}上关于软件的讨论开始学习。在总体较为合理的基础（例如 Unix）
+网站上关于软件的讨论\cupercite{catv:hsoft}\footnote{我认为 cat-v 网站明显地
+较为激进，因此建议理性看待其内容。}开始学习。在总体较为合理的基础（例如 Unix）
 之上设计简洁系统的关键在于\stress{巧妙地重用现有的机制}，这需要对这些机制
 本质属性的深刻理解，其中一些典型的例子如下，它们尤其值得我们学习：
 \begin{itemize}
@@ -773,8 +773,8 @@ Google 明明聘请了 Ken Thompson 和 Rob Pike 等等人，其软件系统却�
 	走向臃肿的里程碑，而 Plan~9 正是 Unix 先驱对以此为代表的问题深入思考的
 	产物；类似地如第 \ref{sec:complex} 节所述，process supervision 正是
 	Daniel J.\ Bernstein 等人对系统服务及其日志的管理方式进行反思的产物。
-\item 当今通用的 C 标准库接口并不理想\cupercite{ska:djblegacy}，作为可移植标准的
-	POSIX 只是对类 Unix 系统中已经存在的行为加以统一，而不论其美丑。Bernstein
+\item 当今通用的 C 标准库接口并不理想\cupercite{ska:djblegacy}，而作为可移植标准
+	的 POSIX 只是对类 Unix 系统中已经存在的行为加以统一，而不论其美丑。Bernstein
 	在编写 qmail 等软件时仔细审视了这些接口，并通过对系统调用（如 \verb|read()|%
 	/\verb|write()|）和一些不太糟糕的标准库函数（如 \verb|malloc()|）的小心封装
 	定义了一组质量高得多的接口；这组接口被其他开发者从 qmail 等软件中分离出来，
@@ -845,7 +845,7 @@ Bell 实验室采用多台终端连接到少数中心服务器的网络架构，
 
 \section{极简主义实践：用户视角}\label{sec:user}
 
-上节提到，对开发者而言，追求简洁在短期内可能不利，但从长期看能节省时间和精力，
+上节提到，对开发者而言，追求简洁在短期内可能不利，但从长期看能节省时间精力，
 而类似的结论对普通用户也成立：例如 Windows 固然有“用户友好”的图形界面，但一旦
 涉及一点稍微复杂的任务而没有现成的工具时，在 Windows 下我们仍然要借助其和类 Unix
 系统中 shell 类似的一些工具（批处理、VBScript、PowerShell，或者 Python 等跨平台
@@ -854,8 +854,8 @@ Bell 实验室采用多台终端连接到少数中心服务器的网络架构，
 把 Unix 工具组合起来产生的巨大威力，所以这样的学习的确会带来丰厚的回报。我认为
 shell 并不难学习，关键在于理解其基本用法，而不是如上节提到的 Bourne shell 的
 各种怪癖；我建议在初步学习 Bourne shell 之后认真学习一遍 \verb|rc|\cupercite%
-{github:rc}，因为其简洁清晰地体现了 shell 编程的核心，这样再回过来看 Bourne
-shell 时就知道哪些地方相对次要了。
+{github:rc}，因为后者简明地体现了 shell 编程的核心，这样再回过来看
+Bourne shell 时就知道哪些地方相对次要了。
 
 进一步地，正如 shell 和图形界面的关系一样，简洁的软件系统和复杂的软件系统之间
 有着类似的关系，这里我以 RHEL/CentOS 和 Alpine Linux\footnote{顺便提到，如果

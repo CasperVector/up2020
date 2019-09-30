@@ -7,16 +7,16 @@ resulted in a much more ambitious project called Multics\cupercite{wiki:multics}
 (with development starting in 1964), which did not deliver a commercially usable
 system until 1969\cupercite{multicians:history} despite joint efforts from
 MIT, GE and Bell Labs, as the system was too complicated for the human and
-computational resources available at that time\footnote{Actually, what the
-system required is no more than the hardware of a low-end home router now,
-and in comparison, modern Linux systems can only run on the same hardware
-with massive tailorings to reduce the size.  The Multicians Website has a
-page\cupercite{multicians:myths} clarifying some common misunderstandings about
-Multics.}.  Bell Labs withdrew from the project in 1969, a few months before
-the first commercial release of Multics; Ken Thompson and Dennis Ritchie,
-previosuly working on the project, went on to develop another operating
-system to fulfill their own needs, and the system would soon get the name
-``Unix''\cupercite{wiki:unixhist}.  In order to make the new system usable
+computational resources available at that time\footnote{\label{fn:multics}%
+Actually, what the system required is no more than the hardware of a low-end
+home router now, and in comparison, modern Linux systems can only run on the
+same hardware with massive tailorings to reduce the size.  The Multicians
+Website has a page\cupercite{multicians:myths} clarifying some common
+misunderstandings about Multics.}.  Bell Labs withdrew from the project in 1969,
+a few months before the first commercial release of Multics; Ken Thompson and
+Dennis Ritchie, previosuly working on the project, went on to develop another
+operating system to fulfill their own needs, and the system would soon get the
+name ``Unix''\cupercite{wiki:unixhist}.  In order to make the new system usable
 and manageable on a (sort of) spare PDP-7 minicomputer at Bell Labs, Thompson
 made major simplifications to the Multics design and only adopted certain key
 elements like the hierarchical file system and the shell\cupercite{seibel2009}.
@@ -542,8 +542,8 @@ and the three restrictions in my formulation are explained below:
 	computers, which I will further discuss in Section~\ref{sec:cognitive}.
 \end{itemize}
 
-Let's see a fairly recent example.  In some init systems, represented by
-sysvinit, longrun system services detach themselves from the control of the
+Let's see a fairly recent example.  In some init systems (represented by
+sysvinit), longrun system services detach themselves from the control of the
 user's shell, in order to implement backgrounding\cupercite{gollatoka2011}:
 when the service program is run by the user from the shell, it \verb|fork()|s a
 child process, and then the parent process exits, so the shell waits for another
@@ -551,7 +551,7 @@ command from the user because the user-run (parent) process has exited, while
 the child process is reparented to init upon exiting of the parent process, and
 no longer under the user shell's control.  However, in order to control the
 state of a process, its process ID should be known, but the above-mentioned
-child has no better way to pass its PID other than to save it into a ``PID
+child has no better way to pass its PID other than saving it into a ``PID
 file'', which is an ugly mechanism: if the service process crashes, the PID file
 would become invalid, and the init system cannot get a real-time notification%
 \footnote{In fact, init would be notified upon death of its children, but using
@@ -584,36 +584,36 @@ systemd's mechanism using some tool\cupercite{ska:sdnwrap}.
 
 A bigger advantage of process supervision is the management of system logs.
 With the sysvinit mechanism, in order to detach itself from the user shell's
-control, the service process has to redirect is file descriptors, which were
-inherited from the shell and previously pointed to the user's terminal through
-\verb|exec()|, somewhere else (usually \verb|/dev/null|), so its logs have to be
-saved by alternative means when not directly written to the disk.  This is the
-origin of the syslog mechanism, which lets service processes output their log
-to \verb|/dev/log| which is listened by a system logger, which means all system
-logs would be mixed up before being classified and filtered\footnote{\label%
-{fn:logtype}As a matter of fact, because \texttt{/dev/log} is a socket (to be
-precise, it needs to be a \texttt{SOCK\_STREAM} socket\cupercite{bercot2015d}),
-in principle the logger can do limited identification of the log source and then
-somehow group the log streams, and this is not hard to implement with tools by
-Laurent Bercot\cupercite{ska:syslogd, vector2019b}.}, and the latter operations
-can become a performance bottleneck when the log volume is huge, due to the
-string matching procedure involved.  With supervision, we can assign one
-logger process for each service process\cupercite{ska:s6log}\footnote{systemd
-unfortunately does not do this, and instead mixes up all logs before processing.
-Incidentally, here the different loggers can be run as different low-privilege
-users, therefore implementing a high level of privilege separation.  In
-addition, by a moderate amount of modification to the logger program, a
-feature that prevents log tampering\cupercite{marson2013} can be implemented,
-and the latter is often boasted by systemd proponents as one of its exclusive
-features.}, and redirect the standard error output of the latter to the
-standard input of the former by chainloading, so service processes only
-need to write to the standard error in order to transfer logs; because each
-logger only needs to do classification and filtering of logs from the
-corresponding service (instead of the whole system), the resource consumption
-of these operations can be minimised.  Furthermore, using the technique of
-\stress{fd holding}\cupercite{ska:fdhold} (which, incidentally, can be used
-to implement so-called ``socket activation''), we can construct highly
-fault-tolerant logging channels that ensure the log is not lost
+control, the service process has to redirect its file descriptors, which were
+inherited from the shell through \verb|exec()| and previously pointed to the
+user's terminal, to somewhere else (usually \verb|/dev/null|), so its logs have
+to be saved by alternative means when not directly written to the disk.  This
+is the origin of the syslog mechanism, which lets service processes output
+logs to \verb|/dev/log| which is listened by a system logger, which means all
+system logs would be mixed up before being classified and filtered\footnote%
+{\label{fn:logtype}As a matter of fact, because \texttt{/dev/log} is a socket
+(to be precise, it needs to be a \texttt{SOCK\_STREAM} socket\cupercite%
+{bercot2015d}), in principle the logger can do limited identification of the
+log source and then somehow group the log streams, and this is not hard to
+implement with tools by Laurent Bercot\cupercite{ska:syslogd, vector2019b}.},
+and the latter operations can become a performance bottleneck when the log
+volume is huge, due to the string matching procedures involved.  With
+supervision, we can assign one logger process for each service process%
+\cupercite{ska:s6log}\footnote{systemd unfortunately does not do this, and
+instead mixes up all logs before processing.  Incidentally, here the different
+loggers can be run as different low-privilege users, therefore implementing
+a high level of privilege separation.  In addition, by a moderate amount of
+modification to the logger program, a feature that prevents log tampering%
+\cupercite{marson2013} can be implemented, and the latter is often boasted by
+systemd proponents as one of its exclusive features.}, and redirect the standard
+error output of the latter to the standard input of the former by chainloading,
+so service processes only need to write to the standard error in order to
+transfer logs; because each logger only needs to do classification and filtering
+of logs from the corresponding service (instead of the whole system), the
+resource consumption of these operations can be minimised.  Furthermore, using
+the technique of \stress{fd holding}\cupercite{ska:fdhold} (which, incidentally,
+can be used to implement so-called ``socket activation''), we can construct
+highly fault-tolerant logging channels that ensure the log is not lost
 when either the service or the logger crashes and restarts.
 
 From the analyses above, we can see that process supervision can greatly
@@ -670,10 +670,10 @@ Now we consider the three aspects that are largely human-oriented, and since
 security is to be specifically discussed in the next section, here we mainly
 focus on reliability and maintainability.  It cannot be denied that today's
 programmer resources and programming tools are almost imaginable at the
-inception of Unix, which is why mainstream Unix-like systems in this era
-can be much more complicated than Multics (\cf~Section~\ref{sec:intro}); on
-the other hand, I believe that the improvements in these areas are far from
-able to counter the rule summarised by Tony Hoare in his Turing Award lecture%
+inception of Unix, which is why mainstream Unix-like systems in this era can
+be much more complicated than Multics (\cf~Footnote~\ref{fn:multics}); on the
+other hand, I believe that the improvements in these areas are far from able
+to counter the rule summarised by Tony Hoare in his Turing Award lecture%
 \cupercite{hoare1981} (and many computer scientists think similarly):
 \begin{quoting}
 	Almost anything in software can be implemented, sold, and even used, given
@@ -722,7 +722,7 @@ able to effectively fix bugs without creating new problems).}.
 
 From the perspective of the user, systemd's behaviours are too complex, and
 consequently its documentation can only describe most typical application
-scenarios, and many use cases unconsidered by its developers become truly
+scenarios, and many use cases unconsidered by its developers become actual
 ``corner cases'' (\eg~\parencite{dbiii2016}; for a very detailed analysis
 on the origin of this kind of problems, \cf~\parencite{vr2015}) where the
 behaviours of systemd are very difficult to deduce from the documentation.
@@ -774,15 +774,16 @@ that the cognitive complexity of a software system determines its number of
 defects, because programming is after all a task similar to other kinds of
 mental labor, and the same kind of products by the same person that consumed
 the same amount of energy should naturally contain similar amounts of defects.
-Defects (including vulnerabilities and other kinds of defects) in software
-systems come with new code, and go with analyses and debugging, and the
-degree of difficulty in analyses and debugging obviously depends on the size
-of the codebase as well as the degree of cohesion and coupling.  Therefore we
-can see that \stress{complexity is a crucial factor that governs the creation
-and annihilation of defects, including security vulnerabilities, in software}
-(which probably also explains why the number of unresolved bugs in systemd
-increases constantly), so the Unix philosophy, which pursuits simplicity,
-is extremely important to software security.
+Defects (including security vulnerabilities and other kinds of defects) in
+software systems come with new code, and go with analyses and debugging, while
+the degree of difficulty in analyses and debugging obviously depends on the
+size of the codebase as well as the degree of cohesion and coupling, or in
+other words the cognitive complexity of the software system.  Therefore we can
+see that \stress{complexity is a crucial factor that governs the creation and
+annihilation of defects, including security vulnerabilities, in software}
+(which probably also explains why the number of unresolved bugs
+in systemd increases constantly), so the Unix philosophy, which
+pursuits simplicity, is extremely important to software security.
 
 The root cause of many software defects is the fundamental weaknesses in the
 design of these software systems, and the counterpart to these weaknesses in
@@ -790,7 +791,7 @@ information security is, to a large extent, weaknesses in cryptographic
 protocols; accordingly, I give two examples for the purely theoretical analysis
 above, one about cryptographic protocols and the other about implementation of
 such protocols.  Due to the strongly mathematical nature of cryptographic
-protocols, they can be mathematically analysed, and its generally thought
+protocols, they can be mathematically analysed, and it is generally thought
 in the field of information security that cryptographic protocols without
 enough theoretical analyses lack practical value\cupercite{schneier2015}.
 Nevertheless, even with this background, some widely used cryptographic
@@ -846,8 +847,8 @@ Before concluding this section, I would like to digress a little and examine
 the issue of compiler backdoors, which makes the compiler automatically injects
 malicious code when processing certain programs: when suspecting the compiler
 after noticing abnormalities, people would certainly think of generating the
-compiler itself from a clean copy of its source; however, if the source code
-is processed by the dirty compiler (\eg~most C compilers are written in C,
+compiler itself from a clean copy of its source code; however, if the source
+code is processed by the dirty compiler (\eg~most C compilers are written in C,
 so they can compile themselves, or in other words \stress{self-bootstrap}%
 \footnote{``Booting'' in system startup is exactly short for bootstrapping,
 and here the compiler bootstraps itself.}), which automatically inserts the
@@ -897,7 +898,7 @@ this, like Chromium and Firefox, the currently mainstream open-source browsers,
 and systemd, which has been mentioned multiple times.  It can be noticed
 that the user's control over the behaviours of these software systems has
 been significantly undermined: for Chromium and Firefox, the typical sign
-of this problem is that when there are updates that defies user requirements
+of this problem is that when there are updates that defy user requirements
 (\eg~\parencite{beauhd2019, namelessvoice2018}), the user has few choices
 other than pleading to the development teams\footnote{There are Firefox
 replacements like Waterfox and Pale Moon, but these replacements lag behind
@@ -906,7 +907,7 @@ resources\cupercite{hoffman2018}.}; for systemd, the typical sign is that
 when various ``corner cases'' (\eg~\parencite{ratagupt2017}), which should
 not have even existed in the first place (\cf~Section~\ref{sec:quality})
 are encountered, the user has to work around the problems by all means before
-the developers are able to somwhow fix them, and the developers may even
+the developers are able to somehow fix them, and the developers may even
 plainly refuse to consider the requests (\eg~\parencite{akcaagac2013}/%
 \parencite{junta2017}\footnote{With the chainloading technique (\cf~Section~%
 \ref{sec:complex}) which has existed since the beginning of this century, we
@@ -937,8 +938,8 @@ software systems, which have low cohesion and high coupling, but I think there
 is one important exception: in the following, through comparison to proprietary
 software, I will argue that \stress{systemd is the first open-source project
 to promote its software using proprietary practices}.  Both proponents and
-opponents of systemd generally agree that the most important milestone during
-the course where systemd became be the default init system in mainstream
+opponents of systemd generally agree that the most important milestone
+during the course where systemd became the default init system in mainstream
 Linux distributions was when it became the default in the ``jessie'' release
 of Debian\cupercite{sfcrazy2014, paski2014}\footnote{The appropriateness of
 criteria for the results from both votes in the original contexts were disputed%
@@ -977,7 +978,7 @@ which resulted in unnecessary \stress{vendor lock-in}:
 	projects, which might extend currently available facilities.
 \item Lobbying downstream projects into using said facilities (perhaps making
 	false promises about low coupling during the process); when the facilities
-	extend on the current ones, pushing for the adoption of these extensions,
+	extend the current ones, pushing for the adoption of these extensions,
 	which creates compatibility issues for competing projects.
 \item After their own project becomes the \emph{de facto} standard, tying
 	said facilities to the project knowingly without technical advantages,
@@ -1041,22 +1042,22 @@ resource intensive''\cupercite{poettering2011b}?
 In the end of this section, I want to stress that while the systemd debacle
 is a huge challenge to the open-source community, it is meanwhile an important
 opportunity: as was noted above, it lets us clearly see the severe consequences
-from the blind omission of the Unix philosophy, and the result of not learn the
-lesson from it would inevitably be to ``make later generations lament the later
-generations''; systemd is destined to be introduced into the hall of shame in
-the open-source community, but on the other hand it also urges us to re-examine
-those excellent software systems (including ``unpopular'' software like Plan~9
-and daemontools), and to learn from them how to apply the Unix philosophy in
-actual work.  More details on this will be discussed in Sections~\ref{sec:devel}%
---\ref{sec:user}, and here I only give two additional comments regarding
-FOSS.  First, the pursuit for simplicity can \stress{save time and energy for
-volunteers} (which exist in large numbers, do not have constant cash support,
-and have made huge contributions), making it easier for them to concentrate
-on most meaningful projects, which is particularly relevant nowadays where
-new requirements continuously emerge with the advancement of technology.
-Second, simple, clear code naturally encourages the user to participate
-in development, which \stress{increases the effective review of FOSS}
-and therefore contributes to the improvement in software quality,
+from the blind omission of the Unix philosophy, and the result of not learning
+the lesson from it would inevitably be to ``make later generations lament the
+later generations''; systemd is destined to be introduced into the hall of
+shame in the open-source community, but on the other hand it also urges us to
+re-examine those excellent software systems (including ``unpopular'' software
+like Plan~9 and daemontools), and to learn from them how to apply the Unix
+philosophy in actual work.  More details on this will be discussed in Sections~%
+\ref{sec:devel}--\ref{sec:user}, and here I only give two additional comments
+regarding FOSS.  First, the pursuit for simplicity can \stress{save time and
+energy for volunteers} (which exist in large numbers, do not have constant
+cash support, and have made huge contributions), making it easier for them to
+concentrate on the most meaningful projects, which is particularly relevant
+nowadays where new requirements continuously emerge with the advancement of
+technology.  Second, simple, clear code naturally encourages the user to
+participate in development, which \stress{increases the effective review
+of FOSS} and therefore contributes to the improvement in software quality,
 and this may be a way, from the origin, to avoid the next Heartbleed
 catastrophe and realise Linus's Law\cupercite{wiki:eyeball}
 \begin{quoting}
@@ -1065,7 +1066,7 @@ catastrophe and realise Linus's Law\cupercite{wiki:eyeball}
 
 \section{Practical minimalism: a developer's perspective}\label{sec:devel}
 
-Before ending last section, I mentioned that the pursuit for simplicity can
+In the end of last section, I mentioned that the pursuit for simplicity can
 save time and energy, which was in fact a simplified expression.  In order to
 make software simple, the developer needs to invest quite a large amount of time
 and energy in architecture design, so the tangible production in the short term
@@ -1140,8 +1141,8 @@ are some typical examples that are particularly worth studying:
 	files, avoiding the \verb|ioctl()| family of system calls.
 \item qmail\cupercite{bernstein2007} implemented its access control
 	using the user-permission mechanism of Unix, its mailbox-aliasing
-	mechanism using the file system, and its separation of code for the
-	transport and application layers following the line of thought with
+	mechanism using the file system, and its separation between code
+	for the transport and application layers following the idea in
 	\verb|inetd| (and in fact, the UCSPI\cupercite{bernstein1996}).
 \item LMDB\cupercite{wiki:lmdb} implemented a key-value store with excellent
 	properties and outstanding performance in a few thousands of code using
@@ -1237,22 +1238,22 @@ who should we trust?  I find two key points:
 	statements should be avoided in C programming, but many projects, including
 	the Linux kernel, employ ``\verb|goto| chains''\cupercite{shirley2009}
 	because \verb|goto| is avoided to prevent complicated back-and-forth jumping
-	and avoid spaghetti code, and on the contrary goto chains not only do no
-	harm to the readability of the code, but also have better readability than
-	all other equivalent ways to write the code.  Similarly, the goal for
+	and avoid spaghetti code, and on the contrary \verb|goto| chains not only
+	do no harm to the readability of the code, but also have better readability
+	than all other equivalent ways to write the code.  Similarly, the goal for
 	summarising the essence of the Unix philosophy as a complexity issue in
 	Section~\ref{sec:complex} was not to make it pretty, but to correctly
 	understand its spirit when determining the quality of systems.
 \item \stress{Investigate extensively and listen broadly}: listen to opinions
-	from multiple sides, in order to have a view of the problem scope that is
-	as complete as reasonable.  For example the ``success'' of systemd for the
-	time being was largely because most people in the Linux circle only knew
-	sysvinit, systemd, Upstart and OpenRC, and almost ignored the daemontools
-	design and its potentials; after adequately understanding the designs of
-	various init systems, and the comparison between them by proponents and
-	opponents of these systems, you would naturally know which init system
-	to choose.  Similarly, some systemd proponents will inevitably fight
-	the points in this document with teeth and nails, and I just hope you
+	from multiple sides, in order to have a view of the problem scope that
+	is as complete as reasonable.  For example the ``success'' of systemd
+	for the time being was largely because most people in the Linux circle
+	only knew sysvinit, systemd, Upstart and OpenRC, and almost ignored the
+	daemontools-ish design and its potentials; after adequately understanding
+	the designs of various init systems, and the comparison between them by
+	proponents and opponents of these systems, you would naturally know which
+	init system to choose.  Similarly, some systemd proponents will inevitably
+	fight the points in this document with teeth and nails, and I just hope you
 	to read enough of this document and its references, and then form your
 	own conclusion by combining opinions you know from multiple sides.
 \end{itemize}
@@ -1273,9 +1274,9 @@ in order to let ``the good money drive out the bad''.  Finally, ``\stress{do
 not foist what you dislike upon others}'', when participating in unfamiliar
 open-source projects, we should pay due respect to their traditions, and avoid
 the tendency to impose our opinions on others like that of systemd developers,
-which is also relevant with projects unrelated to init: for instance, due to
-influences from multiple factors, different people pursue simplicity to
-different degrees, and this personal choice needs to be respected,
+which is also relevant with projects unrelated to init: for instance, due
+to influence from multiple factors, different people pursue simplicity
+to different degrees, and this personal choice needs to be respected,
 as long as it is made after sufficient investigation and careful
 consideration, and does not infringe upon other people's choices.
 
@@ -1291,12 +1292,12 @@ or cross-platform languages like Python) anyway.  From this we can see that
 if you want a self-sufficient experience, you would need to learn those
 ``user-unfriendly'' tools sooner or later, and since we have already seen the
 great power from combining Unix tools with the shell in a quite intuitive way
-in Section~\ref{sec:shell}, so this learning process would really be rewarding.
+in Section~\ref{sec:shell}, this learning process would really be rewarding.
 I believe that the shell is not hard to learn, and the key is to understand
 its fundamental usage instead of the eccentricities of the Bourne shell
 mentioned in the last section.  Here I suggest carefully learning \verb|rc|%
 \cupercite{github:rc} after a preliminary walkthrough of the Bourne shell,
-because the former represents the main ideas in shell scripting,
+because the former concisely represents the main ideas in shell scripting,
 so when coming back to the Bourne shell after this, it would
 be easier to know which parts are less important.
 
@@ -1381,7 +1382,7 @@ a form that is simple, clear and close to the \verb|rc| way as far as is
 reasonable.  Another example is that I have to interact with the systemd-based
 CentOS 7 due to work requirements, and that my choice is to do most work on
 a machine controllable by myself, and try to use CentOS 7 in a simplest way
-in virtual machines, in order to minimise dependence on it.
+in virtual machines, in order to minimise the dependence on it.
 
 If you are using systemd relucantly because of software systems (Linux
 distribution or desktop environment) you are used to, I suggest you to actively
@@ -1396,9 +1397,9 @@ have to jump through multiple hoops\cupercite{dantrell2019}, and those who would
 like to separately mount \texttt{/usr} without using an initramfs still have to
 maintain a patchset by themselves\cupercite{stevel2011} because of developers
 blindly following systemd practices\cupercite{saellaven2013}.}.  To achieve
-this, I consider it necessary for the user to be in particular wary of bloated
+this, I consider it necessary for the user to be especially wary of bloated
 components, like GNOME, in the system, and when it shows the tendency to be
-close coupled to suspicious projects, consider lightweight alternatives like
+closely coupled to suspicious projects, consider lightweight alternatives like
 Fluxbox, Openbox, awesome and i3 in time: after those bloated projects get tied
 to mal-bloatware, even assuming their developers are totally well-intentioned,
 they would not necessarily be able to afford cleaning up the infections in
@@ -1436,16 +1437,16 @@ repulsion of programming, and \stress{start with good tools and tutorials},
 which would not consume too much energy: for instance, assuming one carefully
 reads the documentation of \verb|rc| after roughly learning the Bourne shell,
 and then comes back to review the latter, even a newbie would be able to
-understand basic shell scripting within one or two days, provided enough
-exercise are done; if another one or two days are invested in studying basic
+understand basic shell scripting within one or two days, provided that enough
+exercises are done; if another one or two days are invested in studying basic
 notions related to Unix processes, the user would be able to start learning
 s6/s6-rc.  After studying the basics, the user would save a lot of energy
 during the learning process if the following points are kept in mind:
 \begin{itemize}
 \item \stress{Remember to assess the importance of knowledge}:
 	often think about which knowlege that you learn is more \stress{common}
-	and more \stress{useful}, as was noted in \parencite{dodson1991}
-	(we will discuss this statement in Section~\ref{sec:boltzmann}):
+	and more \stress{useful}, as was noted in \parencite{dodson1991} (we
+	will further discuss this statement in Section~\ref{sec:boltzmann}):
 \begin{quoting}
 	Self-adjoint operators are very common
 	and very useful (hence very important).
