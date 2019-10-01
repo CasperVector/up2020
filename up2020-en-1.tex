@@ -172,8 +172,8 @@ systems, similarly consisting of 16 modules, the sharp difference in the level
 of difficulty in debugging and maintenance is determined by the complexity
 of interactions between modules, and the \stress{degree of coupling} can just
 be considered as a measure of the complexity of this kind of interactions.
-We obviously want the modules in a system to be as loosely coupled
-as possible, and the script from last section was easily to debug and
+We obviously want the modules in a system to be as loosely coupled as
+reasonable, and the script from last section was easily to debug and
 maintain exactly because of the low coupling between the underlying commands.
 
 Low coupling is actually a common feature of traditional Unix tools, so why can
@@ -460,9 +460,9 @@ on the file system; but on a different perspective, operations on resource
 attributes are also done through communication between the userspace and the
 kernel, and the only difference is that the information passed in the
 communication is special data that represent operations on resource attributes.
-Following this line of thought, Plan~9 extensively employs \stress{virtual file
-systems} to represent various system resources (\eg~the network is represented
-by \verb|/net|), in compliance with the ``everything is a file'' design%
+Following this idea, Plan~9 extensively employs \stress{virtual file systems}
+to represent various system resources (\eg~the network is represented by
+\verb|/net|), in compliance with the ``everything is a file'' design%
 \cupercite{pike1995}; control files (\eg~\verb|/net/tcp/0/ctl|) corresponding
 to various resource files (\eg~\verb|/net/tcp/0/data|) implement operations
 on resource attributes, different \stress{file servers} map file operations
@@ -729,9 +729,9 @@ behaviours of systemd are very difficult to deduce from the documentation.
 Sometimes, even if the requirement happens to be successfully implemented
 with systemd, the corresponding configuration lacks reproducibility because
 there are too many factors affecting systemd's behaviours (\eg~\parencite%
-{fitzcarraldo2018}/\parencite{magsforumtechno.2019}).  On the contrary, a user
-familiar with shell scriping and basic notions about processes can read through
-the core s6/s6-rc documentation comfortably in 2--3 hours, and then will be able
+{fitzcarraldo2018}/\parencite{zlogic2019}).  On the contrary, a user familiar
+with shell scriping and basic notions about processes can read through the
+core s6/s6-rc documentation comfortably in 2--3 hours, and then will be able
 to implement the desired configuration with s6/s6-rc; a vast majority of
 problems that can arise will be easily traceable to the causes, and problems
 with s6/s6-rc themselves are very rare\cupercite{gitlab:slewman}.  Furthermore,

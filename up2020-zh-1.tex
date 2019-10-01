@@ -490,9 +490,9 @@ systemd 那样增长\footnote{我们还可以把 systemd 和规模巨大且开�
 {dbiii2016}；一篇相当细致的对这类问题技术根源的分析见 \parencite{vr2015}），
 这些情形下 systemd 的行为很难从文档推断；而且有时即使碰巧成功用 systemd
 实现了需求，相应的配置也因 systemd 行为的影响因素太多而缺乏可重复性（例如
-\parencite{fitzcarraldo2018}/\parencite{magsforumtechno.2019}）。相比之下，
-一个熟悉 shell 编程以及和进程相关基本概念的用户花 2--3 个小时就可以从容地阅读
-完 s6/s6-rc 的核心文档，之后用户就可以用 s6/s6-rc 实现自己需要的系统配置，其中
+\parencite{fitzcarraldo2018}/\parencite{zlogic2019}）。相比之下，一个熟悉
+shell 编程以及和进程相关基本概念的用户花 2--3 个小时就可以从容地阅读完
+s6/s6-rc 的核心文档，之后用户就可以用 s6/s6-rc 实现自己需要的系统配置，其中
 如果遇到问题绝大部分都可以在很快的时间内找到原因，而且很难遇到因 s6/s6-rc
 自身造成的问题\cupercite{gitlab:slewman}。此外，systemd 的行为变化太快%
 \cupercite{hyperion.2019}，这在其行为已经十分复杂的背景下无疑是雪上加霜；
@@ -576,7 +576,7 @@ self-bootstrapping。}），它在编译自身源代码时自动植入上述植�
 其从 Ken Thompson\footnote{顺便提到，他是一位国际象棋爱好者；你注意到了“预测
 对方行动”的模式了吗？} 获得 Turing 奖时的报告\cupercite{thompson1984}开始广为
 人知，并因这一报告的标题而得名。对抗 Trusting Trust 的一种通用思路是“Diverse
-Double-Compiling”\cupercite{wheeler2009}，即利用另一编辑器编译可疑编译器的
+Double-Compiling”\cupercite{wheeler2009}，即利用另一编译器编译可疑编译器的
 干净源代码，并和后者自编译的产物比对来判断是否有 Trusting Trust 后门；另外
 有一种思路是避免用编译器自举，而从底层的机器码开始逐步构建编译器\cupercite%
 {nieuwenhuizen2018}，我将在第 \ref{sec:benefits} 节展开讨论这一思路。

@@ -82,17 +82,16 @@ written -- \stress{S-expressions} (short for symbolic expressions)\footnote%
 {In the original paper for Lisp\cupercite{mccarthy1960}, McCarthy actually
 intended to use another form called M-expressions (short for meta expressions)
 for source code, and let the computer translate them to S-expressions; however,
-programmers generally preferred to use S-expression directly.  M-expressions
-are homoiconic just like S-expressions, and a format closely related to the
-former is used by Mathematica, the computational software.}; for example,
-the factorial function can be written in Scheme and Python respectively as%
-\footnote{They are not exactly equivalent: first, Scheme does not have a
-\texttt{return} primitive, and instead use expressions in \stress{tail
-positions} as well as \stress{continuations}\cupercite{wiki:cont} (also
-\cf~Footnote~\ref{fn:cps}) to return values; second, \texttt{(define (fn
-(args ...)) ...)} is a shorthand for \texttt{(define fn (lambda (args
-...) ...))} in Scheme, while Python's \texttt{lambda} is severely
-limited (\cf~Section~\ref{sec:homoiconic} for an example).}:
+programmers generally preferred to use S-expression directly.  M-expressions are
+homoiconic just like S-expressions, and a format closely related to the former
+is used by Mathematica, the computational software.}; for example, the factorial
+function can be written in Scheme and Python respectively as\footnote{They
+are not exactly equivalent: first, Scheme does not have a \texttt{return}
+primitive, and instead use expressions in \stress{tail positions} as well as
+\stress{continuations} (\cf~Footnote~\ref{fn:cps}) to return values; second,
+\texttt{(define (fn (args ...)) ...)} is a shorthand for \texttt{(define fn
+(lambda (args ...) ...))} in Scheme, while Python's \texttt{lambda} is
+severely limited (\cf~Section~\ref{sec:homoiconic} for an example).}:
 \colskipa\begin{multicols}{2}
 \begin{quoting}
 \begin{Verbatim}
@@ -128,7 +127,7 @@ whatever language you use, the source code will be converted (\stress{parsed})
 into a data structure that represents its syntax elements necessary for the
 computer to understand the program, and this data structure is called the
 \stress{abstract syntax tree}\cupercite{wiki:ast}.  For instance, the
-AST corresponding to the expression \texttt{(4 * 2) - (a + 3)} and
+AST corresponding to the expression $4 \times 2 - (a + 3)$ and
 the S-expression equivalent to the latter are shown below:
 \colskipa\begin{multicols}{2}
 \begin{quoting}[innerleftmargin = 0.45em,
@@ -180,8 +179,8 @@ similarly all homoiconic languages are not equally wieldy for practical ``code
 as data'' usage\footnote{Another example is XML, which is a descendant of SGML,
 which in turn is a document markup language, and this makes the XML markup quite
 verbose.  Although XML naturally models a tree structure, its use outside of
-document markup often results in files with more markups instead of contents;
-in addition, the complex specification of XML makes it nontrivial to parse, and
+document markup often results in files with more markups than contents; in
+addition, the complex specification of XML makes it nontrivial to parse, and
 therefore unsuitable as source code for programs.}: for example, it might be
 said that all languages which support text processing are in a sense homoiconic,
 because the source code is text; however, most \stress{code transformations},
@@ -353,7 +352,7 @@ essentially tree structures; the ``everything is a file'' principle of Unix
 most important contributors to Unix probably did not realise the similar
 potential of S-expressions: for example Daniel J.\ Bernstein noted, in the
 context of security, that parsing and quoting of textual data significantly
-complicates software systems\cupercite{djb:qmailsec}; instead, he extensively
+complicate software systems\cupercite{djb:qmailsec}; instead, he extensively
 used directory trees with very simple formats to configure his software, and
 this practice is also adopted by some programmers with close relation
 to his software, as can be seen in most daemontools-ish systems.
@@ -361,22 +360,22 @@ to his software, as can be seen in most daemontools-ish systems.
 The complexity of parsing could have been greatly alleviated had we used
 homoiconic formats, like S-expressions, when processing data with complicated
 structures; the implications of homoiconicity in the context of Unix philosophy
-will be further examined in the rest of this document, and here I instead want
-to consider a little more about the directory trees: given the similarity
+will be further examined in the rest of this document, and here I instead
+want to consider a little more about directory trees: given the similarity
 between directory trees and S-expressions, why don't we simply replace most
 configuration directories with files containing S-expressions?  In my opinion,
 an S-expression file is indeed easier to work with than a directory tree is,
 but it is also more rigid and monolithic; in comparison, with a directory
-tree we can atomically update parts of the configuration atomically, and
-can assign different permissions to different parts.  Both of the latter
-are much harder to achieve with a single file, which I believe shows
-the advantage of directory trees as a configuration interface.
+tree we can update parts of the configuration atomically, and can assign
+different permissions to different parts.  Both of the latter are much
+harder to achieve with a single file, which I believe shows the
+advantage of directory trees as a configuration interface.
 
 \section{The New Jersey and MIT / Stanford styles}\label{sec:wib}
 
-In last section, we have seen the unrivaled power that comes from homoiconcity,
-which allows the macro system to easily manipulate ASTs in order to implement
-new language features; furthermore, because the macro expansion is recursive,
+In last section, we have seen the unrivaled power from homoiconcity, which
+allows the macro system to easily manipulate ASTs in order to implement new
+language features; furthermore, because the macro expansion is recursive,
 macros in later parts of a program can access all language features defined
 earlier.  When writing high-performance interpreters and optimising compilers,
 homoiconicity enables us to not only write transformations on the processed
@@ -404,8 +403,8 @@ effects from multiple historical and methodological factors, and I summarise
 them as the following: due to hardware limitations, C began as basically a
 portable assembly language, reasonably simple to implement with acceptable
 performance on computers at Bell Labs; due to the success of Unix, continued
-efforts are made to create stronger optimising compilers, so it is still one of
-the most performant languages; and while it certainly has multiple weaknesses
+efforts are made to create stronger optimising C compilers, so it is still one
+of the most performant languages; and while it certainly has multiple weaknesses
 in comparison with other languages, people usually either do not find the
 weaknesses a major drawback, or simply use alternative languages.  In simple
 words, C was chosen by Unix initially because the former was simple to implement
@@ -428,8 +427,8 @@ that only implements 50\% of the requirements.  Another sign of ignoring the
 premise, I believe, is the objection to refactoring when attempting to fulfill
 the complete requirements, with ``worse is better'' as an excuse\cupercite%
 {chiusano2014}.}, Lisp would choose the former (``\stress{the right thing}'' or
-the MIT/Stanford style), while Unix would choose the latter (``\stress{worse is
-better}'' or the New Jersey style).  Apart from C, another main manifestation
+the MIT / Stanford style), while Unix would choose the latter (``\stress{worse
+is better}'' or the New Jersey style).  Apart from C, another main manifestation
 of ``worse is better'' in Unix is the preference of textual interfaces by
 traditional Unix tools\footnote{In addition to the plain text \vs~S-expressions
 debate, there is also the text \vs~binary debate; in my opinion, from cases
@@ -438,7 +437,7 @@ always avoided, but only when there are simple ways to use text files without
 compromising the requirements (\eg~performance and security).} (\cf~Section~%
 \ref{sec:mcilroy}); and just like C, textual interfaces are often criticised in
 the Lisp circle, because plain text is unstructured unlike homoiconic formats
-like S-expressions.  However, from the perspective of minimising the system's
+(\eg~S-expressions).  However, from the perspective of minimising the system's
 total complexity which covers both the interface and the implementation, I
 believe that \stress{the choice between plain text and S-expressions is not
 a black-or-white problem}: when processing data with simple structures, using
@@ -491,8 +490,8 @@ from what I know, I feel that while Lisp is good at implementing complicated
 application requirements through abstractions, it is less involved
 in low-level development, where it has big potentials in fact.
 
-Something interesting lies in the observations above -- the pros and cons of
-Lisp and C seem to be complementary; this naturally naturally leads to the guess
+Something interesting lies in the observations above -- the pros and cons
+of Lisp and C seem to be complementary; this naturally leads to the guess
 that if we somehow manage to design \stress{a minimalist homoiconic language
 that combines their strengths while avoiding their weaknesses}, it would be,
 in Tony Hoare's words\cupercite{hoare1981}\footnote{A most important lesson we
@@ -534,7 +533,7 @@ Unix tools with Scheme programs as well; considering the expressiveness of
 Scheme and the existence of elegant Scheme compilers like Chez Scheme, this
 would surely help to reduce the total complexity of the system.  So now we
 see that by migrating to Lisp for system programming, even these simple
-tools can be further simplified; and as noted before, Lisp is probably
+tools can be further simplified; and as was noted before, Lisp is probably
 even more powerful for application programming, so I find it undoubted
 that \stress{by embracing homoiconicity, we will be able to construct
 systems that are more Unix-ish than was possible before}.
@@ -550,7 +549,7 @@ with the elegance of Chez Scheme tells us that \stress{homoiconicity will
 dramatically reduce the total complexity of bootstrapping from machine code},
 and therefore strengthen our defence against Trusting Trust\footnote{Another
 potential problem is hardware backdoors, and I think a way to deter them is to
-leave adequate room for variation in every step of the bootstrapping procedure,
+leave adequate room for variation in every step in the bootstrapping procedure,
 because the semantics of low-level code is difficult to analyse (which results
 in the importance of open source), so any attempt at mechanically injecting
 malicious code may trigger false positives, which may expose the backdoor.}.
@@ -560,8 +559,8 @@ malicious code may trigger false positives, which may expose the backdoor.}.
 As was emphasised in Section~\ref{sec:devel}, we should analyse specific issues
 specifically, and while the disappearance of resource limitations does not imply
 simplicity was no longer important, it surely motivates us to rethink previous
-previous compromises made due to these limitations.  We are well past the era
-where garbage collection is prohibitively expensive for regular computers, and
+compromises made due to these limitations.  We are well past the era where
+garbage collection was prohibitively expensive for regular computers, and now
 for devices with severely limited resource we generally prefer cross-compilation
 over native compilation.  Given this observation while considering the issue
 of big executables and real-time requirements in last section, the proposed
@@ -578,8 +577,8 @@ aware of how to avoid GC when implementing special requirements.
 In last section, we revisited the issue of bootstrapping, and I hinted about
 a procedure where a minimal interpreter is somehow built, and then in a later
 step a production-ready compiler is produced; a first point to note is that
-this deviates from today's common practice of using a compiler to produce an
-interpreter, and instead produces an interpreter first.  However, as can be
+this deviates from today's common practice of using a compiler to build an
+interpreter, and instead constructs an interpreter first.  However, as can be
 guessed, Nil interpreters would probably be easier to write in assembly than
 Nil compilers are, just as with Lisp which Nil is modeled upon, so from the
 viewpoint of complexity it would be better to generate the compiler from a
@@ -610,24 +609,24 @@ based on the Lisp-like layer as most other languages would be, and it
 would be a markup-like ``reverse-macro'' system which provides primitive
 procedures that when called emit assembly instructions to the output.
 
-In addition, as noted in last section, Nil needs a type system strong than
+In addition, as was noted in last section, Nil needs a type system strong than
 that of Lisp, for which I find Yin Wang's design base on \stress{contracts}%
 \cupercite{wangyin2013a, wangyin2013b} a very thought-provoking reference; it is
 worth noting that this design helps to boost memory safety of the C-like layer,
 and even facilitates the formal verification of written programs (\cf~%
-Footnote~\ref{fn:formal}).  The foreign function interface between the
-Lisp-like and C-like layers will also be an issue, which I am not yet
-knowledgeable enough to comment on.  Finally, before ending this section,
-I need to stress the non-technical issue of inertia, which troubles Scheme
-(\cf~Footnote~\ref{fn:r6rs}), Plan~9 (\cf~Footnote~\ref{fn:plan9}) as well as
-qmail and other excellent (or not) software projects: apart from the technical
-challenges Nil will inevitably encounter, it will have to attract some attention
+Footnote~\ref{fn:formal}).  The foreign function interface between the Lisp-like
+and C-like layers will also be an issue, which I am not yet knowledgeable enough
+to comment on.  Finally, before ending this section, I need to stress the
+non-technical issue of inertia, which troubles Scheme (\cf~Footnote~%
+\ref{fn:r6rs}), Plan~9 (\cf~Footnote~\ref{fn:plan9}) as well as qmail and
+other excellent (or not) software projects: apart from the technical challenges
+Nil will inevitably encounter, it will also have to attract some attention
 from both academia and industry to gain enough momentum (there is surely the
 possibility that the latter simply does not care, but see the next section); and
-even if Nil might have some success, removing historical burdens while adapting
-to new requirements would not be easy for it, as is for other projects.
+even if Nil might have some success, getting rid of historical burdens while
+adapting to new requirements would not be easy for it, as is for other projects.
 
-\section{Toward a ``Theory of Everything''}\label{sec:toe}
+\section{Toward a ``theory of everything''}\label{sec:toe}
 
 As was noted in last section and Section~\ref{sec:benefits}, Nil might be a
 language that is impossible even in the theoretical sense, or might not attract
@@ -644,7 +643,7 @@ Theoretical physicists and high-energy physicists have long pursued a theory
 of everything that can reconcile quantum field theory and general relativity,
 because the theory would provide a unified basis for all low-level physical
 phenomena.  To my knowledge, there does not seem to be a firm guarantee such
-a theory might be successfully achieved by humans: for example, the best-known
+a theory can be successfully achieved by humans: for example, the best-known
 candidate, string theory, still appears far from testable, even though it does
 agree with observed facts.  On the other hand, there is not a proof that such
 a theory is unachievable, either; and apart from the theoretical promises,
