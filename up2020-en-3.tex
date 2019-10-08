@@ -267,8 +267,8 @@ is a shorthand for \texttt{((lambda (a b ...) ...) \emph{e$_1$} \emph{e$_2$}
 ...)}, so \verb|f3| is equivalent to the Python function above on the right.
 You should have also noticed \verb|v| is absent from \verb|f3|, and this
 works because arguments of inner \verb|lambda|s (\eg~the \verb|x|
-in \texttt{(lambda x: x * x + y)}) shadows the outer variables
-with the same names (\eg~the argument \verb|x| for \verb|f3|).
+in \texttt{(lambda x: x * x + y)}) shadows outer variables with
+the same names (\eg~the argument \verb|x| for \verb|f3|).
 
 \colskipa\begin{multicols}{2}
 \begin{quoting}
