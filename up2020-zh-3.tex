@@ -396,7 +396,7 @@ bug，但远不能把其数量削减到最小，对此我将在下节提到一�
 
 第 \ref{sec:exec} 节中提到 Laurent Bercot 将 chainloading 的单元操作实现为了一组
 命令行工具，而为了实现涉及两个命令的单元操作（例如循环和管道），他设计了一种特殊
-的命令行参数转义法，并将其包装为他的称为 execline 的语言\footnote{其设计和 Unix
+的命令行参数转义法，并将其包装为他的称作 execline 的语言\footnote{其设计和 Unix
 起初使用的 Thompson shell\cupercite{wiki:thompson} 相似，后者在 Unix v7 中
 因为在比较复杂的编程中不够用而被 Bourne shell 取代。}中的语句块\cupercite%
 {ska:elblocks}。然而 chainloading 不必然要用 \verb|exec()|，而可以在类 shell
@@ -468,10 +468,10 @@ Futamura 投影（本质上是\stress{部分求值}）\cupercite{wiki:parteval} 
 \stress{合约}的设计\cupercite{wangyin2013a, wangyin2013b}是一个很引人深思的
 参考；值得指出的是这一设计能帮助我们增强类 C 层的内存安全性，而且甚至可以方便
 对程序的形式化验证（见脚注 \ref{fn:formal}）。类 Lisp 层和类 C 层之间的外部
-函数接口也将是一个问题，但我现在的知识还不足以让我能就此发表意见。最后在结束
-本节之前，我须要强调惯性这一非技术问题，它困扰着 Scheme（见脚注 \ref{fn:r6rs}
-节）、Plan~9（见脚注 \ref{fn:plan9}）以及 qmail 和其它优秀（或者不优秀）的软件
-项目：除了将不可避免地遇到的技术挑战，Nil 也须要吸引学术界和工业界的注意以产生
+函数接口也将是一个问题，但我现在的知识还不足以让我能就此发表意见。最后在结束本节
+之前，我须要强调惯性这一非技术问题，它困扰着 Scheme（见脚注 \ref{fn:r6rs}）、%
+Plan~9（见脚注 \ref{fn:plan9}）以及 qmail 和其它优秀（或者不优秀）的软件项目：
+除了将不可避免地遇到的技术挑战，Nil 也须要吸引学术界和工业界的注意以产生
 足够的动力（后者当然可能完全不关心，但请参考下节）；而即使 Nil 获得某种成功，
 在丢弃历史包袱的同时适应新的需求对 Nil 也不会是轻松的任务，就像其它项目一样。
 

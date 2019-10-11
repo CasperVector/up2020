@@ -507,16 +507,16 @@ is ``yes''; the second and the fourth will be respectively explored
 in the next section and Section~\ref{sec:toe}; in the rest of
 this section, I will give some examples for the third question.
 
-As was mentioned in Section~\ref{sec:exec}, Laurent Bercot implemented the
-unit operations in chainloading as a set of command-line tools; in order to
-implement unit operations involving two commands (\eg~loops and pipelines),
-he designed a special quoting syntax for command line arguments, and wrapped
-it up as ``blocks''\cupercite{ska:elblocks} in his language called execline%
-\footnote{Its design is similar to the initial shell in Unix, the Thompson
-shell\cupercite{wiki:thompson}, which was substituted by the Bourne shell in
-Unix v7 due to its inadequacy for more complex programming.}.  Nevertheless,
-chainloading does not necessary imply \verb|exec()|, and instead can be done in
-a shell-like language\cupercite{vector2016a} (\cf~shell commands like \verb|cd|
+As was mentioned in Section~\ref{sec:exec}, Laurent Bercot implemented the unit
+operations in chainloading as a set of command-line tools; in order to implement
+unit operations involving two commands (\eg~loops and pipelines), he designed
+a special quoting syntax for command line arguments, and wrapped it up as
+``blocks''\cupercite{ska:elblocks} in his language called execline\footnote{Its
+design is similar to the initial shell in Unix, the Thompson shell\cupercite%
+{wiki:thompson}, which was substituted by the Bourne shell in Unix v7 due to
+its inadequacy for more complex programming.}.  Nevertheless, chainloading
+does not necessarily imply \verb|exec()|, and instead can be done in a
+shell-like language\cupercite{vector2016a} (\cf~shell commands like \verb|cd|
 and \verb|umask|); based on the model of scsh\cupercite{scsh:home}, the execline
 language can be replaced with scsh-like Scheme, with chainloaders replaced by
 scsh-like Scheme programs analogous to the following shell reimplementation of
@@ -603,7 +603,7 @@ something like \hologo{LaTeX}'s \stress{macro packages}.  Another approach I
 have thought of, which I give the codename Nil-powered assembly, is based on the
 notion of a portable assembly\footnote{Since the C-like layer would essentially
 be a machine code generator, similar generators like Chez Scheme's built-in
-assembler and Daniel J.\ Bernstein's qhasm might be highly instructional
+assembler and Daniel J.\ Bernstein's qhasm might be highly instructive
 references.} (\cf~Section~\ref{sec:wib}): the C-like layer would be implemented
 based on the Lisp-like layer as most other languages would be, and it
 would be a markup-like ``reverse-macro'' system which provides primitive
