@@ -62,7 +62,7 @@ will be discussed in later sections:
 	we will also discuss the value of the Unix methodology from
 	a user's perspective in Section~\ref{sec:user}.
 \item \stress{Simplicity}: the hardware limitations on machines accessible
-	at Bell Labs around 1970 resulted in the pursuit for economy and elegance
+	at Bell Labs around 1970 resulted in the pursuit of economy and elegance
 	in Unix; as the limitations are no more, is simplicity now only an
 	aesthetic?  Let's see in Sections~\ref{sec:quality}--\ref{sec:foss}.
 \item \stress{Self-hosting}: even the earliest Unix systems were able to be
@@ -206,7 +206,7 @@ user-accessible tools in automation, which results in the almost extreme
 realisation of the principle of high cohesion and low coupling in traditional
 Unix tools\cupercite{salus1994}.  In conclusion, the requirements of cohesion
 and coupling must be considered with the background of \stress{collaboration
-and reuse}, and the pursuit for collaboration and reuse naturally
+and reuse}, and the pursuit of collaboration and reuse naturally
 promotes designs with high cohesion and low coupling.
 
 Until now, our examples have been relatively idealised or simplified, and here
@@ -293,7 +293,7 @@ on whether text streams as a communication format is the best choice, which we
 will also discuss in Section~\ref{sec:wib}; in addition, while this formulation
 almost covers the factors that we have hitherto seen to make Unix powerful,
 I do not think it completely represents the Unix philosophy.  It is worth
-noting that the appearance of pipes directly resulted in the pursuit for
+noting that the appearance of pipes directly resulted in the pursuit of
 collaboration and reuse of command line programs\cupercite{salus1994}, and
 McIlroy is the inventor of Unix pipes, so his summary was obviously based on
 shell scripting.  Shell scripting is admittedly important, but it is far
@@ -378,7 +378,7 @@ environment before finally \verb|exec()|ing into the service program;
 It is necessary to note that primitive forms of \verb|fork()|/\verb|exec()|
 appeared in operating systems earlier than Unix\cupercite{ritchie1980}, and
 Ken Thompson, Dennis Ritchie \etal{} chose to implement process creation with
-this mechanism out of a pursuit for simplicity of the implementation, so the
+this mechanism out of a pursuit of simplicity of the implementation, so the
 mechanism was not exactly an original idea in Unix; nevertheless we have also
 seen that based on \verb|fork()|/\verb|exec()| and its line of thought we can
 implement many complicated tasks in simple, clear ways, so the mechanism does
@@ -628,7 +628,7 @@ mechanism), I find it highly conformant to the Unix philosophy.
 \section{Unix philosophy and software quality}\label{sec:quality}
 
 It was mentioned in Section~\ref{sec:intro} that the resource limitations when
-Unix was born resulted in its pursuit for economy and elegance, and nowadays
+Unix was born resulted in its pursuit of economy and elegance, and nowadays
 many people consider the Unix philosophy outdated exactly because of this
 reason.  I think this issue can be analysed from the viewpoint of software
 quality, or in other words whether the conformance to the philosophy is
@@ -1050,7 +1050,7 @@ re-examine those excellent software systems (including ``unpopular'' software
 like Plan~9 and daemontools), and to learn from them how to apply the Unix
 philosophy in actual work.  More details on this will be discussed in Sections~%
 \ref{sec:devel}--\ref{sec:user}, and here I only give two additional comments
-regarding FOSS.  First, the pursuit for simplicity can \stress{save time and
+regarding FOSS.  First, the pursuit of simplicity can \stress{save time and
 energy for volunteers} (which exist in large numbers, do not have constant
 cash support, and have made huge contributions), making it easier for them to
 concentrate on the most meaningful projects, which is particularly relevant
@@ -1066,7 +1066,7 @@ catastrophe and realise Linus's Law\cupercite{wiki:eyeball}
 
 \section{Practical minimalism: a developer's perspective}\label{sec:devel}
 
-In the end of last section, I mentioned that the pursuit for simplicity can
+In the end of last section, I mentioned that the pursuit of simplicity can
 save time and energy, which was in fact a simplified expression.  In order to
 make software simple, the developer needs to invest quite a large amount of time
 and energy in architecture design, so the tangible production in the short term
@@ -1110,7 +1110,7 @@ which pursues simplicity, is a principle worth following, and in this
 section we will discuss how we can actually follow this principle.
 
 Before delving into the details, we need to have a general principle for
-actual practices: since we pursuit simplicity, we should keep in mind that
+actual practices: since we pursue simplicity, we should keep in mind that
 simplicity is something we can be proud of, and use the implementation of
 specified requirements as minimal viable programs\cupercite{armstrong2014}
 as one standard for programming capabilities, instead of only looking
