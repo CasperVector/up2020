@@ -8,3 +8,21 @@ Copyright (c) 2019 Casper Ti. Vector <CasperVector@gmail.com>
 Licence: CC0 v1.0 <https://creativecommons.org/publicdomain/zero/1.0/>.
 Homepage: <https://gitlab.com/CasperVector/up2020>.
 
+
+Building
+--------
+
+To build the PDFs for the document, you need a recent TeXLive system with the
+following base packages (plus their dependencies):
+* ctex, biblatex-caspervector, latexmk.
+
+You also need Chinese fonts.  The fandol package in TeXLive provides some FOSS
+Chinese fonts, but the character "摛" (U+645B) from Section 18 of the Chinese
+version is currently missing from the font.  Alternatively, you may use another
+Chinese font supporting a more comprehensive character set (see `texdoc ctex'
+for some pre-configured options available).
+
+With the dependencies above, run `latexmk' in this directory to build the PDFs.
+Alternatively, you can read the pre-built PDFs for tagged releases at
+<https://gitlab.com/CasperVector/up2020/releases>.
+
