@@ -164,7 +164,7 @@ usage in these systems?  Please read the next section.
 Cohesion and coupling are extremely important notions in software engineering,
 and here we first try to understand what coupling is.  Consider the interactions
 (\eg~communication through text or binary byte streams, message passing using
-data packets or other media, calling between subroutines) between modules in
+data packets or other media, calls between subroutines) between modules in
 the two extreme cases from the figure in \parencite{litt2014a}.  When some
 faults occur, how difficult will the debugging processes be with the two
 systems?  When the requirements change, how difficult will the maintenance be
@@ -185,16 +185,19 @@ or in other words their behaviours are clearly guided; from the perspective of
 systems and modules, each Unix tool, when considered as a module, usually does
 a different unit operation, like character translation (\verb|tr|), sorting
 (\verb|sort|), deduplication / counting (\verb|uniq|) and so on.  When Unix
-tools are implemented, each of them usually needs to be partitioned into
+tools are implemented, each of them usually also needs to be partitioned into
 submodules, but the submodules are always much more tightly coupled than the
-tools themselves are, even with a most optimal design.  I consider the
-\stress{degree of cohesion} to be the measure of this kind of inherent coupling
-between submodules, and partitioning of modules according to the principle of
-high cohesion would naturally enforce clear separation of concerns between
-modules, and therefore reducing the degree of coupling in the system.
+tools themselves are, even with a most optimal design; for this reason, when
+partitioning a system into modules, it is desirable to concentrate this kind
+of coupling inside the modules, instead of exposing them between the modules.
+I consider the \stress{degree of cohesion} to be the measure of this
+kind of inherent coupling between submodules inside a module, and
+partitioning of a system according to the principle of high cohesion
+would naturally enforce clear separation of concerns between modules,
+and therefore reduce the degree of coupling in the system.
 
 We have already seen that high cohesion and low coupling are desirable
-properties for software systems.  You migh ask, while there are many Windows
+properties for software systems.  You might ask, while there are many Windows
 programs that are loosely coupled (\eg~Notepad and Microsoft Paint do not
 depend upon each other) and have somehow high cohesion (\eg~Notepad is used
 for text editing while Microsoft Paint for drawing), why don't we often combine
@@ -514,12 +517,23 @@ Plan~9, as was mentioned in last section, implemented requirements, which need
 several hundreds of system calls elsewhere, with only about 50 system calls
 by using virtual file systems, the 9P protocol and namespaces.  In Sections~%
 \ref{sec:shell}~\& \ref{sec:exec}--\ref{sec:plan9}, our intuitive criteria
-for a system's conformance to the Unix philosophy were all that the
-system used a small number of simple mechanisms and tools to implement
-requirements that were more difficult to implement in other ways, or in other
-words they reduced the complexity of the system.  Based on this observation,
-I believe the essence of the Unix philosophy is \stress{the minimisation of the
-cognitive complexity of the system while almost satisfying the requirements},
+for a system's conformance to the Unix philosophy were all that the system
+used a small number of simple mechanisms and tools to implement requirements
+that were more difficult to implement in other ways, or in other words they
+reduced the complexity of the system.  Based on this observation, I believe
+the essence of the Unix philosophy is \stress{the minimisation of the cognitive
+complexity of the system while almost satisfying the requirements}\footnote%
+{Some people noted that while this formulation can be used to compare existing
+software systems and practical plans for such systems, it does not directly
+tell us how to design and implement minimal software systems.  However, the
+formulation does cover existing summaries for the Unix philosophy, which
+are more practical; it also indirectly leads to the practical ways to foster
+minimalist habits (and creativity) in Sections~\ref{sec:devel}--\ref{sec:user}.
+I regard the relation between this formulation and practical ways to minimal
+software systems as similar to the relation between the principle of least
+action and the calculus of variations, as well as to the relation between
+the Ockham's razor and the theories about the minimal message length
+and the minimal description length (\cf~Section~\ref{sec:ockham}).},
 and the three restrictions in my formulation are explained below:
 \begin{itemize}
 \item The prerequisite is to \stress{almost} satisfy the requirements,
@@ -1090,7 +1104,7 @@ second only for non-commercial purposes, and only the third and forth releases
 were truly open-source, so it completely missed the best opportunities to gain
 influence through free distribution.  On the other hand, after Plan~9 was made
 open-source in 2000, due to the quite aggressive minimalism (you can have a
-glimpse of this at \parencite{catv:hsoft}) of people in its circle, they flatly
+glimpse of it at \parencite{catv:hsoft}) of people in its circle, they flatly
 refused to implement requirements like web browsers supporting JavaScript; I
 concur that these requirements are ugly, but not implementing them naturally
 made it very hard for users to adapt, since after all non-smooth transition is
@@ -1099,10 +1113,10 @@ severe disregard of simplicity in upper-level development (if you have once
 compiled the Bazel program used to built TensorFlow, you would perhaps have an
 intuitive experience for this; despite the employment of Ken Thompson and Rob
 Pike \etal{} at Google, these software systems are so strikingly bloated, which
-leaves me puzzled) also contributed to the diverge between Plan~9 and ``modern''
-requirements, and one important goal of this document is to raise the awareness
-for minimalism.}, so projects that often have this need invariably remind
-me of low software quality and dirty practices represented by ``embrace,
+leaves me puzzled) also contributed to the divergence between Plan~9 and
+``modern'' requirements, and one important goal of this document is to raise
+the awareness for minimalism.}, so projects that often have this need invariably
+remind me of low software quality and dirty practices represented by ``embrace,
 extend and extinguish''.  Second, most features used to seize the market
 will not be discarded soon, so in order to keep the project maintainable,
 refactoring will happen sooner or later.  From this we can see that in software

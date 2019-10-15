@@ -566,13 +566,13 @@ over native compilation.  Given this observation while considering the issue
 of big executables and real-time requirements in last section, the proposed
 language (I give it the codename ``Nil'', for uNIx plus Lisp) should be able
 to use GC for its interpreter and compiler, but \stress{executables produced
-by the compiler should avoid using GC whenever reasonable}\footnote{However,
-since I proposed in Section~\ref{sec:benefits} to substitute the shell with
-Nil (in the guise of Scheme), there does exist the natural question of how
-a Nil interpreter should exist in those special environments.  I do not yet
-have a good answer for it; or we could perhaps use an interpreter stripped
-down specifically for shell emulation?}, and the programmer should be
-aware of how to avoid GC when implementing special requirements.
+by the compiler might need to avoid using GC whenever reasonable}\footnote%
+{And the programmer should be aware of how to avoid GC when implementing
+special requirements, or alternatively we can perhaps consider (optional and
+configurable) real-time GC\cupercite{bernstein2013}.  Furtherly, considering
+the inherent pros and cons of different methods for memory management (GC, RAII,
+manual management, \etc), we probably need a minimal mechanism where multiple
+memory-management methods can be used at the same time without conflicts.}.
 
 In last section, we revisited the issue of bootstrapping, and I hinted about
 a procedure where a minimal interpreter is somehow built, and then in a later
@@ -622,9 +622,12 @@ non-technical issue of inertia, which troubles Scheme (\cf~Footnote~%
 other excellent (or not) software projects: apart from the technical challenges
 Nil will inevitably encounter, it will also have to attract some attention
 from both academia and industry to gain enough momentum (there is surely the
-possibility that the latter simply does not care, but see the next section); and
-even if Nil might have some success, getting rid of historical burdens while
-adapting to new requirements would not be easy for it, as is for other projects.
+possibility that the latter simply does not care, but see the next section);
+and even if Nil might have some success, getting rid of historical burdens
+while adapting to new requirements\footnote{For programming languages, one
+of its most important aspects is the (careful) standardisation of additional
+language features and libraries, which is in my opinion done terribly by
+the Scheme community.} would not be easy for it, as is for other projects.
 
 \section{Toward a ``theory of everything''}\label{sec:toe}
 
