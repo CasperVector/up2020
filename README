@@ -18,7 +18,7 @@ following base packages (plus their dependencies):
 
 You also need Chinese fonts.  The fandol package in TeXLive provides some FOSS
 Chinese fonts, but the character "摛" (U+645B) from Section 18 of the Chinese
-version is currently missing from the font.  Alternatively, you may use another
+version is currently missing from the fonts.  Alternatively, you may use another
 Chinese font supporting a more comprehensive character set (see `texdoc ctex'
 for some pre-configured options available).
 

@@ -122,15 +122,16 @@ and the commands on the rest lines are separated by the
 	with the actual number of lines specified by the first argument of the
 	script on its execution, defaulting to 25 when the argument is empty.
 \end{itemize}
-Apart from being easy to write and debug, this script is also very maintainable,
-because the input requirements and processing rules of the steps are very simple
-and clear, and we can easily replace the actual implementations of the steps:
-for instance, the word-splitting criterion used above is obviously primitive,
-with no consideration of issues like stemming (\eg~regarding ``look'',
-``looking'' and ``looked'' as the same word); if such requirements are to
-be implemented, we only need to replace the first two steps with some other
-word-splitting program (which probably needs to be written separately), and
-somehow make it use the same interface as before for input and output.
+Apart from being easy to write and debug, this script is also very maintainable
+(and therefore very customisable), because the input requirements and processing
+rules of the steps are very simple and clear, and we can easily replace the
+actual implementations of the steps: for instance, the word-splitting criterion
+used above is obviously primitive, with no consideration of issues like
+stemming (\eg~regarding ``look'', ``looking'' and ``looked'' as the
+same word); if such requirements are to be implemented, we only need
+to replace the first two steps with some other word-splitting program
+(which probably needs to be written separately), and somehow make
+it use the same interface as before for input and output.
 
 Like many Unix tools (\eg~the ones used above), this script reads input from
 its \stress{standard input} (defaults to the keyboard), and writes output to
@@ -243,7 +244,7 @@ design is not weaker than systemd in functionalities, and here I give one
 example (\cf~Section~\ref{sec:exec} for some in-depth examples): systemd
 supports service templates, for instance after a template called \verb|getty@|
 is defined, the \verb|getty@tty1| service would run the getty program on
-\verb|tty1|; in s6/s6-rc, similar functionalty can be achieved by calling
+\verb|tty1|; in s6/s6-rc, a similar functionality can be achieved by calling
 a 5-line library script\cupercite{gitlab:srvrc} in the \verb|run| script.
 
 \section{Do one thing and do it well}\label{sec:mcilroy}
@@ -385,7 +386,7 @@ implement many complicated tasks in simple, clear ways, so the mechanism does
 satisfy the Unix design concepts in Section~\ref{sec:shell} in an intuitional
 sense.  Now back to the subject of Unix philosophy: \verb|fork()|/\verb|exec()|
 conforms to the principle of high cohesion and low coupling, and facilitates
-collaboration and reuse of related interfaces, so we can regard it as rough
+collaboration and reuse of related interfaces, so we can regard it as roughly
 compliant to the first two points from Doug McIlroy's summary in last
 section despite the fact that it is not directly reflected in shell
 scripting; however, this mechanism does not involve the choice of
@@ -534,7 +535,7 @@ and the three restrictions in my formulation are explained below:
 	use the same user interface, we surely cannot say they would be equally
 	compliant to the Unix philosophy just because of the identical interfaces.
 \item It is stipulated that we are discussing about the \stress{cognitive}
-	complexity, because as is shown in the comparison above (a more realisatic
+	complexity, because as was shown in the comparison above (a more realistic
 	comparison can be found at \parencite{github:acmetiny}/\parencite%
 	{gitlab:emca}), the quality of a system is not only determined by its code
 	size; we also have to consider the cohesion and coupling of its modules,
@@ -888,12 +889,12 @@ source code, so all comparisons of software projects involved in this section
 are done from the viewpoint of a same user with an appropriate background
 in computer science and software engineering.
 
-We know that software that only has obfuscated source code released is
-ineligible to be called free and open-source software, because obfuscation
-makes the source code difficult to understand, or in other words increases the
-cognitive complexity of the source code.  On the other hand, from the analyses
-before, we know that software systems with low cohesion and high coupling also
-have high cognitive complexities, and some FOSS projects are also affected by
+We know software that only has obfuscated source code released is ineligible
+to be called free and open-source software, because obfuscation makes the
+source code difficult to understand, or in other words increases the cognitive
+complexity of the source code.  On the other hand, from the analyses before,
+we know that software systems with low cohesion and high coupling also have
+high cognitive complexities, and some FOSS projects are also affected by
 this, like Chromium and Firefox, the currently mainstream open-source browsers,
 and systemd, which has been mentioned multiple times.  It can be noticed
 that the user's control over the behaviours of these software systems has
@@ -925,10 +926,10 @@ separate mounting of \texttt{/usr} without using an initramfs are very
 untenable\cupercite{saellaven2019a}.}).  In fact, the user's control over
 these software are not even comparable with some source-available software
 with restrictions on redistribution, like old versions of Chez Scheme which
-will be mentioned in Section~\ref{sec:wib}--\ref{sec:howto}.  From the
-above, we can see that from software that allows strong control, like s6, and
-software that allows sufficient control, like old Chez Scheme, to software that
-allows highly limited control, like systemd, and traditional proprietary and
+will be mentioned in Section~\ref{sec:wib}--\ref{sec:howto}.  From the above,
+we can see that from software that allows strong control, like s6, and software
+that allows sufficient control, like old Chez Scheme, to software that only
+offers highly limited control, like systemd, and traditional proprietary and
 closed-source software, \stress{in terms of the user's control over software
 behaviours, the boundary between FOSS and PCSS is already blurring}.
 
@@ -1126,7 +1127,7 @@ among them \stress{studying available excellent software projects and related
 discussions} is an important way to achieve such improvement.  I personally
 recommend beginning the study from projects by Laurent Bercot\cupercite%
 {ska:software}, the Plan~9 project\cupercite{wiki:plan9}, the suckless family
-of projects\cupercite{suckless:home} and the discussions on the cat-v website%
+of projects\cupercite{suckless:home} and discussions on the cat-v website%
 \cupercite{catv:hsoft}\footnote{I find the cat-v site significantly aggressive,
 and therefore suggest critical reading of its contents.}.  The key to
 the design of simple systems based largely sound foundations (\eg~Unix)
