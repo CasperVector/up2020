@@ -603,8 +603,8 @@ control, the service process has to redirect its file descriptors, which were
 inherited from the shell through \verb|exec()| and previously pointed to the
 user's terminal, to somewhere else (usually \verb|/dev/null|), so its logs have
 to be saved by alternative means when not directly written to the disk.  This
-is the origin of the syslog mechanism, which lets service processes output
-logs to \verb|/dev/log| which is listened by a system logger, which means all
+is the origin of the syslog mechanism, which lets service processes output logs
+to \verb|/dev/log| which is listened on by a system logger, which means all
 system logs would be mixed up before being classified and filtered\footnote%
 {\label{fn:logtype}As a matter of fact, because \texttt{/dev/log} is a socket
 (to be precise, it needs to be a \texttt{SOCK\_STREAM} socket\cupercite%
@@ -836,10 +836,10 @@ And they gave the following rule:
 \begin{quoting}
 	\stress{Security's worst enemy is complexity.}
 \end{quoting}
-Similarly, when discussing how to avoid security vulnerabilities similar to the
-notorious Heartbleed (which originated from the homemade memory allocator in
-OpenSSL shielding the buffer overread issue in the codebase) from occuring
-again, David A.\ Wheeler remarked\cupercite{wheeler2014} that
+Similarly, when discussing how to prevent security vulnerabilities similar
+to the notorious Heartbleed (which originated from the homemade memory
+allocator in OpenSSL concealing the buffer overread issue in the codebase)
+from occuring again, David A.\ Wheeler remarked\cupercite{wheeler2014} that
 \begin{quoting}
 	I think \stress{the most important approach for developing secure software
 	is to simplify the code so it is obviously correct}, including avoiding
@@ -1097,17 +1097,18 @@ as with Facebook, but I believe pursuing simplicity should still be the norm
 in the long run, for two reasons.  First, seizing the market is a fairly rare
 requirement in open-source development because in principle naturally excellent
 software projects can succeed by their quality\footnote{\label{fn:plan9}Here
-I say ``in principle'' because there are some subtle ``exceptions'', and I use
-Plan~9 as an example.  Plan~9 has four formal releases hitherto\cupercite%
-{wiki:plan9}, where the first release was only available for universities, the
-second only for non-commercial purposes, and only the third and forth releases
-were truly open-source, so it completely missed the best opportunities to gain
-influence through free distribution.  On the other hand, after Plan~9 was made
-open-source in 2000, due to the quite aggressive minimalism (you can have a
-glimpse of it at \parencite{catv:hsoft}) of people in its circle, they flatly
-refused to implement requirements like web browsers supporting JavaScript; I
-concur that these requirements are ugly, but not implementing them naturally
-made it very hard for users to adapt, since after all non-smooth transition is
+I say ``in principle'' because there are some subtle ``exceptions'', and
+I use Plan~9 as an example.  Plan~9 has four formal releases hitherto%
+\cupercite{wiki:plan9}, where the first release (1992) was only available for
+universities, the second (1995) only for non-commercial purposes, and only the
+third and forth releases (2000 and 2002, respectively) were truly open-source,
+so it completely missed the best opportunities to gain influence through free
+distribution.  On the other hand, after Plan~9 was made open-source in 2000,
+due to the quite aggressive minimalism (you can have a glimpse of it at
+\parencite{catv:hsoft}) of people in its circle, they flatly refused to
+implement requirements like web browsers supporting JavaScript; I concur
+that these requirements are ugly, but not implementing them naturally made
+it very hard for users to adapt, since after all non-smooth transition is
 a general difficulty in the realm of software.  In addition, the increasingly
 severe disregard of simplicity in upper-level development (if you have once
 compiled the Bazel program used to built TensorFlow, you would perhaps have an

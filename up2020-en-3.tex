@@ -177,7 +177,7 @@ It was mentioned in Section~\ref{sec:boltzmann} that all Turing-equivalent
 models of computation are not equally wieldy for generic discussions, and
 similarly all homoiconic languages are not equally wieldy for practical ``code
 as data'' usage\footnote{Another example is XML, which is a descendant of SGML,
-which in turn is a document markup language, and this makes the XML markup quite
+which is in turn a document markup language, and this makes the XML markup quite
 verbose.  Although XML naturally models a tree structure, its use outside of
 document markup often results in files with more markups than contents; in
 addition, the complex specification of XML makes it nontrivial to parse, and
@@ -609,11 +609,11 @@ based on the Lisp-like layer as most other languages would be, and it
 would be a markup-like ``reverse-macro'' system which provides primitive
 procedures that when called emit assembly instructions to the output.
 
-In addition, as was noted in last section, Nil needs a type system strong than
+In addition, as was noted in last section, Nil needs a type system stronger than
 that of Lisp, for which I find Yin Wang's design base on \stress{contracts}%
-\cupercite{wangyin2013a, wangyin2013b} a very thought-provoking reference; it is
-worth noting that this design helps to boost memory safety of the C-like layer,
-and even facilitates the formal verification of written programs (\cf~%
+\cupercite{wangyin2013a, wangyin2013b} a very thought-provoking reference;
+it is worth noting that this design helps to boost memory safety of the C-like
+layer, and even facilitates the formal verification of written programs (\cf~%
 Footnote~\ref{fn:formal}).  The foreign function interface between the Lisp-like
 and C-like layers will also be an issue, which I am not yet knowledgeable enough
 to comment on.  Finally, before ending this section, I need to stress the
