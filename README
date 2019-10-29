@@ -8,6 +8,9 @@ Copyright (c) 2019 Casper Ti. Vector <CasperVector@gmail.com>
 Licence: CC0 v1.0 <https://creativecommons.org/publicdomain/zero/1.0/>.
 Homepage: <https://gitlab.com/CasperVector/up2020>.
 
+Pre-built PDFs for tagged releases are available at
+<https://gitlab.com/CasperVector/up2020/releases>.
+
 
 Building
 --------
@@ -22,7 +25,6 @@ version is currently missing from the fonts.  Alternatively, you may use another
 Chinese font supporting a more comprehensive character set (see `texdoc ctex'
 for some pre-configured options available).
 
-With the dependencies above, run `latexmk' in this directory to build the PDFs.
-Alternatively, you can read the pre-built PDFs for tagged releases at
-<https://gitlab.com/CasperVector/up2020/releases>.
+With the dependencies above, run `latexmk' in this directory to build the PDFs;
+to build the English version only, run `latexmk up2020-en'.
 
