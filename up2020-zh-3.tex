@@ -332,8 +332,8 @@ GCC 小了不止一个数量级，而且自编译仅耗时数秒（GCC 需要数
 一种实用主义，其一个著名的总结是 Richard P.\ Gabriel 的“worse is better”%
 \cupercite{dreamsongs:wib}\footnote{正如你从那个页面可见的，Richard
 P.\ Gabriel 仍未确定哪种作风更佳。此外 Unix 中可中断系统调用的复杂度
-问题可以通过用户空间的包装函数来简单地绕过，后者不断重试直到系统
-调用返回且未被中断；然而当前的标准并不要求这样的包装，这是 Daniel
+问题可以通过用户空间的包装函数来简单地绕过，后者不断重试直到系统调用
+返回且未被中断；然而有趣的是当前的标准并不要求这样的包装，这是 Daniel
 J.\ Bernstein 自己建立一组接口（见第 \ref{sec:devel} 节）的原因之一。}。
 
 Gabriel 比较了 Lisp 和 Unix，其总结大致是在接口的简洁性和实现的简洁性冲突时%

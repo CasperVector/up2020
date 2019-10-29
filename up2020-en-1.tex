@@ -327,7 +327,7 @@ attributes identical to the current process, and the child process can replace
 itself with other programs by calling the \verb|exec()| family of functions;
 before \verb|exec()|ing, the child process can modify its own state attributes,
 which are preserved during \verb|exec()|.  It is obvious that \verb|fork()|/%
-\verb|exec()| only require very little information, and that Unix realised the
+\verb|exec()| requires very little information, and that Unix realised the
 decoupling between process creation and process state control through this
 mechanism; and considering that when creating processes in real applications,
 the child process often need to inherit most attributes from its parent,
@@ -342,7 +342,7 @@ configuration file(s) for each service, runs the corresponding service program,
 and sets the process attributes for the service process according to the
 configuration; under this design, all the code for process creation and process
 state control need to be in the init, or in other words what systemd does is
-like, on a conceptual sense, implementing service process creation in the style
+like, in a conceptual sense, implementing service process creation in the style
 of \verb|CreateProcess()| while using \verb|fork()|/\verb|exec()|.  Borrowing
 the previous line of thought, we can completely decouple process state control
 from the init module: for example, with s6, \verb|s6-supervise| almost does
@@ -1101,7 +1101,7 @@ I say ``in principle'' because there are some subtle ``exceptions'', and
 I use Plan~9 as an example.  Plan~9 has four formal releases hitherto%
 \cupercite{wiki:plan9}, where the first release (1992) was only available for
 universities, the second (1995) only for non-commercial purposes, and only the
-third and forth releases (2000 and 2002, respectively) were truly open-source,
+third and fourth releases (2000 and 2002, respectively) were truly open-source,
 so it completely missed the best opportunities to gain influence through free
 distribution.  On the other hand, after Plan~9 was made open-source in 2000,
 due to the quite aggressive minimalism (you can have a glimpse of it at
@@ -1279,7 +1279,7 @@ about systemd.  First, the systemd debacle has not yet finished, and we can
 accelerate this process only by speeding up the perfection of its substitutes
 and making them close to complete in terms of actually implemented requirements,
 so I appeal all developers disappointed by the terrible properties of systemd
-to take part in, or keep an eye on, the development of these substitutes.
+to take part in, or keep an eye on the development of these substitutes.
 Second, although there are projects like eudev and elogind, the code from their
 mother projects is of mediocre quality (or otherwise they would not have been
 easily tied to systemd), so the race on their development against the systemd
@@ -1363,8 +1363,8 @@ and simple software like musl, BusyBox, s6/s6-rc, Alpine Linux, as well as
 but nascent software (like BearSSL) and complex but relatively well-reviewed
 software (like LibreSSL/OpenSSL), prefer the former as long as its author has
 good track records and considers it sufficiently practical for use.  When having
-to choose between multiple bloated software systems, prefer the simpler and
-relative well-tested, for instance when using systemd-based systems, prefer the
+to choose between multiple bloated software systems, prefer the relatively simpler
+and better-tested, for instance when using systemd-based systems, prefer the
 generic tools and avoid the reimplementations in systemd.  On the other hand,
 even when lightweight alternatives cannot adequately implement our requirements,
 we can still support or pay attention to them, to be able to migrate as early as

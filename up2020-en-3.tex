@@ -87,7 +87,7 @@ homoiconic just like S-expressions, and a format closely related to the former
 is used by Mathematica, the computational software.}; for example, the factorial
 function can be written in Scheme and Python respectively as\footnote{They
 are not exactly equivalent: first, Scheme does not have a \texttt{return}
-primitive, and instead use expressions in \stress{tail positions} as well as
+primitive, and instead uses expressions in \stress{tail positions} as well as
 \stress{continuations} (\cf~Footnote~\ref{fn:cps}) to return values; second,
 \texttt{(define (fn (args ...)) ...)} is a shorthand for \texttt{(define fn
 (lambda (args ...) ...))} in Scheme, while Python's \texttt{lambda} is
@@ -163,7 +163,7 @@ the ability to treat code as data has extremely profound implications,
 as can be seen from the beginning of the half-joking document \emph{The
 Gospel of Tux}\footnote{Apart from the von Neumann Architecture\cupercite%
 {wiki:neumann}, the profundity of the ``code is data'' idea can be
-traced to earlier origins, for instance the Gödel numbering\cupercite%
+traced to earlier origins, for instance Gödel numbering\cupercite%
 {wiki:godelnum} and the halting problem\cupercite{wiki:halt}.}, which
 is why I consider homoiconicity a notion as profound as complexity:
 \begin{quoting}
@@ -400,7 +400,7 @@ As can already be seen above, in comparison with Lisp, C is in many aspects an
 inferior language\cupercite{graham2002}, to put it bluntly, and the pros and
 cons of both will be further examined in the next section; this is a result of
 effects from multiple historical and methodological factors, and I summarise
-them as the following: due to hardware limitations, C began as basically a
+them as the following: due to hardware limitations, C basically began as a
 portable assembly language, reasonably simple to implement with acceptable
 performance on computers at Bell Labs; due to the success of Unix, continued
 efforts are made to create stronger optimising C compilers, so it is still one
@@ -598,7 +598,7 @@ Hitherto in this section, we have been examining the Lisp-like aspects of Nil,
 but what about the C-like aspects?  I consider Dale, mentioned in last section,
 a possible prototype for a C-like layer, upon which a Lisp-like layer would
 be implemented using macros, and many other languages (\eg~shell and Makefile)
-would be emulated in turn on the Lisp-like layer, accesible to the user via
+would be emulated in turn on the Lisp-like layer, accessible to the user via
 something like \hologo{LaTeX}'s \stress{macro packages}.  Another approach I
 have thought of, which I give the codename Nil-powered assembly, is based on the
 notion of a portable assembly\footnote{Since the C-like layer would essentially
