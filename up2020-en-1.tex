@@ -248,7 +248,7 @@ example (\cf~Section~\ref{sec:exec} for some in-depth examples): systemd
 supports service templates, for instance after a template called \verb|getty@|
 is defined, the \verb|getty@tty1| service would run the getty program on
 \verb|tty1|; in s6/s6-rc, a similar functionality can be achieved by calling
-a 5-line library script\cupercite{gitlab:srvrc} in the \verb|run| script.
+a 5-line library script\cupercite{gitea:srvrc} in the \verb|run| script.
 
 \section{Do one thing and do it well}\label{sec:mcilroy}
 
@@ -551,7 +551,7 @@ and the three restrictions in my formulation are explained below:
 \item It is stipulated that we are discussing about the \stress{cognitive}
 	complexity, because as was shown in the comparison above (a more realistic
 	comparison can be found at \parencite{github:acmetiny}/\parencite%
-	{gitlab:emca}), the quality of a system is not only determined by its code
+	{gitea:emca}), the quality of a system is not only determined by its code
 	size; we also have to consider the cohesion and coupling of its modules,
 	and the latter are essentially attributes oriented toward humans, not
 	computers, which I will further discuss in Section~\ref{sec:cognitive}.
@@ -749,7 +749,7 @@ with shell scriping and basic notions about processes can read through the
 core s6/s6-rc documentation comfortably in 2--3 hours, and then will be able
 to implement the desired configuration with s6/s6-rc; a vast majority of
 problems that can arise will be easily traceable to the causes, and problems
-with s6/s6-rc themselves are very rare\cupercite{gitlab:slewman}.  Furthermore,
+with s6/s6-rc themselves are very rare\cupercite{gitea:slewman}.  Furthermore,
 the behaviours of systemd change too fast\cupercite{hyperion.2019}, which
 further complicates problems considering that these behaviours are already
 very complex; in comparison, clear notices are given when those rare

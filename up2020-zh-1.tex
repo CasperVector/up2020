@@ -169,7 +169,7 @@ directory 中名为 \verb|run| 的可执行文件（如 \verb|/service/kmsg/run|
 我在这里举一个例子（一些更深入的例子见第 \ref{sec:exec} 节）：systemd
 支持服务模版，例如定义名为 \verb|getty@| 的模版后，\verb|getty@tty1| 服务
 将会在 \verb|tty1| 上运行 getty 程序；在 s6/s6-rc 中，类似的功能可以通过在
-\verb|run| 脚本中调用一个 5 行的库脚本\cupercite{gitlab:srvrc}来实现。
+\verb|run| 脚本中调用一个 5 行的库脚本\cupercite{gitea:srvrc}来实现。
 
 \section{Do one thing and do it well}\label{sec:mcilroy}
 
@@ -368,7 +368,7 @@ Doug McIlroy 对 Unix 哲学的表述的话，Plan~9 所贯彻的“一切皆是
 	可以实现成 \parencite{litt2014a} 图中的两种形式，但两种实现有着相同的用户
 	接口，在这种情形下我们显然不能以接口相同为由说两者符合 Unix 哲学的程度相同。
 \item 明确所讨论的复杂度是\stress{认知}复杂度，因为如上述比较所示（一个更
-	实际的比较可见 \parencite{github:acmetiny}/\parencite{gitlab:emca}），
+	实际的比较可见 \parencite{github:acmetiny}/\parencite{gitea:emca}），
 	一个系统结构的优劣并不只取决于其代码尺寸，我们还须要考虑其中模块内聚和
 	耦合的程度，而后者本质上是系统对人而非机器所表现的属性，对此我将在第
 	\ref{sec:cognitive} 节进一步讨论。
@@ -502,7 +502,7 @@ systemd 那样增长\footnote{我们还可以把 systemd 和规模巨大且开�
 shell 编程以及和进程相关基本概念的用户花 2--3 个小时就可以从容地阅读完
 s6/s6-rc 的核心文档，之后用户就可以用 s6/s6-rc 实现自己需要的系统配置，其中
 如果遇到问题绝大部分都可以在很快的时间内找到原因，而且很难遇到因 s6/s6-rc
-自身造成的问题\cupercite{gitlab:slewman}。此外，systemd 的行为变化太快%
+自身造成的问题\cupercite{gitea:slewman}。此外，systemd 的行为变化太快%
 \cupercite{hyperion.2019}，这在其行为已经十分复杂的背景下无疑是雪上加霜；
 相比之下，s6/s6-rc 和相关的几个软件包在出现（少数）破坏后向兼容性的变更时有
 明确的说明，这结合相关工具良定义的行为使得更新带来的不确定性被减少到最低程度。
