@@ -347,16 +347,29 @@ of \verb|CreateProcess()| while using \verb|fork()|/\verb|exec()|.  Borrowing
 the previous line of thought, we can completely decouple process state control
 from the init module: for example, with s6, \verb|s6-supervise| almost does
 not modify any process attribute before \verb|exec()|ing into the \verb|run|
-program; the \verb|run| program is almost always a script (\cf~\parencite%
-{pollard2014} for some examples), which sets its own attributes before
-\verb|exec()|ing into the actual service program.  The technique of implementing
-process state control with consecutive \verb|exec()|s is expressively called
-\stress{Bernstein chainloading}, because of Daniel J.\ Bernstein's extensive use
-of this technique in his software qmail (first released in 1996) and daemontools
-(first released in 2000); Laurent Bercot, the author of s6, pushed this
-technique further and implemented the unit operations in chainloading as a set
-of discrete tools\cupercite{ska:execline}, with which we can implement some very
-interesting requirements (\cf~Footnote~\ref{fn:logtype} for one such example).
+program; the \verb|run| program is almost always a script (an example is given
+below; \cf~\parencite{pollard2014} for some examples), which sets its own
+attributes before \verb|exec()|ing into the actual service program.  The
+technique of implementing process state control with consecutive \verb|exec()|s
+is expressively called \stress{Bernstein chainloading}, because of Daniel
+J.\ Bernstein's extensive use of this technique in his software qmail (first
+released in 1996) and daemontools (first released in 2000); Laurent Bercot,
+the author of s6, pushed this technique further and implemented the unit
+operations in chainloading as a set of discrete tools\cupercite{ska:execline},
+with which we can implement some very interesting requirements
+(\cf~Footnote~\ref{fn:logtype} for one such example).
+\begin{wquoting}
+\begin{Verbatim}[commandchars = {\\\{\}}]
+#!/bin/sh -e                    \cm{\texttt{-e} means to exit execution case of error}
+exec 2>&1                       \cm{Redirect the standard error to the standard output}
+cd /home/www                    \cm{Change the working directory to \texttt{/home/www}}
+exec \bs                          \cm{\texttt{exec()} the long command below; ``\texttt{\bs}'' joins lines}
+s6-softlimit -m 50000000 \bs      \cm{Limit the memory usage to 50M, then \texttt{exec()}}
+s6-setuidgid www \bs              \cm{Use the user \& group IDs of \texttt{www}, then \texttt{exec()}}
+emptyenv \bs                      \cm{Clear all environment variables, then \texttt{exec()}}
+busybox httpd -vv -f -p 8000    \cm{Finally \texttt{exec()} into a web server on port 8000}
+\end{Verbatim}
+\end{wquoting}
 
 When creating service processes, chainloading is of course much more flexible
 than systemd's mechanism, because the modules of the former possess the
@@ -858,10 +871,21 @@ resources, so the efficiency and size of software will inevitably become
 relevant factors in IoT development.  As such, I believe that \stress{the
 Unix philosophy will still manifest its highly relevant value in the 2020s}.
 
-Before concluding this section, I would like to digress a little and examine
-the issue of compiler backdoors, which makes the compiler automatically injects
-malicious code when processing certain programs: when suspecting the compiler
-after noticing abnormalities, people would certainly think of generating the
+\begin{quoting}
+	Sysadmin: \verb|login| appears backdoored;
+		I'll recompile it from clean source.\\
+	Compiler: \verb|login| code detected; insert the backdoor.\\
+	Sysadmin: the compiler appears backdoored, too;
+		I'll recompile it from clean source.\\
+	Compiler: compiler code detected; add code
+		that can insert the \verb|login| backdoor.\\
+	Sysadmin: (now what?)
+\end{quoting}\par
+Before concluding this section, I would like to digress a little
+and examine the issue of compiler backdoors, which makes the compiler
+automatically injects malicious code when processing certain programs
+(as is shown in the example above): when suspecting the compiler after
+noticing abnormalities, people would certainly think of generating the
 compiler itself from a clean copy of its source code; however, if the source
 code is processed by the dirty compiler (\eg~most C compilers are written in C,
 so they can compile themselves, or in other words \stress{self-bootstrap}%

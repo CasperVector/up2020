@@ -235,14 +235,26 @@ Unix 哲学。有必要指出，管道的出现直接导致了 Unix 先驱对命
 中，也就是说 systemd 在概念意义上相当于是用 \verb|fork()|/\verb|exec()| 实现了
 \verb|CreateProcess()| 模式的服务进程创建。借鉴之前的思路，我们可以把进程状态
 控制从 init 模块完全解耦：例如在 s6 中，\verb|s6-supervise| 在 \verb|exec()|
-\verb|run| 程序之前几乎不修改任何的进程属性；\verb|run| 程序几乎总是脚本（部分
-实例可参考 \parencite{pollard2014}），其在设定自身的进程属性之后 \verb|exec()|
-实际的服务程序。利用连续 \verb|exec()| 实现进程状态控制的技巧被形象地称为
-\stress{Bernstein chainloading}，因为 Daniel J.\ Bernstein 在其 qmail（首次
-发布于 1996 年）和 daemontools（首次发布于 2000 年）软件中广泛应用了这种
-技巧；s6 的作者 Laurent Bercot 进一步贯彻了这种技巧，他将 chainloading
-的单元操作实现为一组分立的工具\cupercite{ska:execline}，利用它们
-可以实现一些相当有趣的需求（一个例子见脚注 \ref{fn:logtype}）。
+\verb|run| 程序之前几乎不修改任何的进程属性；\verb|run| 程序几乎总是脚本（如
+以下例子所示，更多实例可参考 \parencite{pollard2014}），其在设定自身的进程
+属性之后 \verb|exec()| 实际的服务程序。利用连续 \verb|exec()| 实现进程状态控制
+的技巧被形象地称为 \stress{Bernstein chainloading}，因为 Daniel J.\ Bernstein
+在其 qmail（首次发布于 1996 年）和 daemontools（首次发布于 2000 年）软件中
+广泛应用了这种技巧；s6 的作者 Laurent Bercot 进一步贯彻了这种技巧，他将
+chainloading 的单元操作实现为一组分立的工具\cupercite{ska:execline}，
+利用它们可以实现一些相当有趣的需求（一个例子见脚注 \ref{fn:logtype}）。
+\begin{wquoting}
+\begin{Verbatim}[commandchars = {\\\{\}}]
+#!/bin/sh -e                    \cm{\texttt{-e} 表示若有命令执行失败则结束脚本}
+exec 2>&1                       \cm{将标准错误输出重定向到标准输出}
+cd /home/www                    \cm{改变当前目录到 \texttt{/home/www}}
+exec \bs                          \cm{\texttt{exec()} 后面一长串命令，“\texttt{\bs}”续行}
+s6-softlimit -m 50000000 \bs      \cm{设定最多使用 50M 内存并 \texttt{exec()} 后续命令}
+s6-setuidgid www \bs              \cm{使用 \texttt{www} 的用户和组 ID 并 \texttt{exec()} 后续命令}
+emptyenv \bs                      \cm{清空环境变量并 \texttt{exec()} 后续命令}
+busybox httpd -vv -f -p 8000    \cm{最终 \texttt{exec()} 监听 8000 端口的 web 服务器}
+\end{Verbatim}
+\end{wquoting}
 
 在创建服务进程时，chainloading 显然远比 systemd 的机制灵活，因为前者所用的模块
 具有高内聚、低耦合的优良特点，因此易调试、易维护；相比之下，systemd 提供的机制和
@@ -574,20 +586,28 @@ Heartbleed（源于 OpenSSL 自己实现的内存分配器掩盖了其中的
 这些联网设备的硬件资源往往十分有限，因此软件的性能和尺寸将必然成为物联网开发中的
 重要因素。正因如此，我认为\stress{Unix 哲学在 2020 年代仍将体现其重要价值}。
 
+\begin{quoting}
+	系统管理员：\verb|login| 程序似乎有后门，从干净的源代码重新编译试试。\\
+	编译器：检测到正在处理 \verb|login| 的源代码，自动植入后门。\\
+	系统管理员：编译器似乎也有后门，从干净的编译器源代码重新编译试试。\\
+	编译器：检测到编译器的源代码，自动添加可植入 \verb|login| 后门的代码。\\
+	系统管理员：（现在怎么办？）
+\end{quoting}\par
 在结束本节之前，我想稍微离题去考察编译器后门的问题，这种后门使编译器在处理特定
-程序时自动植入恶意代码：显然人们在发现异常后怀疑到编译器时会想到从干净的源代码
-产生编译器本身，但如果处理编译器源代码所用的就是系统中那个脏的编译器（例如
-多数的 C 编译器本身就是用 C 语言写的，因此它们可以编译自身，即\stress{自举}%
-\footnote{系统引导的“booting”正是 bootstrapping 的简称，而编译器的自举是
-self-bootstrapping。}），它在编译自身源代码时自动植入上述植入器的代码，这种
-情况下我们该怎么办？这种极其隐蔽的后门被称为 \stress{Trusting Trust} 后门，
-其从 Ken Thompson\footnote{顺便提到，他是一位国际象棋爱好者；你注意到了“预测
-对方行动”的模式了吗？} 获得 Turing 奖时的报告\cupercite{thompson1984}开始广为
-人知，并因这一报告的标题而得名。对抗 Trusting Trust 的一种通用思路是“Diverse
-Double-Compiling”\cupercite{wheeler2009}，即利用另一编译器编译可疑编译器的
-干净源代码，并和后者自编译的产物比对来判断是否有 Trusting Trust 后门；另外
-有一种思路是避免用编译器自举，而从底层的机器码开始逐步构建编译器\cupercite%
-{nieuwenhuizen2018}，我将在第 \ref{sec:benefits} 节展开讨论这一思路。
+程序时自动植入恶意代码（如以上例子所示）：显然人们在发现异常后怀疑到编译器时
+会想到从干净的源代码产生编译器本身，但如果处理编译器源代码所用的就是系统中那个
+脏的编译器（例如多数的 C 编译器本身就是用 C 语言写的，因此它们可以编译自身，
+即\stress{自举}\footnote{系统引导的“booting”正是 bootstrapping 的简称，而
+编译器的自举是 self-bootstrapping。}），它在编译自身源代码时自动植入上述植入器
+的代码，这种情况下我们该怎么办？这种极其隐蔽的后门被称为 \stress{Trusting
+Trust} 后门，其从 Ken Thompson\footnote{顺便提到，他是一位国际象棋爱好者；
+你注意到了“预测对方行动”的模式了吗？} 获得 Turing 奖时的报告\cupercite%
+{thompson1984}开始广为人知，并因这一报告的标题而得名。对抗 Trusting Trust
+的一种通用思路是“Diverse Double-Compiling”\cupercite{wheeler2009}，
+即利用另一编译器编译可疑编译器的干净源代码，并和后者自编译的产物比对
+来判断是否有Trusting Trust 后门；另外有一种思路是避免用编译器自举，
+而从底层的机器码开始逐步构建编译器\cupercite{nieuwenhuizen2018}，
+我将在第 \ref{sec:benefits}--\ref{sec:howto} 节展开讨论这一思路。
 
 \section{Unix 哲学和自由/开源软件}\label{sec:foss}
 
