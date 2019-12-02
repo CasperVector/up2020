@@ -177,24 +177,50 @@ We obviously want the modules in a system to be as loosely coupled as
 reasonable, and the script from last section was easily to debug and
 maintain exactly because of the low coupling between the underlying commands.
 
-Low coupling is actually a common feature of traditional Unix tools, so why can
-they be loosely coupled?  A tip of the iceberg has already been shown in the
-script from the last section: the tools not only have well-defined input/output
+Just like a system needs to be partitioned into modules (\eg~Unix tools),
+modules often also need to be partitioned into submodules (\eg~source files
+and function libraries), but the submodules are always much more tightly
+coupled than the tools themselves are, even with a most optimal design (\cf~the
+picture below for an example).  For this reason, when partitioning a system
+into modules, it is desirable to concentrate this kind of coupling inside
+the modules, instead of exposing them between the modules; I consider the
+\stress{degree of cohesion} to be the measure of this kind of inherent coupling
+between submodules inside a module, and partitioning of a system according to
+the principle of high cohesion would naturally reduce the degree of coupling in
+the system.  It may be said that coupling between (sub)modules somehow reflect
+the correlation between the nature of their tasks, so high cohesion comes with
+clear \stress{separation of concerns} between modules, because the latter
+results in closely correlated submodules gathered into a same module.  Low
+coupling is a common feature of traditional Unix tools, which is exactly due
+to the clear separation of concerns between them: as can be noticed from the
+script from last section, the tools not only have well-defined input/output
 interfaces, but also have clear processing rules from the input to the output,
-or in other words their behaviours are clearly guided; from the perspective of
-systems and modules, each Unix tool, when considered as a module, usually does
-a different unit operation, like character translation (\verb|tr|), sorting
-(\verb|sort|), deduplication~/ counting (\verb|uniq|) and so on.  When Unix
-tools are implemented, each of them usually also needs to be partitioned into
-submodules, but the submodules are always much more tightly coupled than the
-tools themselves are, even with a most optimal design; for this reason, when
-partitioning a system into modules, it is desirable to concentrate this kind
-of coupling inside the modules, instead of exposing them between the modules.
-I consider the \stress{degree of cohesion} to be the measure of this
-kind of inherent coupling between submodules inside a module, and
-partitioning of a system according to the principle of high cohesion
-would naturally enforce clear separation of concerns between modules,
-and therefore reduce the degree of coupling in the system.
+or in other words their behaviours are clearly guided; from the perspective
+of systems and modules, each Unix tool, when considered as a module, usually
+does a different unit operation, like character translation (\verb|tr|),
+sorting (\verb|sort|), deduplication~/ counting (\verb|uniq|) and so on.
+\begin{wquoting}
+\begin{tikzpicture}
+	\tikzmath{
+		\unit = 1.2em; \sza = 1 * \unit; \szb = 4 * \unit;
+		\dista = 1 * \unit; \distb = 5 * \unit; \distc = 3.2 * \unit;
+	}
+	\foreach \i in {0,...,3} {
+		\foreach \j/\x/\y in {0/-1/0,1/0/1,2/0/-1,3/1/0} {
+			\node (c\i\j) at
+				(\distb * \i + \dista * \x, \y * \dista)
+				[draw, circle, minimum size = \sza] {};
+		}
+		\foreach \x/\y in {0/1,0/2,1/3,2/3}
+			{ \draw [->] (c\i\x) -- (c\i\y); }
+		\node (C\i) at (\i * \distb, 0)
+			[draw, circle, minimum size = \szb] {};
+	}
+	\foreach \x/\y in {0/1,1/2,2/3} { \draw [->] (c\x3) -- (c\y0); }
+	\draw [->] (-\distc, 0) -- (c00);
+	\draw [->] (c33) -- (3 * \distb + \distc, 0);
+\end{tikzpicture}
+\end{wquoting}
 
 We have already seen that high cohesion and low coupling are desirable
 properties for software systems.  You might ask, while there are many Windows
