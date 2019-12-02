@@ -155,8 +155,8 @@ init 的模块，而所有这些模块之间有着复杂且缺乏文档说明的
 但事实上这种低内聚、高耦合并非必需，因为 daemontools 式的设计（本文档
 以 s6 为其代表）比 systemd 简洁得多，但功能却不弱于 systemd。
 
-s6 的 init 程序 \verb|s6-svscan| 扫描指定目录（“scan directory”，如
-\verb|/service|）下的子目录，并对每个子目录（“service directory”，如
+如下图所示，s6 的 init 程序 \verb|s6-svscan| 扫描指定目录（“scan directory”，
+如 \verb|/service|）下的子目录，并对每个子目录（“service directory”，如
 \verb|/service/kmsg|）运行一个 \verb|s6-supervise| 进程，后者通过运行 service
 directory 中名为 \verb|run| 的可执行文件（如 \verb|/service/kmsg/run|）运行相应
 的系统服务；用户可以使用 s6 提供的命令行工具 \verb|s6-svc|/\verb|s6-svscanctl|
@@ -170,6 +170,30 @@ directory 中名为 \verb|run| 的可执行文件（如 \verb|/service/kmsg/run|
 支持服务模版，例如定义名为 \verb|getty@| 的模版后，\verb|getty@tty1| 服务
 会在 \verb|tty1| 上运行 getty 程序；在 s6/s6-rc 中，类似的功能可以通过在
 \verb|run| 脚本中调用一个 5 行的库脚本\cupercite{gitea:srvrc}来实现。
+\begin{wquoting}
+\begin{tikzpicture}
+	\tikzbase\tikzmath{\dista = 12.5em;}
+	\foreach \x/\y/\t in {%
+		0/0/{s6-svscan},1/1/{s6-supervise kmsg},2/2/{ucspilogd},%
+		1/3/{s6-supervise syslog},2/4/{busybox syslogd},0/5/{$\cdots$}%
+	} \tikzproc{\x}{\y}{\t};
+	\foreach \y/\t in {%
+		0/{扫描 \texttt{/service}，
+			可用 \texttt{s6-svscanctl} 控制},%
+		1/{由 \texttt{/service/kmsg}
+			配置，可用 \texttt{s6-svc} 控制},%
+		2/{被 \texttt{/service/kmsg/run}
+			\texttt{exec()}（见第 \ref{sec:exec} 节）},%
+		3/{由 \texttt{/service/syslog}
+			配置，可用 \texttt{s6-svc} 控制},%
+		4/{被 \texttt{/service/syslog/run}
+			\texttt{exec()}（见第 \ref{sec:exec} 节）}%
+	} \tikzcomment{\dista}{\y}{\t};
+	\draw (0, -\disty) -- (0, \disty - 5 * \unity);
+	\foreach \y in {2,4} \tikzvline{1}{\y};
+	\foreach \x/\y in {0/1,1/2,0/3,1/4} \tikzhline{\x}{\y};
+\end{tikzpicture}
+\end{wquoting}
 
 \section{Do one thing and do it well}\label{sec:mcilroy}
 
@@ -446,18 +470,18 @@ PID，上述子进程的 ID 除了存入一个“PID 文件”之外没有太好
 \end{tikzpicture}
 \end{wquoting}
 
-在 s6 中（其它 daemontools 类系统以及 systemd 的做法与此类似），服务进程是
-\verb|s6-supervise| 的子进程，其退出时内核会立刻通知 \verb|s6-supervise|；用户
-可以通过 s6 提供的工具通知 \verb|s6-supervise| 改变服务的状态，服务进程因完全
-独立于用户 shell 而不再须要通过 \verb|fork()| 来进入后台。s6 的这种机制称为%
-\stress{process supervision}，由上述分析可见 init 系统利用这一机制可以实时跟踪
-服务状态，而不用担心随 PID 文件而来的一系列问题；此外，因为在 supervision 机制下
-服务进程在退出后永远由原父进程（如 \verb|s6-supervise|）重启，不像 sysvinit 机制
-下在开机时由 init 的某个近亲进程创建，而重新启动时由用户 shell 创建，前一机制
-下服务运行环境的可重复性要强很多。Supervision 机制的一个表面问题是服务不能像
-sysvinit 下那样用 init 脚本的结束来通知 init 系统自身已经就绪，而需要另外的
-机制；s6 的就绪通知机制\cupercite{ska:notify}非常简洁，且可通过
-工具\cupercite{ska:sdnwrap}模拟 systemd 的机制。
+在 s6 中（参考第 \ref{sec:coupling} 节；其它 daemontools 类系统以及 systemd
+的做法与此类似），服务进程是 \verb|s6-supervise| 的子进程，其退出时内核会立刻
+通知 \verb|s6-supervise|；用户可以通过 s6 提供的工具通知 \verb|s6-supervise|
+改变服务的状态，服务进程因完全独立于用户 shell 而不再须要通过 \verb|fork()|
+来进入后台。s6 的这种机制称为 \stress{process supervision}，由上述分析可见
+init 系统利用这一机制可以实时跟踪服务状态，而不用担心随 PID 文件而来的一系列
+问题；此外，因为在 supervision 机制下服务进程在退出后永远由原父进程（如
+\verb|s6-supervise|）重启，不像 sysvinit 机制下在开机时由 init 的某个近亲
+进程创建，而重新启动时由用户 shell 创建，前一机制下服务运行环境的可重复性要
+强很多。Supervision 机制的一个表面问题是服务不能像 sysvinit 下那样用 init 脚本的
+结束来通知 init 系统自身已经就绪，而需要另外的机制；s6 的就绪通知机制\cupercite%
+{ska:notify}非常简洁，且可通过工具\cupercite{ska:sdnwrap}模拟 systemd 的机制。
 
 Process supervision 更大的优势在于对系统日志的处理。在 sysvinit 机制下，为了脱离
 用户 shell 的控制，服务进程须要将其在 \verb|exec()| 时从 shell 继承来的指向用户

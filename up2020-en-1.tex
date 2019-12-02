@@ -229,15 +229,16 @@ systemd obviously has low cohesion and high coupling, but this is unnecessary
 because the daemontools-ish design (represented in this document with s6) is
 much simpler than systemd, yet not weaker than systemd in functionalities.
 
-The init program of s6, \verb|s6-svscan|, scans for subdirectories in a
-specified directory (``scan directory'', like \verb|/service|), and for each
-subdirectory (``service directory'', like \verb|/service/kmsg|) runs a
-\verb|s6-supervise| process, which in turn runs the executable called \verb|run|
-in the scan directory in order to run the corresponding system service.
-The user can use s6's command line tools \verb|s6-svc|/\verb|s6-svscanctl|
-to interact with \verb|s6-supervise|/\verb|s6-svscan|, and can use ancillary
-files in service directories and the scan directory to modify the behaviours
-of \verb|s6-supervise| and \verb|s6-svscan|\footnote{This configuration method
+As is shown in the picture below, the init program of s6, \verb|s6-svscan|,
+scans for subdirectories in a specified directory (``scan directory'', like
+\verb|/service|), and for each subdirectory (``service directory'', like
+\verb|/service/kmsg|) runs a \verb|s6-supervise| process, which in turn
+runs the executable called \verb|run| in the service directory in
+order to run the corresponding system service.  The user can use
+s6's command line tools \verb|s6-svc|/\verb|s6-svscanctl| to interact
+with \verb|s6-supervise|/\verb|s6-svscan|, and can use ancillary files
+in service directories and the scan directory to modify the behaviours of
+\verb|s6-supervise| and \verb|s6-svscan|\footnote{This configuration method
 may seem unintuitive, but its rationale and benefits will be explained in
 Section~\ref{sec:homoiconic} and Footnote~\ref{fn:slew}.}.  Only longrun
 services are managed by s6, while oneshot init scripts are managed by s6-rc,
@@ -249,6 +250,30 @@ supports service templates, for instance after a template called \verb|getty@|
 is defined, the \verb|getty@tty1| service would run the getty program on
 \verb|tty1|; in s6/s6-rc, a similar functionality can be achieved by calling
 a 5-line library script\cupercite{gitea:srvrc} in the \verb|run| script.
+\begin{wquoting}
+\begin{tikzpicture}
+	\tikzbase\tikzmath{\dista = 12.5em;}
+	\foreach \x/\y/\t in {%
+		0/0/{s6-svscan},1/1/{s6-supervise kmsg},2/2/{ucspilogd},%
+		1/3/{s6-supervise syslog},2/4/{busybox syslogd},0/5/{$\cdots$}%
+	} \tikzproc{\x}{\y}{\t};
+	\foreach \y/\t in {%
+		0/{Scans \texttt{/service},
+			controllable with \texttt{s6-svscanctl}},%
+		1/{Configured in \texttt{/service/kmsg},
+			controllable with \texttt{s6-svc}},%
+		2/{\texttt{exec()}ed by \texttt{/service/kmsg/run}
+			(\cf~Section~\ref{sec:exec})},%
+		3/{Configured in \texttt{/service/syslog},
+			controllable with \texttt{s6-svc}},%
+		4/{\texttt{exec()}ed by \texttt{/service/syslog/run}
+			(\cf~Section~\ref{sec:exec})}%
+	} \tikzcomment{\dista}{\y}{\t};
+	\draw (0, -\disty) -- (0, \disty - 5 * \unity);
+	\foreach \y in {2,4} \tikzvline{1}{\y};
+	\foreach \x/\y in {0/1,1/2,0/3,1/4} \tikzhline{\x}{\y};
+\end{tikzpicture}
+\end{wquoting}
 
 \section{Do one thing and do it well}\label{sec:mcilroy}
 
@@ -638,11 +663,12 @@ with similar issues, which do not exist when using process supervision.};
 moreover, the original PID could be occupied by a later process, in which
 case the init system might mistake a wrong process for the service process.
 
-With s6 (other daemontools-ish systems and systemd behave similarly), the
-service process is a child of \verb|s6-supervise|, and when it exits the kernel
-will instantly notify \verb|s6-supervise| about this; the user can use s6's
-tools to tell \verb|s6-supervise| to change the state of the service, so the
-service process is completely independent of the user's shell, and no longer
+With s6 (\cf~Section~\ref{sec:coupling}; other daemontools-ish systems
+and systemd behave similarly), the service process is a child of
+\verb|s6-supervise|, and when it exits the kernel will instantly notify
+\verb|s6-supervise| about this; the user can use s6's tools to tell
+\verb|s6-supervise| to change the state of the service, so the service
+process is completely independent of the user's shell, and no longer
 needs to background by \verb|fork()|ing.  This mechanism in s6 is called
 \stress{process supervision}, and from the analysis above we see that using
 this mechanism the init system can track service states in real time, without
