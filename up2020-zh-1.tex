@@ -168,7 +168,7 @@ directory 中名为 \verb|run| 的可执行文件（如 \verb|/service/kmsg/run|
 状况以实现对服务间依赖的管理。上文提到这样的设计在功能上不弱于 systemd，
 我在这里举一个例子（一些更深入的例子见第 \ref{sec:exec} 节）：systemd
 支持服务模版，例如定义名为 \verb|getty@| 的模版后，\verb|getty@tty1| 服务
-将会在 \verb|tty1| 上运行 getty 程序；在 s6/s6-rc 中，类似的功能可以通过在
+会在 \verb|tty1| 上运行 getty 程序；在 s6/s6-rc 中，类似的功能可以通过在
 \verb|run| 脚本中调用一个 5 行的库脚本\cupercite{gitea:srvrc}来实现。
 
 \section{Do one thing and do it well}\label{sec:mcilroy}
@@ -337,7 +337,7 @@ Doug McIlroy 对 Unix 哲学的表述的话，Plan~9 所贯彻的“一切皆是
 
 从前两节，我们已经看到 Doug McIlroy 的总结并不能满意地概括 Unix
 哲学的全部；这一总结（特别是其第 1 点）的确可以认为是最主流的，
-但除此之外其它的总结也有很多\cupercite{wiki:unixphilo}：
+但除此之外其它的总结也有很多\cupercite{wiki:unixphilo}，例如：
 \begin{itemize}
 \item Brian Kernighan 和 Rob Pike 强调将软件系统设计成易组合使用的多个小工具，
 	每个工具可以相对独立地完成一类简单任务，它们组合起来使用便可完成复杂任务。
@@ -868,7 +868,7 @@ Bourne shell 时就知道哪些地方相对次要了。
 进一步地，正如 shell 和图形界面的关系一样，简洁的软件系统和复杂的软件系统之间
 有着类似的关系，这里我以 RHEL/CentOS 和 Alpine Linux\footnote{顺便提到，如果
 多数发行版应该被称为“某某 GNU/Linux”\cupercite{instgentoo:interj}，那么 Alpine
-是不是应该被称为“Alpine BusyBox/musl/Linux”？}为例。Red Hat 的系统像 Windows
+是不是应该被称为“Alpine BusyBox/musl/Linux”？} 为例。Red Hat 的系统像 Windows
 一般大而“全”，在严格按照其开发者设想的方式使用时一般能如预期地工作，但其系统中
 为了使这些“设想的方式”更加“用户友好”而进行了许多额外且缺少文档的封装；由此产生
 的问题是出现故障时系统因其高复杂度而难以调试，而且用户在有特殊需求时不得不

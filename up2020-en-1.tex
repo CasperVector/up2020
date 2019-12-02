@@ -39,7 +39,7 @@ circle, led to the pitiful decline in popularity of Unix in the 1990s.
 In 1991, Linus Torvalds started working on his own operating system kernel,
 which went on to become Linux; the combination of userspace tools from the
 GNU project (starting from 1985) and the Linux kernel achieved the goal of
-providing a self-hosting Unix-like environment that is free / open-source and
+providing a self-hosting Unix-like environment that is free~/ open-source and
 low-cost\footnote{The 386BSD project also reached this goal, but its first
 release was in 1992; additionally, a lawsuit and some infighting at that
 time\cupercite{wiki:386bsd} distracted the BSD people, and now it might be
@@ -184,7 +184,7 @@ interfaces, but also have clear processing rules from the input to the output,
 or in other words their behaviours are clearly guided; from the perspective of
 systems and modules, each Unix tool, when considered as a module, usually does
 a different unit operation, like character translation (\verb|tr|), sorting
-(\verb|sort|), deduplication / counting (\verb|uniq|) and so on.  When Unix
+(\verb|sort|), deduplication~/ counting (\verb|uniq|) and so on.  When Unix
 tools are implemented, each of them usually also needs to be partitioned into
 submodules, but the submodules are always much more tightly coupled than the
 tools themselves are, even with a most optimal design; for this reason, when
@@ -394,7 +394,7 @@ compliant to the first two points from Doug McIlroy's summary in last
 section despite the fact that it is not directly reflected in shell
 scripting; however, this mechanism does not involve the choice of
 textual interfaces, so it is not quite related to McIlroy's last point,
-and I find this to be a sign that \verb|fork()|/\verb|exec()| cannot
+and I find this a sign that \verb|fork()|/\verb|exec()| cannot
 be satisfactorily covered by McIlroy's formulation.
 
 \section{From Unix to Plan~9}\label{sec:plan9}
@@ -501,7 +501,7 @@ In the two previous sections, we have already seen that Doug McIlroy's
 summary cannot satisfactorily cover the entirety of Unix philosophy;
 this summary (and especially its first point) can indeed be regarded as
 the most mainstream one, but there are also many summaries other than
-the one by McIlroy\cupercite{wiki:unixphilo}:
+the one by McIlroy\cupercite{wiki:unixphilo}, for instance:
 \begin{itemize}
 \item Brian Kernighan and Rob Pike emphasised the design of software systems as
 	multiple easily composable tools, each of which does one kind of simple
@@ -702,7 +702,7 @@ Hoare focused on reliability, but I believe maintainability is, to a large
 extent, also governed by the rule, and one example for the correspondence
 between complexity and maintainability (which I regard development cost as a
 part of) can be found at \parencite{rbrander2017}.  In the following I will
-demonstrate the relation between complexity and reliability / maintainability.
+demonstrate the relation between complexity and reliability~/ maintainability.
 
 As was noted in Section~\ref{sec:coupling}, init is the first process after a
 Unix system is started, and in fact it is also the root node of the whole
@@ -878,10 +878,10 @@ of the suspected compiler with another compiler, and compares the product from
 the latter with the product from self-compilation of the former to determine
 whether there is a Trusting Trust backdoor.  One alternative method avoids
 self-bootstrapping, and instead constructs the compiler step by step from
-the low-level machine code\cupercite{nieuwenhuizen2018}, and I will
-discuss this method in detail in Section~\ref{sec:benefits}.
+the low-level machine code\cupercite{nieuwenhuizen2018}, and I will discuss
+this method in detail in Section~\ref{sec:benefits}--\ref{sec:howto}.
 
-\section{Unix philosophy and free / open-source software}\label{sec:foss}
+\section{Unix philosophy and free~/ open-source software}\label{sec:foss}
 
 ``Free software''\cupercite{wiki:free} and ``open-source software''\cupercite%
 {wiki:oss} are notions that are very similar in extensions but clearly

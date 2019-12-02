@@ -371,7 +371,7 @@ different permissions to different parts.  Both of the latter are much
 harder to achieve with a single file, which I believe shows the
 advantage of directory trees as a configuration interface.
 
-\section{The New Jersey and MIT / Stanford styles}\label{sec:wib}
+\section{The New Jersey and MIT~/ Stanford styles}\label{sec:wib}
 
 In last section, we have seen the unrivaled power from homoiconcity, which
 allows the macro system to easily manipulate ASTs in order to implement new
@@ -427,7 +427,7 @@ that only implements 50\% of the requirements.  Another sign of ignoring the
 premise, I believe, is the objection to refactoring when attempting to fulfill
 the complete requirements, with ``worse is better'' as an excuse\cupercite%
 {chiusano2014}.}, Lisp would choose the former (``\stress{the right thing}'' or
-the MIT / Stanford style), while Unix would choose the latter (``\stress{worse
+the MIT~/ Stanford style), while Unix would choose the latter (``\stress{worse
 is better}'' or the New Jersey style).  Apart from C, another main manifestation
 of ``worse is better'' in Unix is the preference of textual interfaces by
 traditional Unix tools\footnote{In addition to the plain text \vs~S-expressions
@@ -535,7 +535,7 @@ would surely help to reduce the total complexity of the system.  So now we
 see that by migrating to Lisp for system programming, even these simple
 tools can be further simplified; and as was noted before, Lisp is probably
 even more powerful for application programming, so I find it undoubted
-that \stress{by embracing homoiconicity, we will be able to construct
+that \stress{by embracing homoiconicity, we will be able to build
 systems that are more Unix-ish than was possible before}.
 
 Now that we have seen the power of homoiconicity in system programming, it is
@@ -554,7 +554,7 @@ because the semantics of low-level code is difficult to analyse (which results
 in the importance of open source), so any attempt at mechanically injecting
 malicious code may trigger false positives, which may expose the backdoor.}.
 
-\section{Lisp / C reconciliation: how to?}\label{sec:howto}
+\section{Lisp~/ C reconciliation: how to?}\label{sec:howto}
 
 As was emphasised in Section~\ref{sec:devel}, we should analyse specific issues
 specifically, and while the disappearance of resource limitations does not imply
@@ -571,7 +571,7 @@ by the compiler might need to avoid using GC whenever reasonable}\footnote%
 special requirements, or alternatively we can perhaps consider (optional and
 configurable) real-time GC\cupercite{bernstein2013}.  Furtherly, considering
 the inherent pros and cons of different methods for memory management (GC, RAII,
-manual management, \etc), we probably need a minimal mechanism where multiple
+manual management \etc), we probably need a minimal mechanism where multiple
 memory-management methods can be used at the same time without conflicts.}.
 
 In last section, we revisited the issue of bootstrapping, and I hinted about
@@ -651,12 +651,12 @@ candidate, string theory, still appears far from testable, even though it does
 agree with observed facts.  On the other hand, there is not a proof that such
 a theory is unachievable, either; and apart from the theoretical promises,
 research on it has always been giving rise to exciting advancement in diverse
-fields ranging from pure mathematics (which is profoundly connected with
-theoretical physics) to civil engineering (involved in construction of
-large facilities for physical experiments).  For these two reasons,
+fields ranging from pure mathematics (profoundly connected to theoretical
+physics) to civil engineering (involved in construction of large
+facilities for physical experiments).  For these two reasons,
 a ToE is still the lifelong pursuit to many physicists.
 
-Similarly, although the efforts at Lisp / C reconciliation are not guaranteed
+Similarly, although the efforts at Lisp~/ C reconciliation are not guaranteed
 to really result in an ultimate language, it would surely be rewarding to
 explore \stress{the best way the two languages can collaborate}, so that the
 system's complexity is minimised and the programmer's productivity is maximised:

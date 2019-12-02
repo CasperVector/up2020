@@ -304,7 +304,7 @@ S 表达式的类似潜力：例如 Daniel J.\ Bernstein 在讨论安全性时�
 配置的一部分，而且可以为不同的部分分配不同的权限。后两点在使用单个文件
 时实现起来都要复杂得多，而我相信它们表明了目录树作为配置接口的优势。
 
-\section{New Jersey 作风和 MIT / Stanford 作风}\label{sec:wib}
+\section{New Jersey 作风和 MIT~/ Stanford 作风}\label{sec:wib}
 
 我们在上节看到了同像性无可匹敌的威力，因为它使宏系统可以轻松地操作 AST，从而
 实现新的语言特性；此外，因为宏展开是递归的，程序后面部分定义的宏可以使用前面
@@ -340,7 +340,7 @@ Gabriel 比较了 Lisp 和 Unix，其总结大致是在接口的简洁性和实�
 \footnote{Richard P.\ Gabriel 后来在《Worse is Better is Worse》中提到人们
 经常忽略这一核心前提，盲目地追求只实现 50\% 需求；我认为忽略这一前提的另一种
 表现是在试图完整地实现需求时反对重构，并以“worse is better”为借口\cupercite%
-{chiusano2014}。}，Lisp 会选择前者（“\stress{the right thing}”，或 MIT /
+{chiusano2014}。}，Lisp 会选择前者（“\stress{the right thing}”，或 MIT~/
 Stanford 作风），而 Unix 会选择后者（“\stress{worse is better}”，或 New Jersey
 作风）。除了 C 以外，“worse is better”在 Unix 中的另一种主要体现是传统 Unix
 工具对文本接口的普遍使用\footnote{除了关于纯文本和 S 表达式的争论，其实还有关于
@@ -416,7 +416,7 @@ Scheme 的表达力，以及优雅的 Scheme 编译器如 Chez Scheme 的存在�
 帮助降低系统的总复杂度。所以现在可见，通过迁移到使用 Scheme 进行系统编程，
 即使这些简单工具也可以进一步简化；而正如之前指出的，Lisp 在应用编程中
 很可能更加强大，因此我确定无疑地认为\stress{通过利用同像性，我们
-将能构造在符合 Unix 哲学的程度上超越从前可能的系统}。
+将能构建在符合 Unix 哲学的程度上超越从前可能的系统}。
 
 既然我们已经看到同像性在系统编程中的威力，现在是时候回顾第 \ref{sec:security}
 节中的 Trusting Trust 问题了；当时我指出一种对抗 Trusting Trust 的方法是从机器码
@@ -443,7 +443,7 @@ uNIx 加 Lisp）应当能在解释器和编译器中使用 GC，但\stress{编�
 
 我们在上节回顾了自举的问题，而我暗示了一种方案，其中先设法构造一个极小的解释器，
 然后在某个后续步骤中生成一个可用于生产环境的编译器；其中首先须要注意的一点是这
-没有采用当今通行的使用编译器来生成解释器的做法，而是首先生成解释器。然而正如
+没有采用当今通行的使用编译器来构建解释器的做法，而是首先生成解释器。然而正如
 可以猜到的，用汇编写 Nil 解释器多半会比写 Nil 编译器容易，就像 Nil 所模仿的
 Lisp 一样；因此从复杂度的角度来看，从一个原始的解释器生成编译器会更好\footnote%
 {也许要经过多个步骤，使用逐渐增强的编译器、解释器乃至汇编器，这种汇编器很可能会
