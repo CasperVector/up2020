@@ -59,14 +59,14 @@ Ritchie 自己认为“影响了 Unix 设计”的三点技术考虑\cupercite{r
 Knuth 和 Hanson 的程序分别采用 Pascal 或 C 从头编写，两者的编写和调试均
 花费数小时；McIlroy 的程序是一个 shell 脚本，其编写只需一两分钟，
 且第一次运行即通过，这一脚本稍加修改后如下：
-\begin{quoting}
+\begin{wquoting}
 \begin{Verbatim}
 #!/bin/sh
 tr -cs A-Za-z\' '\n' | tr A-Z a-z |
 sort | uniq -c |
 sort -k1,1nr -k2 | sed "${1:-25}"q
 \end{Verbatim}
-\end{quoting}
+\end{wquoting}
 
 其首行告诉 Unix 这是一个由 \verb|/bin/sh| 解释执行的程序，
 剩下各行命令由\stress{管道}“\verb@|@”分为 6 步：
@@ -99,11 +99,11 @@ sort -k1,1nr -k2 | sed "${1:-25}"q
 \footnote{C 语言中的 \texttt{stdio.h} 指的就是标准输入/输出。}；利用 Unix 的%
 \stress{输入/输出重定向}机制可以实现从/到指定文件的输入/输出，例如在 shell
 中运行以下命令（假定上述脚本名为 \verb|wf.sh| 且已赋予执行权限）
-\begin{quoting}
+\begin{wquoting}
 \begin{Verbatim}
 /path/to/wf.sh 10 < input.txt > output.txt
 \end{Verbatim}
-\end{quoting}
+\end{wquoting}
 即可将 \verb|input.txt| 中出现最多的 10 个单词及其频数输出到 \verb|output.txt|。
 显然，管道也是一种重定向机制，它把左边命令的输出重定向到右边命令的输入；换一个
 角度，如果把被管道连接的各个命令看成一个个过滤器，那么每个过滤器所做的就是相对
@@ -277,11 +277,11 @@ systemd 的一大卖点\cupercite{poettering2013}，但 cgroup 的用户接口�
 上节提到的 \verb|fork()|/\verb|exec()|）；为了操作各种硬件设备的特殊属性，同时
 避免系统调用数随着 Unix 支持的设备种类数疯狂增长，这一版本的 Unix 中引入了系统
 调用 \verb|ioctl()|，后者是一个根据其参数的值操作各种设备属性的“多面手”，例如
-\begin{quoting}
+\begin{wquoting}
 \begin{Verbatim}
 ioctl (fd, TIOCGWINSZ, &winSize);
 \end{Verbatim}
-\end{quoting}
+\end{wquoting}
 将文件描述符 \verb|fd| 所对应串口终端的窗口尺寸存入结构体 \verb|winSize| 中。
 在直到这时（乃至之后少数几年）的 Unix 中，虽然有文件、管道、硬件设备等等不同的
 系统资源要操作，这些操作基本都通过文件接口来实现（例如对 \verb|/dev/tty| 的

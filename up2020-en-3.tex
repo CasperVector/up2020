@@ -93,22 +93,22 @@ primitive, and instead uses expressions in \stress{tail positions} as well as
 (lambda (args ...) ...))} in Scheme, while Python's \texttt{lambda} is
 severely limited (\cf~Section~\ref{sec:homoiconic} for an example).}:
 \colskipa\begin{multicols}{2}
-\begin{quoting}
+\begin{wquoting}
 \begin{Verbatim}
 (define (f i)
   (if (> i 1)
       (* (f (- i 1)) i)
       1))
 \end{Verbatim}
-\end{quoting}
-\begin{quoting}
+\end{wquoting}
+\begin{wquoting}
 \begin{Verbatim}
 def f(i):
   if i > 1:
     return i * f(i - 1)
   return 1
 \end{Verbatim}
-\end{quoting}
+\end{wquoting}
 \end{multicols}\colskipb\noindent%
 S-expressions would probably appear unintuitive to a newbie, but they are in
 fact much easier for computers to process than most alternative source code
@@ -130,7 +130,7 @@ computer to understand the program, and this data structure is called the
 AST corresponding to the expression $4 \times 2 - (a + 3)$ and
 the S-expression equivalent to the latter are shown below:
 \colskipa\begin{multicols}{2}
-\begin{quoting}[innerleftmargin = 0.45em,
+\begin{wquoting}[innerleftmargin = 0.45em,
 	innertopmargin = -0.15em, innerbottommargin = 0.15em]
 \begin{forest}
 	for tree = {l sep = 0pt, l = 2.25em}
@@ -138,15 +138,15 @@ the S-expression equivalent to the latter are shown below:
 		[$\times$, [$4$] [$2$]]
 		[$+$, [$a$] [$3$]]]
 \end{forest}
-\end{quoting}
+\end{wquoting}
 \columnbreak\vspace*{-0.64em}
-\begin{quoting}
+\begin{wquoting}
 \begin{Verbatim}
 (-
   (* 4 2)
   (+ a 3))
 \end{Verbatim}
-\end{quoting}
+\end{wquoting}
 \end{multicols}\colskipb\noindent%
 S-expressions can be regarded as representations for nested lists, and
 as we can see from the example above, nested lists map to tree structures
@@ -206,11 +206,11 @@ an example that is both more concrete and more advanced.
 
 Anonymous functions, essentially $\lambda$-expressions, are very useful
 when used as function arguments, as is shown in the Python code below:
-\begin{quoting}
+\begin{wquoting}
 \begin{Verbatim}
 sorted(l, key = lambda e: e[0])
 \end{Verbatim}
-\end{quoting}
+\end{wquoting}
 However, the function body of \verb|lambda| in Python must be an expression,
 so assignment cannot be used, for instance the following function on the left
 cannot be directly transformed to a \verb|lambda|.  But if we regard assignment
@@ -218,22 +218,22 @@ as a kind of filter that converts a tuple of input values (\eg~$(x, y)$) into
 a modified tuple of values (\eg~$(x, y')$), the function can be transformed
 into the composition of multiple \verb|lambda|s, as is shown on the right.
 \colskipa\begin{multicols}{2}
-\begin{quoting}
+\begin{wquoting}
 \begin{Verbatim}
 def f1(x, y):
   y = y / (1 - x)
   x = x + y
   return x * x + y
 \end{Verbatim}
-\end{quoting}
-\begin{quoting}
+\end{wquoting}
+\begin{wquoting}
 \begin{Verbatim}
 f2 = lambda x, y:
   ((lambda v: v[0] * v[0] + v[1])
   ((lambda v: (v[0] + v[1], v[1]))
   ((x, y / (1 - x)))))
 \end{Verbatim}
-\end{quoting}
+\end{wquoting}
 \end{multicols}\colskipb\noindent%
 The definition of \verb|f2| is evidently ugly, and part of the ugliness
 lies in the explicit value tuple \verb|v|; another source of ugliness is the
@@ -242,7 +242,7 @@ first, because it is the outermost.  In Scheme, the \verb|let| form has
 its input values written before its body, so we can use it to compose
 filters in the desired order, as is shown below on the left.
 \colskipa\begin{multicols}{2}
-\begin{quoting}
+\begin{wquoting}
 \begin{Verbatim}
 (define f3
   (lambda (x y)
@@ -250,8 +250,8 @@ filters in the desired order, as is shown below on the left.
     (let ((x (+ x y)))
     (+ (* x x) y)))))
 \end{Verbatim}
-\end{quoting}
-\begin{quoting}
+\end{wquoting}
+\begin{wquoting}
 \begin{Verbatim}
 f3 = lambda x, y: \
   (lambda y:
@@ -259,7 +259,7 @@ f3 = lambda x, y: \
     (x + y)) \
   (y / (1 - x))
 \end{Verbatim}
-\end{quoting}
+\end{wquoting}
 \end{multicols}\colskipb\noindent%
 As you might have already guessed, \verb|let| is just syntactic sugar for
 \verb|lambda|, and \texttt{(let ((a \emph{e$_1$}) (b \emph{e$_2$}) ...) ...)}
@@ -271,7 +271,7 @@ in \texttt{(lambda x: x * x + y)}) shadows outer variables with
 the same names (\eg~the argument \verb|x| for \verb|f3|).
 
 \colskipa\begin{multicols}{2}
-\begin{quoting}
+\begin{wquoting}
 \begin{Verbatim}
 f4 = lambda x, y: check(
   divide(y, 1 - x),
@@ -279,8 +279,8 @@ f4 = lambda x, y: check(
     (lambda x: x * x + y)
     (x + y)))
 \end{Verbatim}
-\end{quoting}
-\begin{quoting}
+\end{wquoting}
+\begin{wquoting}
 \begin{Verbatim}
 check = lambda arg, fn: \
   None if arg == None else fn(arg)
@@ -288,7 +288,7 @@ check = lambda arg, fn: \
 divide = lambda a, b: \
   None if b == 0 else a / b
 \end{Verbatim}
-\end{quoting}
+\end{wquoting}
 \end{multicols}\colskipb
 Nevertheless, this is not the end of the story, because $1 - x$ might
 be zero, and I want the function to return \verb|None| in such cases;
@@ -299,7 +299,7 @@ $y$ might be \verb|None| instead of numbers, but following the line of thought
 above, we can further transform \verb|f4| into\footnote{Incidentally, this is
 reminiscent of the continuation-passing style (\cf~Footnote~\ref{fn:cps}),
 which is in fact not a coincidence\cupercite{troelskn2009}.}
-\begin{quoting}
+\begin{wquoting}
 \begin{Verbatim}
 f5 = lambda x, y: check(
   x, (lambda x: check(
@@ -307,7 +307,7 @@ f5 = lambda x, y: check(
       divide(y, 1 - x), (lambda y: check(
         x + y, (lambda x: x * x + y))))))))
 \end{Verbatim}
-\end{quoting}
+\end{wquoting}
 Using this technique, we actually implemented exceptions in a purely functional
 way\footnote{Conversely, we can also see that, as a matter of fact, exceptions
 have a ground in type theory.  Besides, I find it necessary to note that
@@ -320,7 +320,7 @@ to the form on the right using syntactic sugar hardcoded in Haskell\footnote%
 on the right correspond exactly to the two \texttt{Just}s on the left,
 which are needed due to type-theoretical requirements in Haskell.}.
 \colskipa\begin{multicols}{2}
-\begin{quoting}
+\begin{wquoting}
 \begin{Verbatim}
 f5 = \x y ->
   (x >>= \x ->
@@ -329,8 +329,8 @@ f5 = \x y ->
         (Just (x + y) >>= \x ->
           Just (x * x + y)))))
 \end{Verbatim}
-\end{quoting}
-\begin{quoting}
+\end{wquoting}
+\begin{wquoting}
 \begin{Verbatim}
 f5 = \x y -> do
   x <- x
@@ -339,7 +339,7 @@ f5 = \x y -> do
   x <- return (x + y)
   return (x * x + y)
 \end{Verbatim}
-\end{quoting}
+\end{wquoting}
 \end{multicols}\colskipb\noindent%
 So what is the role of Scheme and S-expressions here?  As was mentioned
 just now, the syntactic sugar above is hardcoded in Haskell;
@@ -521,12 +521,12 @@ and \verb|umask|); based on the model of scsh\cupercite{scsh:home}, the execline
 language can be replaced with scsh-like Scheme, with chainloaders replaced by
 scsh-like Scheme programs analogous to the following shell reimplementation of
 the \verb|cd| chainloader provided by execline\cupercite{vector2018c}:
-\begin{quoting}
+\begin{wquoting}
 \begin{Verbatim}
 #!/bin/rc -e
 cd $1; shift; exec $*
 \end{Verbatim}
-\end{quoting}
+\end{wquoting}
 
 Following this line of thought, it is not unimaginable to replace traditional
 Unix tools with Scheme programs as well; considering the expressiveness of
@@ -652,7 +652,7 @@ agree with observed facts.  On the other hand, there is not a proof that such
 a theory is unachievable, either; and apart from the theoretical promises,
 research on it has always been giving rise to exciting advancement in diverse
 fields ranging from pure mathematics (profoundly connected to theoretical
-physics) to civil engineering (involved in construction of large
+physics) to civil engineering (involved in the construction of large
 facilities for physical experiments).  For these two reasons,
 a ToE is still the lifelong pursuit to many physicists.
 

@@ -70,22 +70,22 @@ Report on the Algorithmic Language Scheme》及其后续版本（一般简称为
 (args ...) ...))} 的简写，而 Python 中的 \texttt{lambda} 在使用上
 有严重的限制（一个例子见第 \ref{sec:homoiconic} 节）。}：
 \colskipa\begin{multicols}{2}
-\begin{quoting}
+\begin{wquoting}
 \begin{Verbatim}
 (define (f i)
   (if (> i 1)
       (* (f (- i 1)) i)
       1))
 \end{Verbatim}
-\end{quoting}
-\begin{quoting}
+\end{wquoting}
+\begin{wquoting}
 \begin{Verbatim}
 def f(i):
   if i > 1:
     return i * f(i - 1)
   return 1
 \end{Verbatim}
-\end{quoting}
+\end{wquoting}
 \end{multicols}\colskipb\noindent%
 S 表达式对新手通常会显得不直观，但它被计算机处理起来其实比其它多数替代格式
 容易地多，而且在稍加适应之后对程序员仍然比较可读。你可能会注意到这和文本流
@@ -101,7 +101,7 @@ S 表达式对新手通常会显得不直观，但它被计算机处理起来其
 这种数据结构用于表示计算机在理解程序时所需的语法元素。例如和表达式
 $4 \times 2 - (a + 3)$ 所对应的 AST 和 S 表达式分别如下所示：
 \colskipa\begin{multicols}{2}
-\begin{quoting}[innerleftmargin = 0.45em,
+\begin{wquoting}[innerleftmargin = 0.45em,
 	innertopmargin = -0.15em, innerbottommargin = 0.15em]
 \begin{forest}
 	for tree = {l sep = 0pt, l = 2.25em}
@@ -109,15 +109,15 @@ $4 \times 2 - (a + 3)$ 所对应的 AST 和 S 表达式分别如下所示：
 		[$\times$, [$4$] [$2$]]
 		[$+$, [$a$] [$3$]]]
 \end{forest}
-\end{quoting}
+\end{wquoting}
 \columnbreak\vspace*{-0.81em}
-\begin{quoting}
+\begin{wquoting}
 \begin{Verbatim}
 (-
   (* 4 2)
   (+ a 3))
 \end{Verbatim}
-\end{quoting}
+\end{wquoting}
 \end{multicols}\colskipb\noindent%
 S 表达式可以看作嵌套列表的表示，而我们从上面的例子可见嵌套列表自然地映射到
 包含 AST 的树状结构；此外，虽然 S 表达式并没有完全消除语法解析的需求，但是
@@ -161,39 +161,39 @@ Go 不能轻松地添加新语法。这个关于 goroutine 的例子可能稍显
 
 匿名函数本质上就是 $\lambda$ 表达式，它在作
 函数参数时很有用，正如下列 Python 代码所示：
-\begin{quoting}
+\begin{wquoting}
 \begin{Verbatim}
 sorted(l, key = lambda e: e[0])
 \end{Verbatim}
-\end{quoting}
+\end{wquoting}
 然而 Python 中 \verb|lambda| 的函数体必须是一个表达式，于是我们不能用赋值
 语句，例如下面左侧的函数不能直接变换为一个 \verb|lambda|；然而如果我们把
 赋值看成将一组输入值（如 $(x, y)$）变为一组更改后输入值（如 $(x, y')$）
 的过滤器，这一函数可以变换为多个 \verb|lambda| 的复合，正如右侧所示：
 \colskipa\begin{multicols}{2}
-\begin{quoting}
+\begin{wquoting}
 \begin{Verbatim}
 def f1(x, y):
   y = y / (1 - x)
   x = x + y
   return x * x + y
 \end{Verbatim}
-\end{quoting}
-\begin{quoting}
+\end{wquoting}
+\begin{wquoting}
 \begin{Verbatim}
 f2 = lambda x, y:
   ((lambda v: v[0] * v[0] + v[1])
   ((lambda v: (v[0] + v[1], v[1]))
   ((x, y / (1 - x)))))
 \end{Verbatim}
-\end{quoting}
+\end{wquoting}
 \end{multicols}\colskipb\noindent%
 \verb|f2| 的定义明显很丑陋，这种丑陋部分源于 \verb|f2| 中直接写出的值元组
 \verb|v|，另一部分源于过滤器顺序的反转——最后应用的 \verb|lambda| 被写在最前，
 因为它是最外层的函数。在 Scheme 中，\verb|let| 表达式的输入值写在其主体的前面，
 因此我们可以利用它来把过滤器以我们希望的顺序进行复合，正如下面左侧所示。
 \colskipa\begin{multicols}{2}
-\begin{quoting}
+\begin{wquoting}
 \begin{Verbatim}
 (define f3
   (lambda (x y)
@@ -201,8 +201,8 @@ f2 = lambda x, y:
     (let ((x (+ x y)))
     (+ (* x x) y)))))
 \end{Verbatim}
-\end{quoting}
-\begin{quoting}
+\end{wquoting}
+\begin{wquoting}
 \begin{Verbatim}
 f3 = lambda x, y: \
   (lambda y:
@@ -210,7 +210,7 @@ f3 = lambda x, y: \
     (x + y)) \
   (y / (1 - x))
 \end{Verbatim}
-\end{quoting}
+\end{wquoting}
 \end{multicols}\colskipb\noindent%
 正如你或许已经猜到的，\verb|let| 只是 \verb|lambda| 的语法糖，\texttt{(let
 ((a \emph{e$_1$}) (b \emph{e$_2$}) ...) ...)} 是 \texttt{((lambda (a b ...)
@@ -220,7 +220,7 @@ Python 函数。你应该也已经注意到 \verb|v| 未在 \verb|f3| 中出现�
 \verb|x|）遮盖了外层的同名变量（如 \verb|f3| 的参数 \verb|x|）。
 
 \colskipa\begin{multicols}{2}
-\begin{quoting}
+\begin{wquoting}
 \begin{Verbatim}
 f4 = lambda x, y: check(
   divide(y, 1 - x),
@@ -228,8 +228,8 @@ f4 = lambda x, y: check(
     (lambda x: x * x + y)
     (x + y)))
 \end{Verbatim}
-\end{quoting}
-\begin{quoting}
+\end{wquoting}
+\begin{wquoting}
 \begin{Verbatim}
 check = lambda arg, fn: \
   None if arg == None else fn(arg)
@@ -237,7 +237,7 @@ check = lambda arg, fn: \
 divide = lambda a, b: \
   None if b == 0 else a / b
 \end{Verbatim}
-\end{quoting}
+\end{wquoting}
 \end{multicols}\colskipb
 这一例子并没有在上面结束，因为 $1 - x$ 可能为零，而我希望函数在这种
 情形下返回 \verb|None|；但考虑到函数只在应用到具体参数时求值，我们可以将
@@ -245,7 +245,7 @@ divide = lambda a, b: \
 告诉你 $x$ 和 $y$ 可能是 \verb|None| 而非数值，但我们可以沿用上述思路，
 将 \verb|f4| 变换为\footnote{顺便提到，这令人联想到 CPS（见脚注
 \ref{fn:cps}），而这种关联并非巧合\cupercite{troelskn2009}。}
-\begin{quoting}
+\begin{wquoting}
 \begin{Verbatim}
 f5 = lambda x, y: check(
   x, (lambda x: check(
@@ -253,7 +253,7 @@ f5 = lambda x, y: check(
       divide(y, 1 - x), (lambda y: check(
         x + y, (lambda x: x * x + y))))))))
 \end{Verbatim}
-\end{quoting}
+\end{wquoting}
 利用这一技术，我们其实是纯函数式地实现了异常\footnote{反过来看，我们也
 可以发现异常事实上有类型论的基础。此外我觉得有必要指出 Lisp 不像 Haskell
 那样追求纯函数式编程，虽然函数式的写法肯定是优先使用的。}，而如果你熟悉
@@ -266,7 +266,7 @@ Haskell，你可能意识到这本质上是在使用 monad。\verb|f5| 的一个
 % XXX: hackish.
 \pagebreak
 \colskipa\begin{multicols}{2}
-\begin{quoting}
+\begin{wquoting}
 \begin{Verbatim}
 f5 = \x y ->
   (x >>= \x ->
@@ -275,8 +275,8 @@ f5 = \x y ->
         (Just (x + y) >>= \x ->
           Just (x * x + y)))))
 \end{Verbatim}
-\end{quoting}
-\begin{quoting}
+\end{wquoting}
+\begin{wquoting}
 \begin{Verbatim}
 f5 = \x y -> do
   x <- x
@@ -285,7 +285,7 @@ f5 = \x y -> do
   x <- return (x + y)
   return (x * x + y)
 \end{Verbatim}
-\end{quoting}
+\end{wquoting}
 \end{multicols}\colskipb
 
 在本节末尾，我认为有必要指出操作系统中的\stress{目录树是类似于 S 表达式的}，
@@ -404,12 +404,12 @@ bug，但远不能把其数量削减到最小，对此我将在下节提到一�
 命令）；基于 scsh\cupercite{scsh:home} 的模型，execline 语言可以替换为类 scsh
 的 Scheme，而 chainloader 可以替换为和下面重新实现 execline 所提供 \verb|cd|
 chainloader 的 shell 脚本相似的类 scsh Scheme 程序\cupercite{vector2018c}：
-\begin{quoting}
+\begin{wquoting}
 \begin{Verbatim}
 #!/bin/rc -e
 cd $1; shift; exec $*
 \end{Verbatim}
-\end{quoting}
+\end{wquoting}
 
 沿用这一思路，我们并非无法想象将传统 Unix 工具替换为 Scheme 程序；考虑到
 Scheme 的表达力，以及优雅的 Scheme 编译器如 Chez Scheme 的存在，这肯定能

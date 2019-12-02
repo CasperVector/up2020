@@ -85,14 +85,14 @@ Knuth and Hanson were respectively written from scratch in Pascal and C, and
 each took a few hours to write and debug; the program by McIlroy was a shell
 script, which took only one or two minutes and worked correctly on the
 first run.  This script, with minor modifications, is shown below:
-\begin{quoting}
+\begin{wquoting}
 \begin{Verbatim}
 #!/bin/sh
 tr -cs A-Za-z\' '\n' | tr A-Z a-z |
 sort | uniq -c |
 sort -k1,1nr -k2 | sed "${1:-25}"q
 \end{Verbatim}
-\end{quoting}
+\end{wquoting}
 
 Its first line tells Unix this is a program interpreted by \verb|/bin/sh|,
 and the commands on the rest lines are separated by the
@@ -140,11 +140,11 @@ its \stress{standard output} (defaults to the current terminal)\footnote{The
 specified file can be implemented with the \stress{I/O redirection} mechanism
 in Unix, for example the following command in the shell (assuming the script
 above has the name \verb|wf.sh| and has been granted execution permission)
-\begin{quoting}
+\begin{wquoting}
 \begin{Verbatim}
 /path/to/wf.sh 10 < input.txt > output.txt
 \end{Verbatim}
-\end{quoting}
+\end{wquoting}
 outputs the 10 most frequent words, with their frequencies, from
 \verb|input.txt| into \verb|output.txt|.  It is obvious that the pipe is also
 a redirection mechanism, which redirects the output of the command on its
@@ -409,11 +409,11 @@ devices and avoid a crazy growth in number of system calls with the development
 of device support, this Unix version introduced the \verb|ioctl()| system call,
 which is a ``jack of all trades'' that manipulates various device attributes
 according to its arguments, for instance
-\begin{quoting}
+\begin{wquoting}
 \begin{Verbatim}
 ioctl (fd, TIOCGWINSZ, &winSize);
 \end{Verbatim}
-\end{quoting}
+\end{wquoting}
 saves the window size of the serial terminal corresponding to the file
 descriptor \verb|fd| into the structure \verb|winSize|.  In Unixes up to this
 version (and even versions in few years to come), although there were different
