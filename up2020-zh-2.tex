@@ -76,11 +76,64 @@ Turing 机、lambda 演算以及其它少数几种模型，而不是元胞自动
 
 我用一种我称为“\stress{推导图}”的基于图的模型来分析后一问题，这一模型以命题为
 节点、以推导为边，因此它和依赖图很相关但又有明显的区别：第一，经常有“等价”的可以
-互相推导的命题，所以推导图中一般有环，而非像依赖图那样无环；第二，一个命题常常
-可以用多种方式证明，所以推导图中须要有析取节点（也就是“虚节点”）；第三，一些
+互相推导的命题，所以推导图中一般有环，而非像依赖图那样无环（参考下图左边 3 个微分
+中值定理之间的关系）；第二，一个命题常常可以用多种方式证明，所以推导图中须要有
+析取节点（也就是“虚节点”，例如下图右边的“$7 \times 6 = 42$”节点）；第三，一
 证明比其它的证明更复杂，所以推导图中的边是带权的。有了这一模型，我们就可以
 通过从各公理组张成全图时的总路径权重来比较这些公理组，而这种总权重
 正好和生成所有命题过程的复杂程度这一直观概念相联系。
+\colskipa\begin{multicols}{2}
+\begin{wquoting}
+\begin{tikzpicture}[thm/.style = {
+	align = center, font = \linespread{1}\selectfont
+}, shorten <= 0.1em, shorten >= 0.1em]
+	\tikzmath{\dista = 2.5\baselineskip;}
+	\node (rolle) at (\dista, 4\baselineskip)
+		[thm, anchor = north] {Rolle 定理};
+	\node (lagrange) at (0, 0)
+		[thm, anchor = south] {Lagrange\\中值定理};
+	\node (cauchy) at (2 * \dista, 0)
+		[thm, anchor = south] {Cauchy\\中值定理};
+	\draw [<-] (rolle) -- (lagrange); \draw [->] (rolle) -- (cauchy);
+	\draw [->, transform canvas = {xshift = -0.5em}] (rolle) -- (lagrange);
+	\draw [<-, transform canvas = {xshift = 0.5em}] (rolle) -- (cauchy);
+	\draw [->] (cauchy) -- (lagrange);
+\end{tikzpicture}
+\end{wquoting}
+\begin{wquoting}
+\begin{tikzpicture}[
+	prop/.style = {draw, circle, minimum size = 0.25em, inner sep = 0},
+	typ/.style = {draw, rectangle, inner sep = 0, font = \scshape}
+]
+	\newcommand*{\mm}{\ensuremath{\!\times\!}}
+	\newcommand*{\pp}{\ensuremath{\!+\!}}
+	\newcommand*{\ee}{\ensuremath{\!=\!}}
+	\tikzmath{
+		\unit = \baselineskip; \dista = 5 * \unit;
+		\lena = 1.08 * \unit; \lenb = 0.96 * \unit;
+		\lenc = \dista - 2 * \lena; \distb = 0.5 * \dista;
+	}
+	\foreach \i/\t in {%
+		0/{$6\mm6\ee36$},1/{$36\pp6\ee42$},2/{$7\mm5\ee35$},3/{$35\pp7\ee42$}%
+	} {
+		\node (p\i) at (0, -\i * \unit) [prop] {};
+		\node at (0, -\i * \unit) [anchor = east] {\t};
+	}
+	\node (p4) at (\dista, -1.5 * \unit) [prop] {};
+	\node (p5) at (\distb, -0.5 * \unit) [prop] {};
+	\node (p6) at (\distb, -2.5 * \unit) [prop] {};
+	\node at (\dista, -1.5 * \unit) [anchor = west] {$7 \mm 6 \ee 42$};
+	\foreach \j/\a/\b/\c/\t in {%
+		0/0/{1/4}/0.5/{\&},1/0/{1/4}/2.5/{\&},2/1/{3/4}/1.5/or%
+	} {
+		\node (t\j) at ({(\a + 1/2) * \lena + \b * \lenc}, - \c * \unit)
+			[typ, minimum width = \lena, minimum height = \lenb] {\t};
+	}
+	\foreach \i/\j in {0/0,1/0,2/1,3/1,5/2,6/2} \draw [->] (p\i) -- (t\j);
+	\foreach \i/\j in {4/2,5/0,6/1} \draw (p\i) -- (t\j);
+\end{tikzpicture}
+\end{wquoting}
+\end{multicols}\colskipb
 
 推导图在实际的定量应用中用处多半不大，主要原因是此时涉及的形式化系统是无穷的，
 但推导图作为一个概念仍然具有很强的指导意义，而我们将在本部分中多次涉及这一概念。

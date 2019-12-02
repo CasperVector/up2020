@@ -110,17 +110,72 @@ many Turing-equivalent models of computation are available, computer scientists
 would most often use Turing machines, lambda calculus and a few other models
 for generic discussions, instead of cellular automata or even \verb|sed|.
 
+\colskipa\begin{multicols}{2}
+\begin{wquoting}
+\begin{tikzpicture}[thm/.style = {
+	align = center, font = \linespread{1}\selectfont
+}, shorten <= 0.1em, shorten >= 0.1em]
+	\tikzmath{\dista = 3.2\baselineskip;}
+	\node (rolle) at (\dista, 4\baselineskip)
+		[thm, anchor = north] {Rolle's theorem};
+	\node (lagrange) at (0, 0)
+		[thm, anchor = south] {Lagrange's mean\\value theorem};
+	\node (cauchy) at (2 * \dista, 0)
+		[thm, anchor = south] {Cauchy's mean\\value theorem};
+	\draw [<-] (rolle) -- (lagrange); \draw [->] (rolle) -- (cauchy);
+	\draw [->, transform canvas = {xshift = -0.5em}] (rolle) -- (lagrange);
+	\draw [<-, transform canvas = {xshift = 0.5em}] (rolle) -- (cauchy);
+	\draw [->] (cauchy) -- (lagrange);
+\end{tikzpicture}
+\end{wquoting}
+\begin{wquoting}
+\begin{tikzpicture}[
+	prop/.style = {draw, circle, minimum size = 0.25em, inner sep = 0},
+	typ/.style = {draw, rectangle, inner sep = 0, font = \scshape}
+]
+	\newcommand*{\mm}{\ensuremath{\!\times\!}}
+	\newcommand*{\pp}{\ensuremath{\!+\!}}
+	\newcommand*{\ee}{\ensuremath{\!=\!}}
+	\tikzmath{
+		\unit = \baselineskip; \dista = 5 * \unit;
+		\lena = 1.08 * \unit; \lenb = 0.96 * \unit;
+		\lenc = \dista - 2 * \lena; \distb = 0.5 * \dista;
+	}
+	\foreach \i/\t in {%
+		0/{$6\mm6\ee36$},1/{$36\pp6\ee42$},2/{$7\mm5\ee35$},3/{$35\pp7\ee42$}%
+	} {
+		\node (p\i) at (0, -\i * \unit) [prop] {};
+		\node at (0, -\i * \unit) [anchor = east] {\t};
+	}
+	\node (p4) at (\dista, -1.5 * \unit) [prop] {};
+	\node (p5) at (\distb, -0.5 * \unit) [prop] {};
+	\node (p6) at (\distb, -2.5 * \unit) [prop] {};
+	\node at (\dista, -1.5 * \unit) [anchor = west] {$7 \mm 6 \ee 42$};
+	\foreach \j/\a/\b/\c/\t in {%
+		0/0/{1/4}/0.5/{\&},1/0/{1/4}/2.5/{\&},2/1/{3/4}/1.5/or%
+	} {
+		\node (t\j) at ({(\a + 1/2) * \lena + \b * \lenc}, - \c * \unit)
+			[typ, minimum width = \lena, minimum height = \lenb] {\t};
+	}
+	\foreach \i/\j in {0/0,1/0,2/1,3/1,5/2,6/2} \draw [->] (p\i) -- (t\j);
+	\foreach \i/\j in {4/2,5/0,6/1} \draw (p\i) -- (t\j);
+\end{tikzpicture}
+\end{wquoting}
+\end{multicols}\colskipb
 I approach the latter problem with a model based on graphs, which I call
 ``\stress{deduction graphs}'', with propositions as their nodes and deductions
 as their edges, so the graphs are closely related to dependency graphs yet very
 different from the latter: first, there are often ``equivalent'' propositions
 that imply each other, so the graphs usually contain loops, unlike dependency
-graphs which are acyclic; second, a proposition may well be proven in multiple
-ways, so disjunctions, or in other words ``virtual nodes'', need to be included;
-third, some proofs are more complex than the others, so the edges are weighted.
-Given this model, we can compare choices of axioms based on the total path
-weights of the spanning trees from the different bases, which correspond to
-the intuitive notion of how complex it is to generate all the propositions.
+graphs which are acyclic (\cf~the relation between the three mean value theorems
+shown in the picture above on the left); second, a proposition may well be
+proven in multiple ways, so disjunctions, or in other words ``virtual nodes''
+(\eg~the ``$7 \times 6 = 42$'' node in the picture above on the right),
+need to be included; third, some proofs are more complex than the others,
+so the edges are weighted.  Given this model, we can compare choices
+of axioms based on the total path weights of the spanning trees from
+the different bases, which correspond to the intuitive notion of
+how complex it is to generate all the propositions.
 
 Deduction graphs are probably impractical for quantitative use in real-world
 applications in large part due to the formal systems being infinite, but they
