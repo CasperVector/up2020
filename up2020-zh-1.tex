@@ -388,17 +388,63 @@ Doug McIlroy 对 Unix 哲学的表述的话，Plan~9 所贯彻的“一切皆是
 
 我们来看一个比较新的例子。在以 sysvinit 为代表的一些 init 系统中，长期运行的
 系统服务通过 \verb|fork()| 脱离用户 shell 的控制，实现后台运行\cupercite%
-{gollatoka2011}：当用户在 shell 中运行服务程序时，该程序 \verb|fork()| 出一个
-子进程，然后父进程退出，这时 shell 因为用户运行的（父）进程已经结束而等待用户的
-下一命令，而子进程因父进程已结束而自动成为 init 的子进程，不再受用户 shell 的
-控制。然而要控制服务的状态就要知道它的进程 ID 即 PID，上述子进程的 ID 除了存入
-一个“PID 文件”之外没有太好的办法传递，而 PID 文件又是一个丑陋的机制：如果服务
-进程崩溃，PID 文件将失效，而 init 系统无法得到实时的通知\footnote{事实上 init
-会在其子进程退出时得到通知，但通过这一机制来监控 \texttt{fork()} 的服务程序会
-制造更多的复杂度，而且并不能干净地解决问题（例如，要是服务在写 PID 文件前就
-崩溃了，该怎么办？）；所有其它“修复”PID 文件的尝试都被类似问题困扰，而这些
-问题在使用 process supervision 时都不复存在。}；此外原 PID 可能被
-后续的新进程取代，使 init 系统将其它进程误认为是服务进程。
+{gollatoka2011}（如下面的例子所示）：当用户在 shell 中运行服务程序时，该程序
+\verb|fork()| 出一个子进程，然后父进程退出，这时 shell 因为用户运行的（父）
+进程已经结束而等待用户的下一命令，而子进程因父进程已结束而自动成为 init 的
+子进程，不再受用户 shell 的控制。然而要控制服务的状态就要知道它的进程 ID 即
+PID，上述子进程的 ID 除了存入一个“PID 文件”之外没有太好的办法传递，而 PID 文件
+又是一个丑陋的机制：如果服务进程崩溃，PID 文件将失效，而 init 系统无法得到实时
+的通知\footnote{事实上 init 会在其子进程退出时得到通知，但通过这一机制来监控
+\texttt{fork()} 的服务程序会制造更多的复杂度，而且并不能干净地解决问题（例如，
+要是服务在写 PID 文件前就崩溃了，该怎么办？）；所有其它“修复”PID 文件的尝试
+都被类似问题困扰，而这些问题在使用 process supervision 时都不复存在。}；
+此外原 PID 可能被后续的新进程占用，使 init 系统将其它进程误认为是服务进程。
+\begin{wquoting}
+\begin{tikzpicture}
+	\tikzbase\tikzmath{
+		\dista = 14.5em; \distb = 30.5em; \distc = 10em;
+		\lena = 6em; \lenb = 3em; \heia = \unity;
+		\heib = 4.7 * \unity; \heic = 5 * \unity;
+	}
+	\begin{scope}[xshift = 0]
+		\foreach \x/\y/\t in {%
+			0/0/{init},1/1/{$\cdots$},2/2/{sh \cm{(1)}},%
+			3/3/{srv --fork \cm{(2)}},0/4/{$\cdots$}%
+		} \tikzproc{\x}{\y}{\t};
+		\draw (0, -\disty) -- (0, \disty - 4 * \unity);
+		\foreach \x/\y in {1/2,2/3} \tikzvline{\x}{\y};
+		\foreach \x/\y in {0/1,1/2,2/3} \tikzhline{\x}{\y};
+	\end{scope}
+	\begin{scope}[xshift = \dista]
+		\foreach \x/\y/\t in {%
+			0/0/{init},1/1/{$\cdots$},%
+			2/2/{sh},3/3/{srv --fork \cm{(2)}},%
+			4/4/{srv --fork \cm{(3)}},0/4/{$\cdots$}%
+		} \tikzproc{\x}{\y}{\t};
+		\draw (0, -\disty) -- (0, \disty - 4 * \unity);
+		\foreach \x/\y in {1/2,2/3,3/4} \tikzvline{\x}{\y};
+		\foreach \x/\y in {0/1,1/2,2/3,3/4} \tikzhline{\x}{\y};
+	\end{scope}
+	\begin{scope}[xshift = \distb]
+		\foreach \x/\y/\t in {%
+			0/0/{init},1/1/{$\cdots$},2/2/{sh \cm{(1)}},%
+			1/3/{srv --fork \cm{(3)}},0/4/{$\cdots$}%
+		} \tikzproc{\x}{\y}{\t};
+		\draw (0, -\disty) -- (0, \disty - 4 * \unity);
+		\foreach \x/\y in {1/2} \tikzvline{\x}{\y};
+		\foreach \x/\y in {0/1,1/2,0/3} \tikzhline{\x}{\y};
+	\end{scope}
+	\foreach \x in {\dista,\distb} \draw [->, \cmc]
+		(\x - \lena, -\heia) -- (\x - \lenb, -\heia);
+	\draw [\cmc] (-\distx, -\heib) -- (\distc, -\heib);
+	\node at (-\distx, -\heic)
+		[anchor = north west, align = left, font = \cmm\footnotesize]
+		{(1) 用户 shell，在子进程 \texttt{srv --fork} 结束之后
+		等待下一命令。\\(2) 用户运行的服务程序，在 \texttt{fork()}
+		出子进程之后便退出。\\(3) 服务程序 \texttt{fork()} 出的子进程，
+		在其父进程退出后成为 \texttt{init} 的子进程。};
+\end{tikzpicture}
+\end{wquoting}
 
 在 s6 中（其它 daemontools 类系统以及 systemd 的做法与此类似），服务进程是
 \verb|s6-supervise| 的子进程，其退出时内核会立刻通知 \verb|s6-supervise|；用户
