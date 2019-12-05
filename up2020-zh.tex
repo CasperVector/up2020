@@ -23,7 +23,7 @@
 我的主操作系统。在使用 Linux 以及在类 Unix 操作系统圈内活动的过程中，我逐渐被
 “Unix 哲学”这一理念所吸引，而这种观念也给了我巨大的收益。（关于本文档来源的
 更多细节，可以参考\hyperref[sec:afterword]{跋}。）本文档是我关于 Unix 哲学
-这一主题相关思考的一个总结，主要分为下文所概括的三个部分。
+这一主题相关思考的综合性总结，主要分为下文所概括的三个部分。
 
 在第一部分中，我们将首先讨论“\stress{Unix 哲学的本质是什么}？”这一问题，其中
 我将论证其本质是在几乎满足需求的前提下最小化系统的认知复杂度。进年来，不少
@@ -57,13 +57,68 @@ Scheme，因为这个圈子的人也很鼓励极简主义。为了理解 Lisp �
 作上述报告以及编写本文档对我是愉快的经历，而我也希望本文档能给你留下一些
 有意思的点滴，无论你是初来开源界的新人，还是几乎 3 倍于我年龄的专家。
 
+\newpage
+\specialsec{如何阅读本文档}
+
+由于多位读者的反馈，我注意到本文档作为综合性总结——即关于各种主题思考
+的合集——的属性可能造成一些误解：我希望谁来阅读本文档，他们应当怎样阅读
+本文档？这里我将简要解释本文档各节、各部分之间的逻辑关系，然后试图为具有
+各种背景的读者给出一个指南；如果你有能让本文档更加易读的建议，也欢迎告诉我。
+
+\begin{wquoting}
+\begin{tikzpicture}[
+	every node/.style = {draw, rectangle, font = \linespread{1}\selectfont},
+	every matrix/.style = {
+		draw = none, anchor = west, row sep = 1em, column sep = 2em
+	}, ll/.style = {align = left}, rr/.style = {align = right}
+]
+	\newcommand*{\subj}[4]{\node [#1] {\textbf{#2:} #3\\#4}}
+	\matrix {
+		\subj{ll}{01--07}{Unix}{哲学的现代化}; &
+		\subj{ll}{13--18}{编程}{之外的极简主义}; &[0.3em]
+		\subj{rr}{22--24}{Unix}{哲学和 Lisp}; \\
+		\subj{rr}{08--10}{Unix}{哲学的意义}; &
+		\subj{rr}{19}{从认知角度}{看极简主义}; &
+		\subj{rr}{25--27}{统一}{Unix 和 Lisp}; \\
+		\subj{rr}{11--12}{真实世界}{的 Unix 哲学}; &
+		\subj{ll}{20--21}{社会和}{个人的极简主义}; \\
+	};
+\end{tikzpicture}
+\end{wquoting}
+
+以上是本文档逻辑组织的大纲。在我看来，Unix 哲学在当今经常被忽视、质疑甚至
+歪曲，原因在于对它的误解，因此在第一部分中，我会首先在第 \ref{sec:intro}--%
+\ref{sec:complex} 节展示我对 Unix 哲学进行现代化总结的尝试。利用这一总结作为
+理论基础，我将在第 \ref{sec:quality}--\ref{sec:foss} 节讨论 Unix 哲学在当代
+的意义，并在第 \ref{sec:devel}--\ref{sec:user} 节讨论它在实际工作中的应用。
+
+我不同意某些人认为 Unix 在当今只有审美意义的观点，因为我相信它根值于
+人类认知之中，这决定了它天然的重要性。在第二部分，利用上述的总结，
+我将首先在第 \ref{sec:hilbert}--\ref{sec:art} 节考察 Unix 哲学在
+编程领域之外的一些类似物；在此之后，我会在第 \ref{sec:cognitive}
+节提出我对 Unix 哲学的认知解释，并类似于第一部分最后两节那样在第
+\ref{sec:society}--\ref{sec:worklife} 节讨论它对社会和个人的价值。
+
+近年来，我逐渐形成了这样一种观点，即 Unix 和 Lisp 两个圈子的技能在结合之后
+可以用来构建在符合 Unix 哲学的程度上超越从前可能的系统。因此在第三部分，
+我将先基于我对 Unix 哲学的总结在第 \ref{sec:lisp}--\ref{sec:wib} 节讨论
+Lisp 和它之间的关系；最后我会在第 \ref{sec:benefits}--\ref{sec:toe}
+节考察我提议的 Unix~/ Lisp 统一会带来的益处，以及这种统一可以怎样实现。
+
+总体而言，我建议按原本的章节顺序阅读本文档，只是跳过其中你不那么感兴趣的
+章节；然而，第 \ref{sec:complex} 节确立了本文档的理论基础，因此你应该至少
+把这一节粗略地阅读一遍。第一部分中使用了好几个来自“init 战争”的例子，因此
+建议被卷入相关事件的人阅读这一部分。喜欢哲学讨论的读者可能会对第二部分
+感兴趣。第三部分可能对程序语言感兴趣的 Unix 开发者以及研究程序语言的人有
+一定的吸引力。脚注一般是相对次要的内容，且常常需要对主题内容更深入的理解。
+
 \input{up2020-zh-1.tex}
 \input{up2020-zh-2.tex}
 \input{up2020-zh-3.tex}
 
 \newpart
 \printbibliography[heading = bibintoc, title = 参考资料]
-\newpart
+\newpage
 \specialsec{跋}\label{sec:afterword}
 
 在开始学习 Linux 之后不久，我购买了《Shell 脚本学习指南》一书，这本书开启了

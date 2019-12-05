@@ -84,13 +84,84 @@ I enjoyed making the report as well as this document, and wish you
 could also have some fun reading through the document, whether you
 are a newcomer to the community, or an expert almost 3 times my age.
 
+\newpage
+\specialsec{How to read this document}
+
+Due to feedback from multiple readers, it has been brought to my attention that
+the nature of this document as a compendium -- a collection of thoughts about
+various subjects -- can lead to some confusions: who are expected to read this
+document, and how should they read the document?  Here I will briefly explain
+the logical relation between the parts~/ sections in this document, and then
+attempt to give a guide to readers with various backgrounds; please feel free
+to tell me if you have any advice on how to make this document more accessible.
+
+\begin{wquoting}
+\begin{tikzpicture}[
+	every node/.style = {draw, rectangle, font = \linespread{1}\selectfont},
+	every matrix/.style = {
+		draw = none, anchor = west, row sep = 1em, column sep = 2em
+	}, ll/.style = {align = left}, rr/.style = {align = right}
+]
+	\newcommand*{\subj}[4]{\node [#1] {\textbf{#2:} #3\\#4}}
+	\matrix {
+		\subj{rr}{01--07}{modernising}{the Unix philosophy}; &[0.4em]
+		\subj{ll}{13--18}{minimalism}{outside of programming}; &
+		\subj{ll}{22--24}{Unix}{philosophy and Lisp}; \\
+		\subj{rr}{08--10}{significance}{of the philosophy}; &
+		\subj{rr}{19}{minimalism from}{a cognitive viewpoint}; &
+		\subj{rr}{25--27}{reconciling}{Unix and Lisp}; \\
+		\subj{rr}{11--12}{real-world}{Unix philosophy}; &
+		\subj{ll}{20--21}{minimalism for}{society and the individual}; \\
+	};
+\end{tikzpicture}
+\end{wquoting}
+
+Above is an outline of the logical organisation of this document.  In my
+opinion, nowadays the Unix philosophy is often neglected, questioned or
+even distorted, due to misunderstanding about it, so in the first part,
+I will first present my attempt at a modernised formulation of the
+philosophy in Sections~\ref{sec:intro}--\ref{sec:complex}.  Using the
+formulation as the theoretical foundation, I will discuss significance
+of the Unix philosophy in the contemporary context in Sections~%
+\ref{sec:quality}--\ref{sec:foss}, and real-world applications
+of the philosophy in Sections~\ref{sec:devel}--\ref{sec:user}.
+
+I disagree with some people's opinion that the Unix philosophy was now
+merely an aesthetic, because I believe it is rooted in human recognition,
+which results in its inherent importance.  In the second part, using the
+above-mentioned formulation, I will first examine some analogues to the Unix
+philosophy outside of the field of programming in Sections~\ref{sec:hilbert}%
+--\ref{sec:art}.  After that, I will present my cognitive justification
+for the philosophy in Section~\ref{sec:cognitive}, and discuss its
+value for society and the individual in Sections~\ref{sec:society}--%
+\ref{sec:worklife}, similar to the last two sections in the first part.
+
+In the recent years, it has gradually become my opinion that expertise from
+the Unix and Lisp circles can be joined to build systems that are more
+Unix-ish than was possible before.  So in the third part, I will first discuss
+the relation between Lisp and the Unix philosophy based on my formulation
+of the latter in Sections~\ref{sec:lisp}--\ref{sec:wib}.  Finally, I will
+examine the benefits of the proposed Unix~/ Lisp reconciliation, and how this
+reconciliation can be achieved in Sections~\ref{sec:benefits}--\ref{sec:toe}.
+
+It is generally recommended to read this document in the original order, and
+just skip parts~/ sections you are less interested in; however, Section~%
+\ref{sec:complex} lays the theoretical foundation for this document, so you
+should at least skim through it.  Quite a few examples from the ``init war''
+are used in the first part, so people entangled in related events are advised
+to read that part.  Those who like philosophical discussions might feel
+interested in the second part.  Unix developers interested in programming
+languages, as well as researchers of these languages, will perhaps find
+the third part attractive.  Footnotes are generally less essential
+contents, and often require deeper understanding of the subject matter.
+
 \input{up2020-en-1.tex}
 \input{up2020-en-2.tex}
 \input{up2020-en-3.tex}
 
 \newpart
 \printbibliography[heading = bibintoc, title = References]
-\newpart
+\newpage
 \specialsec{Afterword}\label{sec:afterword}
 
 Soon after beginning to learn Linux, I bought the book \emph{Classic Shell
