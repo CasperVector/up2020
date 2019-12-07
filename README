@@ -20,10 +20,10 @@ following base packages (plus their dependencies):
 * ctex, biblatex-caspervector, latexmk.
 
 You also need Chinese fonts.  The fandol package in TeXLive provides some FOSS
-Chinese fonts, but the character "摛" (U+645B) from Section 18 of the Chinese
-version is currently missing from the fonts.  Alternatively, you may use another
-Chinese font supporting a more comprehensive character set (see `texdoc ctex'
-for some pre-configured options available).
+Chinese fonts, but the characters "摛" (U+645B) in Section 18 and "囧" (U+56E7)
+in Section 21 of the Chinese version are currently missing from the fonts.
+Alternatively, you may use another Chinese font supporting a more comprehensive
+character set (see `texdoc ctex' for some pre-configured options available).
 
 With the dependencies above, run `latexmk' in this directory to build the PDFs;
 to build the English version only, run `latexmk up2020-en'.
