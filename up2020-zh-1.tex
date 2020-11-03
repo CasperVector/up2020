@@ -1,8 +1,8 @@
 \newpart
 \section{Unix 历史简介}\label{sec:intro}
 
-CTSS\cupercite{wiki:ctss}（最早发布于 1961 年）被广泛认为是历史上第一个分时
-操作系统；它也是一个相当成功的系统，而其成功催生了更加有野心得多的 Multics%
+CTSS\cupercite{wiki:ctss}（最早发布于 1961 年）被广泛认为是历史上第一个
+分时操作系统，这个系统相当成功，而这一成功催生了更加有野心得多的 Multics%
 \cupercite{wiki:multics} 项目（其开发开始于 1964 年）；但是尽管有 MIT、GE 和
 Bell 实验室的共同努力，Multics 直到 1969 年才产生首个可商用的系统\cupercite%
 {multicians:history}，原因在于其就当时的人力和计算资源而言过于复杂\footnote{%
@@ -184,7 +184,7 @@ init 的模块，而所有这些模块之间有着复杂且缺乏文档说明的
 如 \verb|/service|）下的子目录，并对每个子目录（“service directory”，如
 \verb|/service/kmsg|）运行一个 \verb|s6-supervise| 进程，后者通过运行 service
 directory 中名为 \verb|run| 的可执行文件（如 \verb|/service/kmsg/run|）运行相应
-的系统服务；用户可以使用 s6 提供的命令行工具 \verb|s6-svc|/\verb|s6-svscanctl|
+的系统服务。用户可以使用 s6 提供的命令行工具 \verb|s6-svc|/\verb|s6-svscanctl|
 来和 \verb|s6-supervise|/\verb|s6-svscan| 交互，而且可以利用 service directory
 和 scan directory 中一些辅助性的文件调整 \verb|s6-supervise| 和 \verb|s6-svscan|
 的行为\footnote{这样的配置方式可能显得不太直观，而第 \ref{sec:homoiconic} 节
@@ -438,7 +438,7 @@ Doug McIlroy 对 Unix 哲学的表述的话，Plan~9 所贯彻的“一切皆是
 我们来看一个比较新的例子。在以 sysvinit 为代表的一些 init 系统中，长期运行的
 系统服务通过 \verb|fork()| 脱离用户 shell 的控制，实现后台运行\cupercite%
 {gollatoka2011}（如下面的例子所示）：当用户在 shell 中运行服务程序时，该程序
-\verb|fork()| 出一个子进程，然后父进程退出，这时 shell 因为用户运行的（父）
+\verb|fork()| 出一个子进程，然后父进程退出；此时 shell 因为用户运行的（父）
 进程已经结束而等待用户的下一命令，而子进程因父进程已结束而自动成为 init 的
 子进程，不再受用户 shell 的控制。然而要控制服务的状态就要知道它的进程 ID 即
 PID，上述子进程的 ID 除了存入一个“PID 文件”之外没有太好的办法传递，而 PID 文件
@@ -1026,11 +1026,11 @@ systemd 功能都可以在基于 s6/s6-rc 的基础架构中实现，其中许�
 
 有时用户对软件系统的选择权受限于工作需求等等因素，而我认为在这种情况下用户可以
 在当前约束下以尽量简洁清晰的方式使用其系统，并注意为更理想的解决方案留出余地，
-从而\stress{最小化未来可能发生的迁移所需的成本}：例如多数 Linux 发行版的系统维护
+从而\stress{最小化未来可能发生的迁移所需的成本}。例如多数 Linux 发行版的系统维护
 脚本用 Bourne shell 而非 \verb|rc| 写成，而用户可能须要对其中一些进行定制（这
 也是上文中没有建议只学习 \verb|rc| 而跳过 Bourne shell 的原因），此时用户可以把
 定制的部分写成简洁清晰且尽量符合 \verb|rc| 用法的形式，以备在合适时把被定制的
-脚本用 \verb|rc| 重写；又例如我因为工作原因须要和使用 systemd 的 CentOS 7
+脚本用 \verb|rc| 重写。又例如我因为工作原因须要和使用 systemd 的 CentOS 7
 打交道，我选择的策略是在自己可控的机器上完成大部分工作，并尽量
 在虚拟机中以最简的方式操作 CentOS 7，从而减少对其依赖。
 

@@ -2,14 +2,14 @@
 \section{An introduction to the history of Unix}\label{sec:intro}
 
 CTSS\cupercite{wiki:ctss} (first released in 1961), widely thought to be the
-first time-sharing operating system in history, was quite a success; its success
+first time-sharing operating system in history, was quite successful, and its success
 resulted in a much more ambitious project called Multics\cupercite{wiki:multics}
-(with development starting in 1964), which did not deliver a commercially usable
+(with development starting in 1964).  The project did not deliver a commercially usable
 system until 1969\cupercite{multicians:history} despite joint efforts from
 MIT, GE and Bell Labs, as the system was too complicated for the human and
 computational resources available at that time\footnote{\label{fn:multics}%
 Actually, what the system required is no more than the hardware of a low-end
-home router now, and in comparison, modern Linux systems can only run on the
+home router now; in comparison, modern Linux systems can only run on the
 same hardware with massive tailorings to reduce the size.  The Multicians
 Website has a page\cupercite{multicians:myths} clarifying some common
 misunderstandings about Multics.}.  Bell Labs withdrew from the project in 1969,
@@ -28,7 +28,7 @@ v6}\cupercite{wiki:lions}\footnote{For a modern port of Unix v6, \cf~%
 \parencite{wiki:xv6}.} in 1976, which greatly spurred the propagation of Unix
 in universities.  In the early 1980s, commercial versions of Unix by multiple
 vendors appeared, but AT\&T, the owner of Bell Labs at that time, was barred
-from commercialising Unix due to antitrust restrictions; this changed in
+from commercialising Unix due to antitrust restrictions.  This changed in
 1983, when the Bell System was broken up, and AT\&T quickly commercialised
 Unix and restricted the distribution of its source code.  The restriction on
 code exchange greatly contributed to the already looming fragmentation of Unix,
@@ -150,7 +150,7 @@ outputs the 10 most frequent words, with their frequencies, from
 a redirection mechanism, which redirects the output of the command on its
 left-hand side to the input of the command on its right-hand side.  From another
 perspective, if the commands connected by pipes are considered as filters, then
-each filter performs a relatively simple task, and the programming style in the
+each filter performs a relatively simple task; so the programming style in the
 script above is to decompose a complicated text-processing task into multiple
 filtering steps linked together with pipes, and then to implement the steps
 with relatively ready-made tools.  Through the example above, we have taken a
@@ -242,7 +242,7 @@ promotes designs with high cohesion and low coupling.
 Until now, our examples have been relatively idealised or simplified, and here
 I give two more examples that are more realistic and relevant to hot topics in
 recent years.  When Unix systems are started, the kernel will create a first
-process, which in turn creates some other processes, and these processes manage
+process which in turn creates some other processes, and these processes manage
 the system services together; because of the important role of the first process
 in system initialisation, it is usually called ``\stress{init}''\cupercite%
 {jdebp2015}.  systemd is the most popular init system as of now, and its init
@@ -349,12 +349,12 @@ will also discuss in Section~\ref{sec:wib}; in addition, while this formulation
 almost covers the factors that we have hitherto seen to make Unix powerful,
 I do not think it represents the Unix philosophy completely.  It is worth
 noting that the appearance of pipes directly resulted in the pursuit of
-collaboration and reuse of command line programs\cupercite{salus1994}, and
-McIlroy is the inventor of Unix pipes, so his summary was obviously based on
+collaboration and reuse of command line programs\cupercite{salus1994}; since
+McIlroy is the inventor of Unix pipes, his summary was probably based on
 shell scripting.  Shell scripting is admittedly important, but it is far
 from the entirety of Unix: in the two following sections, we will see
-some relevant cases outside shell scripting that however reflect the
-philosophy, which cannot be covered by the classic formulation by
+some relevant cases outside shell scripting that reflect the
+philosophy, and that cannot be covered by the classic formulation by
 McIlroy; and then in Section~\ref{sec:complex}, I will present
 what I regard as the essence of the Unix philosophy.
 
@@ -391,8 +391,8 @@ to think about the way processes are created for system services.  With systemd,
 service processes are created by its init program \verb|systemd|, which reads
 configuration file(s) for each service, runs the corresponding service program,
 and sets the process attributes for the service process according to the
-configuration; under this design, all the code for process creation and process
-state control need to be in init, or in other words what systemd does is
+configuration.  Under this design, all the code for process creation and process
+state control needs to be in init, or in other words what systemd does is
 like, in a conceptual sense, implementing service process creation in the style
 of \verb|CreateProcess()| while using \verb|fork()|/\verb|exec()|.  Borrowing
 the previous line of thought, we can completely decouple process state control
@@ -404,7 +404,7 @@ attributes before \verb|exec()|ing into the actual service program.  The
 technique of implementing process state control with consecutive \verb|exec()|s
 is expressively called \stress{Bernstein chainloading}, because of Daniel
 J.\ Bernstein's extensive use of this technique in his software qmail (first
-released in 1996) and daemontools (first released in 2000); Laurent Bercot,
+released in 1996) and daemontools (first released in 2000).  Laurent Bercot,
 the author of s6, pushed this technique further and implemented the unit
 operations in chainloading as a set of discrete tools\cupercite{ska:execline},
 with which we can implement some very interesting requirements
@@ -425,7 +425,7 @@ busybox httpd -vv -f -p 8000    \cm{Finally \texttt{exec()} into a web server on
 When creating service processes, chainloading is of course much more flexible
 than systemd's mechanism, because the modules of the former possess the
 excellent properties of high cohesion and low coupling, and are therefore easy
-to debug and maintain; in comparison, the mechanism in systemd is tightly
+to debug and maintain.  In comparison, the mechanism in systemd is tightly
 coupled to other modules from the same version of systemd, so we cannot easily
 replace the malfunctioning modules when problems (\eg~\parencite{edge2017})
 arise.  Because of the simple, clear interface of chainloading, when new process
@@ -527,7 +527,7 @@ special attrbutes of system resources, which do not easily map to operations
 on the file system; but on a different perspective, operations on resource
 attributes are also done through communication between the userspace and the
 kernel, and the only difference is that the information passed in the
-communication is special data that represent operations on resource attributes.
+communication is special data which represent operations on resource attributes.
 Following this idea, Plan~9 extensively employs \stress{virtual file systems}
 to represent various system resources (\eg~the network is represented by
 \verb|/net|), in compliance with the ``everything is a file'' design%
@@ -552,7 +552,7 @@ modification of users' networking permissions can be performed by setting
 permissions on \verb|/net|, and that the restriction of user access to one's
 graphical interface can be done by setting permissions on \verb|/dev/mouse|,
 \verb|/dev/window| \etc.  Again back to the topic of Unix philosophy: on an
-intuitional level, the design of Plan~9 is indeed compliant to the philosophy,
+intuitional level, the design of Plan~9 is indeed compliant to the philosophy;
 but even if \verb|fork()|/\verb|exec()|, analysed in last section, could be
 said to be roughly compliant to Doug McIlroy's formulation on the philosophy
 in Section~\ref{sec:mcilroy}, I am afraid that the ``everything is a file''
@@ -576,8 +576,8 @@ the one by McIlroy\cupercite{wiki:unixphilo}, for instance:
 \item Eric S.\ Raymond gave 17 rules in \emph{The Art of Unix Programming}.
 \end{itemize}
 I believe that the various formulations of the philosophy are all of some value
-as references, but they themselves also need to be summarised, just like how
-Plan~9, as was mentioned in last section, implemented requirements, which need
+as references, but they themselves also need to be summarised: just like how
+Plan~9, as was mentioned in last section, implemented requirements which need
 several hundreds of system calls elsewhere, with only about 50 system calls
 by using virtual file systems, the 9P protocol and namespaces.  In Sections~%
 \ref{sec:shell}~\& \ref{sec:exec}--\ref{sec:plan9}, our intuitive criteria
@@ -673,7 +673,7 @@ Let's see a fairly recent example.  In some init systems
 the control of the user's shell through \verb|fork()|ing, in order to implement
 backgrounding\cupercite{gollatoka2011} (as is shown in the example above): when
 the service program is run by the user from the shell, it \verb|fork()|s a child
-process, and then the user-run (parent) process exits, so the shell waits for
+process, and then the user-run (parent) process exits; now the shell waits for
 another command from the user because the parent process has exited, while
 the child process is reparented to init upon exiting of the parent process, and
 no longer under the user shell's control.  However, in order to control the
@@ -717,7 +717,7 @@ inherited from the shell through \verb|exec()| and previously pointed to the
 user's terminal, to somewhere else (usually \verb|/dev/null|), so its logs have
 to be saved by alternative means when not directly written to the disk.  This
 is the origin of the syslog mechanism, which lets service processes output logs
-to \verb|/dev/log| which is listened on by a system logger, which means all
+to \verb|/dev/log| which is listened on by a system logger; so all
 system logs would be mixed up before being classified and filtered\footnote%
 {\label{fn:logtype}As a matter of fact, because \texttt{/dev/log} is a socket
 (to be precise, it needs to be a \texttt{SOCK\_STREAM} socket\cupercite%
@@ -783,7 +783,7 @@ and Facebook's ``Instant Articles'' can perhaps attest to the existence of
 the phenomenon.  Moreover, the memory consumption problem of web browsers
 has still not disappeared over time, which to some extent shows that
 aside from the efficiency issue, the size issue is not satisfactorily
-solved over time either; this is a general problem in the realm of
+solved over time either.  This is a general problem in the realm of
 software, and one classic summary is\cupercite{wiki:wirth}:
 \begin{quoting}
 	Software efficiency halves every 18 months, compensating Moore's law.
@@ -799,7 +799,7 @@ security is to be specifically discussed in the next section, here we mainly
 focus on reliability and maintainability.  It cannot be denied that today's
 programmer resources and programming tools are almost imaginable at the
 inception of Unix, which is why mainstream Unix-like systems in this era can
-be much more complicated than Multics (\cf~Footnote~\ref{fn:multics}); on the
+be much more complicated than Multics (\cf~Footnote~\ref{fn:multics}).  On the
 other hand, I believe that the improvements in these areas are far from able
 to counter the rule summarised by Tony Hoare in his Turing Award lecture%
 \cupercite{hoare1981} (and many computer scientists think similarly):
@@ -820,7 +820,7 @@ using s6 and systemd as examples.
 
 As was noted in Section~\ref{sec:coupling}, init is the first process after a
 Unix system is started, and in fact it is also the root node of the whole
-process tree, its crash (exiting) would result in a kernel panic\footnote{But
+process tree, whose crash (exiting) would result in a kernel panic\footnote{But
 init can \texttt{exec()}, which enables mechanisms like \texttt{switch\_root};
 in addition, it is exactly using \texttt{exec()} by init that s6 realised the
 decoupling between the main submodules of the init system and code related to
@@ -898,7 +898,7 @@ information security became a topic that attracts continued attention, so an
 entire section in this document is dedicated to the relation between the Unix
 philosophy and software security.  Assuming very few software bugs are injected
 by malicious actors, then security vulnerabilities, like other defects, are usually
-introduced inadvertently by developers; due to this I think it may be assumed
+introduced inadvertently by developers.  Due to this I think it may be assumed
 that the cognitive complexity of a software system determines its number of
 defects, because programming is after all a task similar to other kinds of
 mental labour, and the same kind of products by the same person that consumed
@@ -1066,9 +1066,9 @@ untenable\cupercite{saellaven2019a}.}).  In fact, the user's control over
 these software is not even comparable with some source-available software
 with restrictions on redistribution, like old versions of Chez Scheme which
 will be mentioned in Section~\ref{sec:wib}--\ref{sec:howto}.  From the above,
-we can see that from software that allows strong control, like s6, and software
-that allows sufficient control, like old Chez Scheme, to software that only
-offers highly limited control, like systemd, and traditional proprietary~/
+we can see that from software that offers strong control (like s6) and software
+that allows sufficient control (like old Chez Scheme), to software that only
+offers highly limited control (like systemd) and traditional proprietary~/
 closed-source software, \stress{in terms of the user's control over software
 behaviours, the boundary between FOSS and PCSS is already blurring}.
 
@@ -1262,8 +1262,8 @@ code\textmd{\cupercite{wiki:negcode}}, and often consider refactoring}:
 	One of my most productive days was throwing away 1000 lines of code.
 \end{quoting}
 Merely having the attitude for pursuing simplicity is of course not enough, and
-we also need actual methods to improve our abilities to write simple code, while
-among them \stress{studying available excellent software projects and related
+we also need actual methods to improve our abilities to write simple code;
+among them, \stress{studying available excellent software projects and related
 discussions} is an important way to achieve such improvement.  I personally
 recommend beginning the study from projects by Laurent Bercot\cupercite%
 {ska:software}, the Plan~9 project\cupercite{wiki:plan9}, the suckless family
@@ -1379,7 +1379,7 @@ who should we trust?  I find two key points:
 	statements should be avoided in C programming, but many projects, including
 	the Linux kernel, employ ``\verb|goto| chains''\cupercite{shirley2009}
 	because \verb|goto| is avoided to prevent complicated back-and-forth jumping
-	and avoid spaghetti code, and on the contrary \verb|goto| chains not only
+	and avoid spaghetti code; on the contrary, \verb|goto| chains not only
 	do no harm to the readability of the code, but also have better readability
 	than all other equivalent ways to write the code.  Similarly, the goal for
 	summarising the essence of the Unix philosophy as a complexity issue in
@@ -1465,7 +1465,7 @@ software not only affects developers, but also has apparent effects on users,
 as was remarked by Joe Armstrong, the designer of the Erlang language\footnote%
 {I am very aware that the original remark was meant for object-oriented
 programming, and as a matter of fact, implicit states are factors that
-introduce coupling just like global variables, so OO systems that lack
+introduce coupling just like global variables.  So OO systems that lack
 separation between the states of objects have the problem of high
 coupling reminiscent of the similar problem in complex software
 systems, and this problem is particularly severe when there
@@ -1594,7 +1594,7 @@ during the learning process if the following points are kept in mind:
 \end{quoting}
 \item \stress{Dare to ask for help, and be smart when asking}:
 	when facing problems that you cannot solve, make full use of the power of
-	the open-source community, but remember to express the problem in a concise
+	the open-source community; but remember to express the problem in a concise
 	and reproducible manner, and also present your own efforts at solving it.
 \item \stress{Avoid over-programming}:
 	as was noted in last section, take pride in simplicity, and pursue problem
@@ -1608,7 +1608,7 @@ the famous sentence by Dennis Ritchie:\mbox{}
 \begin{quoting}
 	Unix is very simple, it just needs a genius to understand its simplicity.
 \end{quoting}
-This sentence may be called both right and wrong, and it is right because
+This sentence may be called both right and wrong: it is right because
 making good use of Unix requires deep understanding of its mechanisms, while
 it is wrong because this requirement is not difficult to achieve, with proper
 guidance, for those who are eager to learn.  I believe that the essence of
