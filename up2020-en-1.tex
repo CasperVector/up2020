@@ -2,16 +2,16 @@
 \section{An introduction to the history of Unix}\label{sec:intro}
 
 CTSS\cupercite{wiki:ctss} (first released in 1961), widely thought to be the
-first time-sharing operating system in history, was quite successful, and its success
-resulted in a much more ambitious project called Multics\cupercite{wiki:multics}
-(with development starting in 1964).  The project did not deliver a commercially usable
-system until 1969\cupercite{multicians:history} despite joint efforts from
-MIT, GE and Bell Labs, as the system was too complicated for the human and
-computational resources available at that time\footnote{\label{fn:multics}%
-Actually, what the system required is no more than the hardware of a low-end
-home router now; in comparison, modern Linux systems can only run on the
-same hardware with massive tailorings to reduce the size.  The Multicians
-Website has a page\cupercite{multicians:myths} clarifying some common
+first time-sharing operating system in history, was quite successful, and its
+success resulted in a much more ambitious project called Multics\cupercite%
+{wiki:multics} (with development starting in 1964).  The project did not deliver
+a commercially usable system until 1969\cupercite{multicians:history} despite
+joint efforts from MIT, GE and Bell Labs, as the system was too complicated
+for the human and computational resources available at that time\footnote%
+{\label{fn:multics}Actually, what the system required is no more than the
+hardware of a low-end home router now; in comparison, modern Linux systems can
+only run on the same hardware with massive tailorings to reduce the size.  The
+Multicians Website has a page\cupercite{multicians:myths} clarifying some common
 misunderstandings about Multics.}.  Bell Labs withdrew from the project in 1969,
 a few months before the first commercial release of Multics; Ken Thompson and
 Dennis Ritchie, previosuly working on the project, went on to develop another
@@ -174,8 +174,8 @@ of difficulty in debugging and maintenance is determined by the complexity
 of interactions between modules, and the \stress{degree of coupling} can just
 be considered as a measure of the complexity of this kind of interactions.
 We obviously want the modules in a system to be as loosely coupled as
-reasonable, and the script from last section is easy to debug and
-maintain exactly because of the low coupling between the underlying commands.
+reasonable, and the script from last section is easy to debug and maintain
+exactly because of the low coupling between the underlying commands.
 
 Just like a system needs to be partitioned into modules (\eg~Unix tools),
 modules often also need to be partitioned into submodules (\eg~source files
@@ -260,10 +260,10 @@ scans for subdirectories in a specified directory (``scan directory'', like
 \verb|/service|), and for each subdirectory (``service directory'', like
 \verb|/service/kmsg|) runs a \verb|s6-supervise| process, which in turn
 runs the executable called \verb|run| (like \verb|/service/kmsg/run|) in the
-service directory to run the corresponding system service.  The user can use
-s6's command line tools \verb|s6-svc|/\verb|s6-svscanctl| to interact
-with \verb|s6-supervise|/\verb|s6-svscan|, and can use ancillary files
-in service directories and the scan directory to modify the behaviours of
+service directory to run the corresponding system service.  The user can
+use s6's command line tools \verb|s6-svc|/\verb|s6-svscanctl| to interact
+with \verb|s6-supervise|/\verb|s6-svscan|, and can use ancillary files in
+service directories and the scan directory to modify the behaviours of
 \verb|s6-supervise| and \verb|s6-svscan|\footnote{This configuration method
 may seem unintuitive, but its rationale and benefits will be explained in
 Section~\ref{sec:homoiconic} and Footnote~\ref{fn:slew}.}.  Only longrun
@@ -312,8 +312,8 @@ by Doug McIlroy\cupercite{salus1994}:
 	handle text streams, because that is a universal interface.
 \end{quoting}
 
-In connection with the discussion in last section, it is easy to notice
-the first point by McIlroy is an emphasis on high cohesion and low
+In connection with the discussion in last section, it is easy to
+notice the first point by McIlroy is an emphasis on high cohesion and low
 coupling\footnote{By the way, this also shows that the principle of high
 cohesion and low coupling is not unique to objected-oriented programming.
 In fact, some people believe\cupercite{chenhao2013} that every design pattern
@@ -349,11 +349,11 @@ will also discuss in Section~\ref{sec:wib}; in addition, while this formulation
 almost covers the factors that we have hitherto seen to make Unix powerful,
 I do not think it represents the Unix philosophy completely.  It is worth
 noting that the appearance of pipes directly resulted in the pursuit of
-collaboration and reuse of command line programs\cupercite{salus1994}; since
-McIlroy is the inventor of Unix pipes, his summary was probably based on
-shell scripting.  Shell scripting is admittedly important, but it is far
-from the entirety of Unix: in the two following sections, we will see
-some relevant cases outside shell scripting that reflect the
+collaboration and reuse of command line programs\cupercite{salus1994};
+since McIlroy is the inventor of Unix pipes, his summary was probably
+based on shell scripting.  Shell scripting is admittedly important,
+but it is far from the entirety of Unix: in the two following sections,
+we will see some relevant cases outside shell scripting that reflect the
 philosophy, and that cannot be covered by the classic formulation by
 McIlroy; and then in Section~\ref{sec:complex}, I will present
 what I regard as the essence of the Unix philosophy.
@@ -392,15 +392,15 @@ service processes are created by its init program \verb|systemd|, which reads
 configuration file(s) for each service, runs the corresponding service program,
 and sets the process attributes for the service process according to the
 configuration.  Under this design, all the code for process creation and process
-state control needs to be in init, or in other words what systemd does is
-like, in a conceptual sense, implementing service process creation in the style
-of \verb|CreateProcess()| while using \verb|fork()|/\verb|exec()|.  Borrowing
+state control needs to be in init, or in other words what systemd does is like,
+in a conceptual sense, implementing service process creation in the style of
+\verb|CreateProcess()| while using \verb|fork()|/\verb|exec()|.  Borrowing
 the previous line of thought, we can completely decouple process state control
 from the init module: for example, with s6, \verb|s6-supervise| almost does
 not modify any process attribute before \verb|exec()|ing into the \verb|run|
 program; the \verb|run| program is almost always a script (an example is given
-below; \cf~\parencite{pollard2014} for some more examples), which sets its own
-attributes before \verb|exec()|ing into the actual service program.  The
+below; \cf~\parencite{pollard2014} for some more examples), which sets its
+own attributes before \verb|exec()|ing into the actual service program.  The
 technique of implementing process state control with consecutive \verb|exec()|s
 is expressively called \stress{Bernstein chainloading}, because of Daniel
 J.\ Bernstein's extensive use of this technique in his software qmail (first
@@ -525,8 +525,8 @@ pioneers\cupercite{raymond2003b}.  As was mentioned before, system calls like
 \verb|ioctl()| and \verb|setsockopt()| were born to handle operations on
 special attrbutes of system resources, which do not easily map to operations
 on the file system; but on a different perspective, operations on resource
-attributes are also done through communication between the userspace and the
-kernel, and the only difference is that the information passed in the
+attributes are also done through communication between the userspace and
+the kernel, and the only difference is that the information passed in the
 communication is special data which represent operations on resource attributes.
 Following this idea, Plan~9 extensively employs \stress{virtual file systems}
 to represent various system resources (\eg~the network is represented by
@@ -714,10 +714,10 @@ A bigger advantage of process supervision is the management of system logs.
 With the sysvinit mechanism, in order to detach itself from the user shell's
 control, the service process has to redirect its file descriptors, which were
 inherited from the shell through \verb|exec()| and previously pointed to the
-user's terminal, to somewhere else (usually \verb|/dev/null|), so its logs have
-to be saved by alternative means when not directly written to the disk.  This
-is the origin of the syslog mechanism, which lets service processes output logs
-to \verb|/dev/log| which is listened on by a system logger; so all
+user's terminal, to somewhere else (usually \verb|/dev/null|), so its logs
+have to be saved by alternative means when not directly written to the disk.
+This is the origin of the syslog mechanism, which lets service processes
+output logs to \verb|/dev/log| which is listened on by a system logger; so all
 system logs would be mixed up before being classified and filtered\footnote%
 {\label{fn:logtype}As a matter of fact, because \texttt{/dev/log} is a socket
 (to be precise, it needs to be a \texttt{SOCK\_STREAM} socket\cupercite%
@@ -818,8 +818,8 @@ part of) can be found at \parencite{rbrander2017}.  In the following I will
 demonstrate the relation between complexity and reliability~/ maintainability,
 using s6 and systemd as examples.
 
-As was noted in Section~\ref{sec:coupling}, init is the first process after a
-Unix system is started, and in fact it is also the root node of the whole
+As was noted in Section~\ref{sec:coupling}, init is the first process after
+a Unix system is started, and in fact it is also the root node of the whole
 process tree, whose crash (exiting) would result in a kernel panic\footnote{But
 init can \texttt{exec()}, which enables mechanisms like \texttt{switch\_root};
 in addition, it is exactly using \texttt{exec()} by init that s6 realised the
@@ -897,21 +897,21 @@ After the disclosure of the PRISM project in the US by Edward Snowden,
 information security became a topic that attracts continued attention, so an
 entire section in this document is dedicated to the relation between the Unix
 philosophy and software security.  Assuming very few software bugs are injected
-by malicious actors, then security vulnerabilities, like other defects, are usually
-introduced inadvertently by developers.  Due to this I think it may be assumed
-that the cognitive complexity of a software system determines its number of
-defects, because programming is after all a task similar to other kinds of
-mental labour, and the same kind of products by the same person that consumed
-the same amount of energy should naturally contain similar numbers of defects.
-Defects (also including security vulnerabilities) in
-software systems come with code changes, and go with analyses and debugging, while
-the degree of difficulty in analyses and debugging obviously depends on the
-size of the codebase as well as the degree of cohesion and coupling, or in
-other words the cognitive complexity of the software system.  Therefore we can
-see that \stress{complexity is a crucial factor that governs the creation and
-annihilation of defects, including security vulnerabilities, in software}
-(which probably also explains why the number of unresolved bugs
-in systemd increases constantly), so the Unix philosophy, which
+by malicious actors, then security vulnerabilities, like other defects, are
+usually introduced inadvertently by developers.  Due to this I think it may
+be assumed that the cognitive complexity of a software system determines its
+number of defects, because programming is after all a task similar to other
+kinds of mental labour, and the same kind of products by the same person that
+consumed the same amount of energy should naturally contain similar numbers
+of defects.  Defects (also including security vulnerabilities) in software
+systems come with code changes, and go with analyses and debugging, while
+the degree of difficulty in analyses and debugging obviously depends on
+the size of the codebase as well as the degree of cohesion and coupling, or
+in other words the cognitive complexity of the software system.  Therefore
+we can see that \stress{complexity is a crucial factor that governs the
+creation and annihilation of defects, including security vulnerabilities,
+in software} (which probably also explains why the number of unresolved
+bugs in systemd increases constantly), so the Unix philosophy, which
 pursues simplicity, is extremely important to software security.
 
 The root cause of many software defects is the fundamental weaknesses in the
@@ -1261,8 +1261,8 @@ code\textmd{\cupercite{wiki:negcode}}, and often consider refactoring}:
 \begin{quoting}
 	One of my most productive days was throwing away 1000 lines of code.
 \end{quoting}
-Merely having the attitude for pursuing simplicity is of course not enough, and
-we also need actual methods to improve our abilities to write simple code;
+Merely having the attitude for pursuing simplicity is of course not enough,
+and we also need actual methods to improve our abilities to write simple code;
 among them, \stress{studying available excellent software projects and related
 discussions} is an important way to achieve such improvement.  I personally
 recommend beginning the study from projects by Laurent Bercot\cupercite%
@@ -1348,9 +1348,9 @@ achievements and trends calmly, and \stress{focus on the essence instead of
 the phenomena}: for instance when reading here, you should already have some
 rough understanding of the essence of many features in systemd, and how
 necessarily (or not) correlated they are with the architecture of systemd;
-in Section~\ref{sec:homoiconic}, I will present my understanding
-of the notion of ``language features'', which might help you to
-think about some currently popular languages from a new viewpoint.
+in Section~\ref{sec:homoiconic}, I will present my understanding of
+the notion of ``language features'', which might help you to think
+about some currently popular languages from a new viewpoint.
 
 It is necessary to note that people mentioned in this document that have made
 great contributions also make mistakes: for example, the root cause of the
