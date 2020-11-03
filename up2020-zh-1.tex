@@ -3,7 +3,7 @@
 
 CTSS\cupercite{wiki:ctss}（最早发布于 1961 年）被广泛认为是历史上第一个分时
 操作系统；它也是一个相当成功的系统，而其成功催生了更加有野心得多的 Multics%
-\cupercite{wiki:multics} 项目（其开发开始于 1964 年）；然而尽管有 MIT、GE 和
+\cupercite{wiki:multics} 项目（其开发开始于 1964 年）；但是尽管有 MIT、GE 和
 Bell 实验室的共同努力，Multics 直到 1969 年才产生首个可商用的系统\cupercite%
 {multicians:history}，原因在于其就当时的人力和计算资源而言过于复杂\footnote{%
 \label{fn:multics}事实上，Multics 的硬件需求并不强于今日的低端家用路由器，而相比
@@ -56,7 +56,7 @@ Ritchie 自己认为“影响了 Unix 设计”的三点技术考虑\cupercite{r
 也是 Unix 中最体现其设计思想的组件之一。作为例子，我们可以看经典的词频排序问题%
 \cupercite{robbins2005}——编写程序输出指定文本文件中出现最多的 $n$ 个单词及其
 频数，这一问题吸引了 Donald Knuth、Doug McIlroy 和 David Hanson 前来给出解答。
-Knuth 和 Hanson 的程序分别采用 Pascal 或 C 从头编写，两者的编写和调试均
+Knuth 和 Hanson 的程序分别采用 Pascal 和 C 从头编写，两者的编写和调试均
 花费数小时；McIlroy 的程序是一个 shell 脚本，其编写只需一两分钟，
 且第一次运行即通过，这一脚本稍加修改后如下：
 \begin{wquoting}
@@ -116,12 +116,12 @@ Windows 在内的其它一些系统中往往也有和 Unix 中输入/输出重�
 \section{软件工程中的内聚和耦合}\label{sec:coupling}
 
 内聚和耦合是软件工程中极为重要的概念，这里我们先来了解什么是耦合：考虑
-\parencite{litt2014a} 图中两种极端情形下模块之间的交互关系（可以是通过文本或
+\parencite{litt2014a} 图中两种极端情形下模块之间的相互作用（可以是通过文本或
 二进制字节流的通信，通过数据包或其它载体的消息传递，子程序之间的调用关系等等），
 假如系统出现故障须要调试时，两者的调试难度分别如何？假如系统需求有变须要调整时，
 两者的维护难度分别如何？我想答案应该非常明显。同样是由 16 个模块构成的系统，
-模块之间交互关系的复杂程度决定了在调试、维护难度上的天壤之别，而\stress{耦合度}
-正好可以理解为对这种交互关系复杂程度的度量；显然，我们希望系统中各模块尽量
+模块之间相互作用的复杂程度决定了在调试、维护难度上的天壤之别，而\stress{耦合度}
+正好可以理解为对这种相互作用复杂程度的度量；显然，我们希望系统中各模块尽量
 低耦合，而上节的脚本易调试、易维护也正是其内部各命令之间低耦合的结果。
 
 正如系统须要被划分为模块（如 Unix 工具），模块自身也经常须要被划分为子模块
@@ -135,7 +135,7 @@ Windows 在内的其它一些系统中往往也有和 Unix 中输入/输出重�
 划分：正如可以从上节的脚本中看见的，它们不仅有着明确的输入/输出接口，而且
 从输入到输出有着清晰的处理规则，或者说它们的行为有着明确的目标；从系统和
 模块的角度来看，看作模块的各个 Unix 工具往往分别实现不同的单元操作，如字符
-转换（\verb|tr|）、排序（\verb|sort|）、去重和计数（\verb|uniq|）等等。
+转换（\verb|tr|）、排序（\verb|sort|）、去重/计数（\verb|uniq|）等等。
 \begin{wquoting}
 \begin{tikzpicture}
 	\tikzmath{
@@ -175,7 +175,7 @@ Windows 程序也低耦合（例如记事本和画图程序互不依赖）且在
 重要地位，这个进程往往被称为“\stress{init}”\cupercite{jdebp2015}。systemd 是
 目前最流行的 init 系统，其 init 功能十分复杂、机制缺乏文档描述；此外，除了名为
 \verb|systemd| 的 init 程序以及相关辅助程序之外，systemd 还包含了许多其它非
-init 的模块，而所有这些模块之间有着复杂且缺乏文档说明的交互关系（其一种比较
+init 的模块，而所有这些模块之间有着复杂且缺乏文档说明的相互作用（其一种比较
 夸张的描绘可见 \parencite{litt2014b}）。显然 systemd 是低内聚、高耦合的，
 但事实上这种低内聚、高耦合并非必需，因为 daemontools 式的设计（本文档
 以 s6 为其代表）比 systemd 简洁得多，但功能却不弱于 systemd。
@@ -194,7 +194,7 @@ directory 中名为 \verb|run| 的可执行文件（如 \verb|/service/kmsg/run|
 我在这里举一个例子（一些更深入的例子见第 \ref{sec:exec} 节）：systemd
 支持服务模版，例如定义名为 \verb|getty@| 的模版后，\verb|getty@tty1| 服务
 会在 \verb|tty1| 上运行 getty 程序；在 s6/s6-rc 中，类似的功能可以通过在
-\verb|run| 脚本中调用一个 5 行的库脚本\cupercite{gitea:srvrc}来实现。
+\verb|run| 脚本中载入一个 5 行的库脚本\cupercite{gitea:srvrc}来实现。
 \begin{wquoting}
 \begin{tikzpicture}
 	\tikzbase\tikzmath{\dista = 12.5em;}
@@ -235,7 +235,7 @@ Unix 式的设计原则常被称为“\stress{Unix 哲学}”，其
 独有的；事实上，有人认为\cupercite{chenhao2013}面向对象编程中所有的设计模式都
 可以在 Unix 中找到对应（一个例子见第 \ref{sec:exec} 节）。}，第 2 点强调的是
 程序的协作和重用，而第 3 点似乎稍显陌生：在第 \ref{sec:shell} 节中，我们的确
-看到了文本处理工具相结合所产生的威力，但断言文本是一种通用的接口的深层理由
+看到了文本处理工具相结合所产生的威力，但断言文本是一种通用接口的深层理由
 是什么？我认为这可以用\stress{人机接口}对人和对计算机的友好程度来解释（第
 \ref{sec:cognitive} 节将再次涉及这一问题），即文本流是介于二进制数据和图形
 界面之间的一种折衷选择：二进制数据方便计算机处理但很难被人理解，而且不同
@@ -252,7 +252,7 @@ McIlroy 的表述并非没有争议，其中以文本流作为通信格式是不
 的争议焦点，我们将在第 \ref{sec:wib} 节中进一步讨论这一问题；此外，这一表述
 的确几乎涵盖了截止目前我们看到的让 Unix 强大的原因，但我认为其并不能完全代表
 Unix 哲学。有必要指出，管道的出现直接导致了 Unix 先驱对命令行程序协作和重用的
-追求\cupercite{salus1994}，而 McIlroy 是 Unix 管道的发明者，因此他的总结明显
+追求\cupercite{salus1994}，而 McIlroy 是 Unix 管道的发明者，因此他的总结应该
 是立足于 shell 编程的。Shell 编程固然重要，但它远非 Unix 的全部：在接下来
 两节中，我们将看到 shell 编程之外的体现 Unix 哲学的一些重要例子，它们
 并不能被 McIlroy 的经典表述概括；然后在第 \ref{sec:complex}
@@ -282,7 +282,7 @@ Unix 哲学。有必要指出，管道的出现直接导致了 Unix 先驱对命
 的配置文件，运行相应的服务程序，并根据配置文件在 \verb|exec()| 前设定服务进程的
 属性；在这样的设计下，进程创建和进程状态控制的相关代码自然都要包含在其 init
 中，也就是说 systemd 在概念意义上相当于是用 \verb|fork()|/\verb|exec()| 实现了
-\verb|CreateProcess()| 模式的服务进程创建。借鉴之前的思路，我们可以把进程状态
+\verb|CreateProcess()| 式的服务进程创建。借鉴之前的思路，我们可以把进程状态
 控制从 init 模块完全解耦：例如在 s6 中，\verb|s6-supervise| 在 \verb|exec()|
 \verb|run| 程序之前几乎不修改任何的进程属性；\verb|run| 程序几乎总是脚本（如
 以下例子所示，更多实例可参考 \parencite{pollard2014}），其在设定自身的进程
@@ -291,7 +291,7 @@ Unix 哲学。有必要指出，管道的出现直接导致了 Unix 先驱对命
 在其 qmail（首次发布于 1996 年）和 daemontools（首次发布于 2000 年）软件中
 广泛应用了这种技巧；s6 的作者 Laurent Bercot 进一步贯彻了这种技巧，他将
 chainloading 的单元操作实现为一组分立的工具\cupercite{ska:execline}，
-利用它们可以实现一些相当有趣的需求（一个例子见脚注 \ref{fn:logtype}）。
+这些工具可以用来实现一些相当有趣的需求（一个例子见脚注 \ref{fn:logtype}）。
 \begin{wquoting}
 \begin{Verbatim}[commandchars = {\\\{\}}]
 #!/bin/sh -e                    \cm{\texttt{-e} 表示若有命令执行失败则结束脚本}
@@ -310,7 +310,7 @@ busybox httpd -vv -f -p 8000    \cm{最终 \texttt{exec()} 监听 8000 端口的
 同一版本下其它的 systemd 模块高耦合，所以在出现问题（如 \parencite{edge2017}）
 时不易替换出问题的模块。因为 chainloading 有着简洁清晰的接口，我们在须要
 操作新出现的进程状态属性时可以轻松地实现相应的 chainloader，并将其集成到
-系统当中而无需升级：例如 systemd 对 Linux cgroup 的支持经常被其开发者当作
+系统当中而无须升级：例如 systemd 对 Linux cgroup 的支持经常被其开发者当作
 systemd 的一大卖点\cupercite{poettering2013}，但 cgroup 的用户接口不过是对
 \verb|/sys/fs/cgroup| 目录树的操作，这在 chainloading 时很容易进行；现在已经有
 一些现成的 chainloader 可用\cupercite{pollard2019}，因此可以说 daemontools
@@ -354,7 +354,7 @@ ioctl (fd, TIOCGWINSZ, &winSize);
 Berkeley socket\cupercite{wiki:sockets}在 1983 年作为 TCP/IP 网络协议栈的用户
 接口在 4.2BSD 中出现，并在 1989 年随着相关代码被其版权方置入公有领域开始成为
 最主流的互联网接口；伴随 socket 而来的是一系列新系统调用，如 \verb|send()|、%
-\verb|recv()|、\verb|accept()| 等等。socket 在形式上和传统的 Unix 文件类似，但
+\verb|recv()|、\verb|accept()| 等等。Socket 在形式上和传统的 Unix 文件类似，但
 前者暴露了过多的网络协议细节，这使它的操作比后者复杂得多，其一个典型实例可见
 \parencite{pike2001}；此外，引入 socket 后系统调用之间出现重复，如 \verb|send()|
 和 \verb|write()| 类似，\verb|getsockopt()|/\verb|setsockopt()| 和已经很丑陋的
@@ -422,10 +422,10 @@ Doug McIlroy 对 Unix 哲学的表述的话，Plan~9 所贯彻的“一切皆是
 描述长度的理论（见第 \ref{sec:ockham} 节）之间的关系。}，其中 3 处限制解释如下：
 \begin{itemize}
 \item 前提是\stress{几乎}满足需求，因为所考虑的需求往往可以分为核心部分
-	（例如实现对网络和图形界面的支持）和非核心部分（例如支持 Berkeley socket
-	和 X Window 系统），其中一些非核心部分可以舍弃或者用更好的方式实现。
-\item 要求考虑\stress{系统}的总复杂度，因为系统中的模块之间存在交互，只考察其中
-	部分模块将导致它们依赖的模块对它们的行为造成的影响被忽略：例如假设某个需求
+	（例如实现对网络和图形界面的支持）和附加部分（例如支持 Berkeley socket
+	和 X Window 系统），其中一些附加部分可以舍弃或者用更好的方式实现。
+\item 要求考虑\stress{系统}的总复杂度，因为系统中的模块之间存在相互作用，只考察
+	其中部分模块将导致其依赖的模块对其行为造成的影响被忽略：例如假设某个需求
 	可以实现成 \parencite{litt2014a} 图中的两种形式，但两种实现有着相同的用户
 	接口，在这种情形下我们显然不能以接口相同为由说两者符合 Unix 哲学的程度相同。
 \item 明确所讨论的复杂度是\stress{认知}复杂度，因为如上述比较所示（一个更
@@ -521,10 +521,10 @@ socket\cupercite{bercot2015d}），日志程序原则上可以对日志来源进
 量很大时成为系统的一个性能瓶颈。在 supervision 机制下，我们可以为每个服务进程
 创建一个相应的日志进程\cupercite{ska:s6log}\footnote{遗憾的是 systemd 并没有这么
 做，而是像 syslog 机制一样把所有日志混合到一起之后再处理。顺便提到，这里的各个
-日志进程可以分别以不同的低权限用户身份运行，从而实现高度的权限分离；此外原则上
+日志进程可以分别用不同的低权限用户身份运行，从而实现高度的权限分离；此外原则上
 只要对这里的日志程序作些修改，就可以实现防止日志被篡改\cupercite{marson2013}的
 特性，后者常被 systemd 支持者当作其专利来吹嘘。}，并通过 chainloading 把前者的
-标准错误输出定向到后者的标准输入，这样服务进程只须写标准错误输出即可传输日志
+标准错误输出重定向到后者的标准输入，这样服务进程只须写标准错误输出即可传输日志
 信息；因为各日志进程只须对相应服务（而非整个系统）的日志进行分类和过滤，这些
 操作的资源消耗可以被最小化。不仅如此，利用“\stress{fd holding}”\cupercite%
 {ska:fdhold}的技巧（它顺便还可以用来实现所谓“socket activation”），我们可以建立
@@ -587,7 +587,7 @@ Hoare 的关注点在于可靠性，但我认为可维护性在很大程度上�
 正是利用 init 的 \texttt{exec()} 实现了系统启动初期/关机末期相关代码和 init
 系统主要子模块的解耦\cupercite{ska:pid1}。}，所以它必须非常可靠；init 拥有 root
 权限，因此它也必须具有高安全性。之前也提到，和 s6 的设计完全相反，systemd 的
-init 模块过于复杂，而且和其它模块之间有太多太复杂的交互关系，这导致其 init
+init 模块过于复杂，而且和其它模块之间有太多太复杂的相互作用，这导致其 init
 行为难以满意地控制，例如 \parencite{ayer2016, edge2017} 就是这造成实际问题的
 例子。类似地，systemd 低内聚、高耦合的架构使其它模块存在和 init 模块类似的
 难调试、难维护的问题：systemd 未解决的 bug 报告数量随着时间不断增长，至今没有
@@ -632,11 +632,11 @@ systemd 有着比 s6 多几乎两个数量级的开发者，而且应用了覆�
 话题，所以本文档专门用一节的篇幅来讨论 Unix 哲学和软件安全性的关系。如果假设软件
 中的缺陷只有极少数是由怀有恶意者植入，那么安全漏洞和其它缺陷一样都基本是开发者在
 无意中引入的；由此我认为可以假定软件系统的认知复杂度决定其缺陷数，因为编程工作
-不过是和其它脑力劳动类似的任务，而同一个人花费等量精力制造的同类产品中错误数量
-理应相近。软件系统的缺陷（包括安全漏洞和其它缺陷）随新代码而产生，随分析和调试
+不过是和其它脑力劳动类似的任务，而同一个人花费等量精力制造的同类产品中缺陷数量
+理应相近。软件系统的缺陷（也包括安全漏洞）随代码变更而生成，随分析和调试
 而消失，而分析和调试的困难程度显然取决于软件的代码量和内聚/耦合程度，也就是
 系统的认知复杂度；至此我们可以看到，\stress{软件的复杂度是决定其包括安全漏洞
-在内各种缺陷产生和消失的关键因素}（这大概也能解释 systemd 中未解决 bug 数为何
+在内各种缺陷产生和湮灭的关键因素}（这大概也能解释 systemd 中未解决 bug 数为何
 持续增长），因此追求简洁的 Unix 哲学对于软件安全性有着极为重要的意义。
 
 不少软件缺陷出现的根源在于这些软件在设计上的本质缺陷，而在信息安全中很大程度上
@@ -650,7 +650,7 @@ systemd 有着比 s6 多几乎两个数量级的开发者，而且应用了覆�
 路由，且使 NAT 不再必要），使用直接从公钥生成的 IPv6 地址作为网络标识符（杜绝
 IP 地址伪装），且总体设计比较简洁。有必要说明，我很讨厌 cjdns 现在的实现，后者
 从构建系统到自身代码都显得过于臃肿；我甚至怀疑，几乎相同的协议如果由 Laurent
-Bercot 来实现，最后的代码量可能不到现在的十分之一。}。Niels Ferguson 和
+Bercot 来实现，最后的代码量可能不到现在的 $1/10$。}。Niels Ferguson 和
 Bruce Schneier 在分析了 IPsec 之后认为\cupercite{ferguson2003}：
 \begin{quoting}
 	On the one hand, IPsec is far better than any IP security protocol that has
@@ -696,7 +696,7 @@ Heartbleed（源于 OpenSSL 自己实现的内存分配器掩盖了其中的
 编译器的自举是 self-bootstrapping。}），它在编译自身源代码时自动植入上述植入器
 的代码，这种情况下我们该怎么办？这种极其隐蔽的后门被称为 \stress{Trusting
 Trust} 后门，其从 Ken Thompson\footnote{顺便提到，他是一位国际象棋爱好者；
-你注意到了“预测对方行动”的模式了吗？} 获得 Turing 奖时的报告\cupercite%
+你注意到“预测对方行动”的模式了吗？} 获得 Turing 奖时的报告\cupercite%
 {thompson1984}开始广为人知，并因这一报告的标题而得名。对抗 Trusting Trust
 的一种通用思路是“Diverse Double-Compiling”\cupercite{wheeler2009}，
 即利用另一编译器编译可疑编译器的干净源代码，并和后者自编译的产物比对
@@ -975,7 +975,7 @@ Bell 实验室采用多台终端连接到少数中心服务器的网络架构，
 语言）；由此可见，如果你希望能“自己动手，丰衣足食”，那么你迟早须要学习使用那些
 不“用户友好”的工具，而我们在第 \ref{sec:shell} 节中已经比较直观地看到通过 shell
 把 Unix 工具组合起来产生的巨大威力，所以这样的学习的确会带来丰厚的回报。我认为
-shell 并不难学习，关键在于理解其基本用法，而不是如上节提到的 Bourne shell 的
+shell 并不难学习，关键在于理解其核心用法，而不是如上节提到的 Bourne shell 的
 各种怪癖；我建议在初步学习 Bourne shell 之后认真学习一遍 \verb|rc|\cupercite%
 {github:rc}，因为后者简明地体现了 shell 编程的核心，这样再回过来看
 Bourne shell 时就知道哪些地方相对次要了。

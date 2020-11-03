@@ -81,7 +81,7 @@ are best reflected.  As an example, we can consider the classic word frequency
 sorting problem\cupercite{robbins2005} -- write a program to output the $n$
 most frequent words along with their frequencies; this problem attracted
 answers from Donald Knuth, Doug McIlroy and David Hanson.  The programs by
-Knuth and Hanson were respectively written from scratch in Pascal and C, and
+Knuth and Hanson were written from scratch respectively in Pascal and C, and
 each took a few hours to write and debug; the program by McIlroy was a shell
 script, which took only one or two minutes and worked correctly on the
 first run.  This script, with minor modifications, is shown below:
@@ -174,7 +174,7 @@ of difficulty in debugging and maintenance is determined by the complexity
 of interactions between modules, and the \stress{degree of coupling} can just
 be considered as a measure of the complexity of this kind of interactions.
 We obviously want the modules in a system to be as loosely coupled as
-reasonable, and the script from last section was easily to debug and
+reasonable, and the script from last section is easy to debug and
 maintain exactly because of the low coupling between the underlying commands.
 
 Just like a system needs to be partitioned into modules (\eg~Unix tools),
@@ -241,7 +241,7 @@ promotes designs with high cohesion and low coupling.
 
 Until now, our examples have been relatively idealised or simplified, and here
 I give two more examples that are more realistic and relevant to hot topics in
-recent years.  When Unix systems are started, the kernel will creates a first
+recent years.  When Unix systems are started, the kernel will create a first
 process, which in turn creates some other processes, and these processes manage
 the system services together; because of the important role of the first process
 in system initialisation, it is usually called ``\stress{init}''\cupercite%
@@ -259,8 +259,8 @@ As is shown in the picture below, the init program of s6, \verb|s6-svscan|,
 scans for subdirectories in a specified directory (``scan directory'', like
 \verb|/service|), and for each subdirectory (``service directory'', like
 \verb|/service/kmsg|) runs a \verb|s6-supervise| process, which in turn
-runs the executable called \verb|run| in the service directory in
-order to run the corresponding system service.  The user can use
+runs the executable called \verb|run| (like \verb|/service/kmsg/run|) in the
+service directory to run the corresponding system service.  The user can use
 s6's command line tools \verb|s6-svc|/\verb|s6-svscanctl| to interact
 with \verb|s6-supervise|/\verb|s6-svscan|, and can use ancillary files
 in service directories and the scan directory to modify the behaviours of
@@ -274,7 +274,7 @@ design is not weaker than systemd in functionalities, and here I give one
 example (\cf~Section~\ref{sec:exec} for some in-depth examples): systemd
 supports service templates, for instance after a template called \verb|getty@|
 is defined, the \verb|getty@tty1| service would run the getty program on
-\verb|tty1|; in s6/s6-rc, a similar functionality can be achieved by calling
+\verb|tty1|; in s6/s6-rc, a similar functionality can be achieved by loading
 a 5-line library script\cupercite{gitea:srvrc} in the \verb|run| script.
 \begin{wquoting}
 \begin{tikzpicture}
@@ -313,8 +313,8 @@ by Doug McIlroy\cupercite{salus1994}:
 \end{quoting}
 
 In connection with the discussion in last section, it is easy to notice
-that the first point by McIlroy is an emphasis on high cohesion and low
-coupling\footnote{By the way, this also shows that the requirements of high
+the first point by McIlroy is an emphasis on high cohesion and low
+coupling\footnote{By the way, this also shows that the principle of high
 cohesion and low coupling is not unique to objected-oriented programming.
 In fact, some people believe\cupercite{chenhao2013} that every design pattern
 in OOP has some counterparts in Unix (\cf~Section~\ref{sec:exec} for one of
@@ -344,10 +344,10 @@ with character encoding, the latter kind of issues are generally
 much simpler than similar issues with binary information.
 
 McIlroy's formulation is not undisputed, and the most relevant disagreement is
-on whether text streams as a communication format is the best choice, which we
+on whether text streams as a communication format are the best choice, which we
 will also discuss in Section~\ref{sec:wib}; in addition, while this formulation
 almost covers the factors that we have hitherto seen to make Unix powerful,
-I do not think it completely represents the Unix philosophy.  It is worth
+I do not think it represents the Unix philosophy completely.  It is worth
 noting that the appearance of pipes directly resulted in the pursuit of
 collaboration and reuse of command line programs\cupercite{salus1994}, and
 McIlroy is the inventor of Unix pipes, so his summary was obviously based on
@@ -392,14 +392,14 @@ service processes are created by its init program \verb|systemd|, which reads
 configuration file(s) for each service, runs the corresponding service program,
 and sets the process attributes for the service process according to the
 configuration; under this design, all the code for process creation and process
-state control need to be in the init, or in other words what systemd does is
+state control need to be in init, or in other words what systemd does is
 like, in a conceptual sense, implementing service process creation in the style
 of \verb|CreateProcess()| while using \verb|fork()|/\verb|exec()|.  Borrowing
 the previous line of thought, we can completely decouple process state control
 from the init module: for example, with s6, \verb|s6-supervise| almost does
 not modify any process attribute before \verb|exec()|ing into the \verb|run|
 program; the \verb|run| program is almost always a script (an example is given
-below; \cf~\parencite{pollard2014} for some examples), which sets its own
+below; \cf~\parencite{pollard2014} for some more examples), which sets its own
 attributes before \verb|exec()|ing into the actual service program.  The
 technique of implementing process state control with consecutive \verb|exec()|s
 is expressively called \stress{Bernstein chainloading}, because of Daniel
@@ -593,18 +593,18 @@ tell us how to design and implement minimal software systems.  However, the
 formulation does cover existing summaries for the Unix philosophy, which
 are more practical; it also indirectly leads to the practical ways to foster
 minimalist habits (and creativity) in Sections~\ref{sec:devel}--\ref{sec:user}.
-I regard the relation between this formulation and practical ways to minimal
-software systems as similar to the relation between the principle of least
+I consider the relation between this formulation and practical ways to minimal
+software systems to be similar to the relation between the principle of least
 action and the calculus of variations, as well as to the relation between
 the Ockham's razor and the theories about the minimal message length
 and the minimal description length (\cf~Section~\ref{sec:ockham}).},
 and the three restrictions in my formulation are explained below:
 \begin{itemize}
 \item The prerequisite is to \stress{almost} satisfy the requirements,
-	because said requirements can often be classified into core parts
-	(\eg~support for networking and graphical interfaces) and non-core
-	parts (\eg~support for Berkeley sockets and the X Window System),
-	and some non-core parts can be discarded or implemented in better ways.
+	because said requirements can often be classified into essentials
+	(\eg~support for networking and graphical interfaces) and extras
+	(\eg~support for Berkeley sockets and the X Window System),
+	and some extras can be discarded or implemented in better ways.
 \item We need to consider the total complexity of the \stress{system}, because
 	there are interactions between the modules, and only examining some of the
 	modules would result in omission of the effects on their behaviours by
@@ -673,8 +673,8 @@ Let's see a fairly recent example.  In some init systems
 the control of the user's shell through \verb|fork()|ing, in order to implement
 backgrounding\cupercite{gollatoka2011} (as is shown in the example above): when
 the service program is run by the user from the shell, it \verb|fork()|s a child
-process, and then the parent process exits, so the shell waits for another
-command from the user because the user-run (parent) process has exited, while
+process, and then the user-run (parent) process exits, so the shell waits for
+another command from the user because the parent process has exited, while
 the child process is reparented to init upon exiting of the parent process, and
 no longer under the user shell's control.  However, in order to control the
 state of a process, its process ID should be known, but the above-mentioned
@@ -746,7 +746,7 @@ when either the service or the logger crashes and restarts.
 
 From the analyses above, we can see that process supervision can greatly
 simplify the management of system services and their logs, and one typical
-example for this is the enormous simplification to the management of MySQL
+example for this is the enormous simplification of the management of MySQL
 services\cupercite{pollard2017}.  Because this mechanism can, in a simple
 and clear way (minimising the cognitive complexity of the system), implement
 the requirements for managing system services and their logs (and cleanly
@@ -777,7 +777,7 @@ With the constant upgrade of hardware, it appears that our browsing experience
 should become increasingly smooth, but this is often not what we usually feel
 in fact: although the speed of file downloading and the resolution of videos
 we watch grow continuously, the loading speed of pages we experience on many
-websites do not seem to grow at the same pace; this observation might be a
+websites does not seem to grow at the same pace; this observation might be a
 little subjective, but frameworks like Google's ``Accelerated Mobile Pages''
 and Facebook's ``Instant Articles'' can perhaps attest to the existence of
 the phenomenon.  Moreover, the memory consumption problem of web browsers
@@ -815,7 +815,8 @@ Hoare focused on reliability, but I believe maintainability is, to a large
 extent, also governed by the rule, and one example for the correspondence
 between complexity and maintainability (which I regard development cost as a
 part of) can be found at \parencite{rbrander2017}.  In the following I will
-demonstrate the relation between complexity and reliability~/ maintainability.
+demonstrate the relation between complexity and reliability~/ maintainability,
+using s6 and systemd as examples.
 
 As was noted in Section~\ref{sec:coupling}, init is the first process after a
 Unix system is started, and in fact it is also the root node of the whole
@@ -854,7 +855,7 @@ scenarios, and many use cases unconsidered by its developers become actual
 ``corner cases'' (\eg~\parencite{dbiii2016}; for a very detailed analysis
 on the origin of this kind of problems, \cf~\parencite{vr2015}) where the
 behaviours of systemd are very difficult to deduce from the documentation.
-Sometimes, even if the requirement happens to be successfully implemented
+Sometimes, even if a requirement happens to be successfully implemented
 with systemd, the corresponding configuration lacks reproducibility because
 there are too many factors affecting systemd's behaviours (\eg~\parencite%
 {fitzcarraldo2018}/\parencite{zlogic2019}).  On the contrary, a user familiar
@@ -896,14 +897,14 @@ After the disclosure of the PRISM project in the US by Edward Snowden,
 information security became a topic that attracts continued attention, so an
 entire section in this document is dedicated to the relation between the Unix
 philosophy and software security.  Assuming very few software bugs are injected
-by malicious actors, security vulnerabilities, like other defects, are usually
+by malicious actors, then security vulnerabilities, like other defects, are usually
 introduced inadvertently by developers; due to this I think it may be assumed
 that the cognitive complexity of a software system determines its number of
 defects, because programming is after all a task similar to other kinds of
-mental labor, and the same kind of products by the same person that consumed
+mental labour, and the same kind of products by the same person that consumed
 the same amount of energy should naturally contain similar numbers of defects.
-Defects (including security vulnerabilities and other kinds of defects) in
-software systems come with new code, and go with analyses and debugging, while
+Defects (also including security vulnerabilities) in
+software systems come with code changes, and go with analyses and debugging, while
 the degree of difficulty in analyses and debugging obviously depends on the
 size of the codebase as well as the degree of cohesion and coupling, or in
 other words the cognitive complexity of the software system.  Therefore we can
@@ -969,7 +970,7 @@ these devices, and for this very reason security is a first subject the IoT must
 tackle.  Second, these connected devices often have highly limited hardware
 resources, so the efficiency and size of software will inevitably become
 relevant factors in IoT development.  As such, I believe that \stress{the
-Unix philosophy will still manifest its highly relevant value in the 2020s}.
+Unix philosophy will still manifest its strong relevance in the 2020s}.
 
 \begin{quoting}
 	Sysadmin: \verb|login| appears backdoored;
@@ -1021,14 +1022,14 @@ fulfill his/her requirements.  Correspondingly, the key point I would like
 to express in this section is that the grant of these rights does not imply
 the user has sufficient control over the behaviours of the software, which in
 extreme conditions allows the existence of \stress{software projects that
-are formally free and open-source but actually close to proprietary and
+are formally free~/ open-source but actually close to proprietary~/
 closed-source}.  Of course not every user is able to study and improve the
 source code, so all comparisons of software projects involved in this section
 are done from the viewpoint of a same user with an appropriate background
 in computer science and software engineering.
 
 We know software that only has obfuscated source code released is ineligible
-to be called free and open-source software, because obfuscation makes the
+to be called free~/ open-source software, because obfuscation makes the
 source code difficult to understand, or in other words increases the cognitive
 complexity of the source code.  On the other hand, from the analyses before,
 we know that software systems with low cohesion and high coupling also have
@@ -1062,12 +1063,12 @@ listen on \texttt{/dev/log}.} and \parencite{freedesktop:sepusr}\footnote%
 {However, it can be said that systemd developers' reasons for not supporting
 separate mounting of \texttt{/usr} without using an initramfs are very
 untenable\cupercite{saellaven2019a}.}).  In fact, the user's control over
-these software are not even comparable with some source-available software
+these software is not even comparable with some source-available software
 with restrictions on redistribution, like old versions of Chez Scheme which
 will be mentioned in Section~\ref{sec:wib}--\ref{sec:howto}.  From the above,
 we can see that from software that allows strong control, like s6, and software
 that allows sufficient control, like old Chez Scheme, to software that only
-offers highly limited control, like systemd, and traditional proprietary and
+offers highly limited control, like systemd, and traditional proprietary~/
 closed-source software, \stress{in terms of the user's control over software
 behaviours, the boundary between FOSS and PCSS is already blurring}.
 
@@ -1141,7 +1142,7 @@ mainstream open-source licences\footnote{Incidentally, tivoisation\cupercite%
 {wiki:tivo} is also compatible with most open-source licences.},
 more outrageous than similar practices in PCSS communities to me,
 or as Laurent Bercot put it\cupercite{bercot2015a, bercot2015b}
-(I call it \stress{free and open-source mal-bloatware}):
+(I call it \stress{free~/ open-source mal-bloatware}):
 \begin{quoting}
 	systemd is as proprietary as open source can be.
 \end{quoting}
@@ -1155,7 +1156,7 @@ simplicity resulted by the disappearance of limitations on hardware resources,
 and the attendant low cohesion and high coupling in critical system software
 was ``innovatively'' combined by its developers with the EEE ploy to create the
 current status of vendor lock-in.  To avoid this kind of debacle from occuring
-again, we need to realise that \stress{free and open-source software should
+again, we need to realise that \stress{free~/ open-source software should
 embrace the Unix philosophy}, because only in this way can we block the way
 EEE uses to infect the open-source community through low cohesion and high
 coupling.  One opinion (\eg~\parencite{bugaev2016}) thinks that systemd and
@@ -1343,10 +1344,10 @@ values security extremely, has support for POSIX even worse than that of macOS%
 source community, is implemented in a bloated and inefficient way.  These
 problems do not affect the relevance of these projects, but we should not be
 complacent with the \emph{status quo}; furtherly, we should treat the current
-achievements and trends calmly, and \stress{focus on the nature instead of
-the phenomena}: for instance when reading here, you should already have
-some rough understanding of the nature of many features in systemd, and
-how necessarily correlated they are with the architecture of systemd;
+achievements and trends calmly, and \stress{focus on the essence instead of
+the phenomena}: for instance when reading here, you should already have some
+rough understanding of the essence of many features in systemd, and how
+necessarily (or not) correlated they are with the architecture of systemd;
 in Section~\ref{sec:homoiconic}, I will present my understanding
 of the notion of ``language features'', which might help you to
 think about some currently popular languages from a new viewpoint.
@@ -1433,8 +1434,8 @@ if you want a self-sufficient experience, you would need to learn those
 ``user-unfriendly'' tools sooner or later, and since we have already seen the
 great power from combining Unix tools with the shell in a quite intuitive way
 in Section~\ref{sec:shell}, this learning process would really be rewarding.
-I believe that the shell is not hard to learn, and the key is to understand
-its fundamental usage instead of the eccentricities of the Bourne shell
+I believe the shell is not hard to learn, and the key is to understand
+its essential usage instead of the eccentricities of the Bourne shell
 mentioned in the last section.  Here I suggest carefully learning \verb|rc|%
 \cupercite{github:rc} after a preliminary walkthrough of the Bourne shell,
 because the former concisely represents the main ideas in shell scripting,
@@ -1476,9 +1477,9 @@ are multiple levels of encapsulation and inheritance.}:
 \end{quoting}
 As was mentioned in Section~\ref{sec:foss}, I believe that the effect
 of software complexity on user experience is particularly relevant
-for free and open-source software systems, because their internals
+for free~/ open-source software systems, because their internals
 are open to users, which gives the user the possibility
-of debugging and customisisation by themselves.
+of debugging and customisation by themselves.
 
 Due to the reasons above, I believe that \stress{even for the ordinary user,
 complexity should be taken into consideration when choosing software systems},
@@ -1521,7 +1522,7 @@ and skip the Bourne shell), and the user can write the customised parts in
 a form that is simple, clear and close to the \verb|rc| way as far as is
 reasonable.  Another example is that I have to interact with the systemd-based
 CentOS 7 due to work requirements, and that my choice is to do most work on
-a machine controllable by myself, and try to use CentOS 7 in a simplest way
+a machine controlled by myself, and try to use CentOS 7 in a simplest way
 in virtual machines, in order to minimise the dependence on it.
 
 If you are using systemd relucantly because of software systems (Linux
@@ -1570,9 +1571,9 @@ it was mentioned in Section~\ref{sec:intro} that Unix was designed as a system
 to boost the efficiency of programmers, and we also see that Unix works best
 when its internal mechanisms are adequately understood by the user.  However,
 most users have after all only limited energy to understand the mechanisms of
-their systems they use, so does this imply that only programmers can make good
+their systems they use, so does this imply only programmers could make good
 use of Unix-like operating systems?  I do not think so, and instead I believe
-a user without related backgrounds previously just need to overcome his/her
+a user without related backgrounds previously just needs to overcome his/her
 repulsion of programming, and \stress{start with good tools and tutorials},
 which would not consume too much energy: for instance, assuming one carefully
 reads the documentation of \verb|rc| after roughly learning the Bourne shell,
@@ -1593,7 +1594,7 @@ during the learning process if the following points are kept in mind:
 \end{quoting}
 \item \stress{Dare to ask for help, and be smart when asking}:
 	when facing problems that you cannot solve, make full use of the power of
-	the open-source community, but rembember to express the problem in a concise
+	the open-source community, but remember to express the problem in a concise
 	and reproducible manner, and also present your own efforts at solving it.
 \item \stress{Avoid over-programming}:
 	as was noted in last section, take pride in simplicity, and pursue problem
