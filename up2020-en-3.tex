@@ -465,16 +465,16 @@ in customising and debugging does not seem like a solved problem.
 
 \section{Benefits of reconciling Unix and Lisp}\label{sec:benefits}
 
-As was noted in last section, C is an inferior language to Lisp, most importantly
-due to its lack of expressiveness: for example, had it used a macro system (like
-that in Dale\cupercite{github:dale}) that could modify ASTs, then features like
-object-oriented programming would be implementable using macros, and C++ would
-perhaps have been unnecessary.  Another prominent weakness of C, widely noted
-both inside and outside the Lisp circle, is its memory unsafety which results
-in buffer overflows, null-pointer dereferences \etc; alternative C libraries
-like skalibs (\cf~Section~\ref{sec:devel}) surely help to reduce this kind
-of bugs, but are far from able to reducing them to the minimum, and
-I will mention a possible strategy for this in the next section.
+As was noted in last section, C is an inferior language to Lisp, most
+importantly due to its lack of expressiveness: for example, had it used a macro
+system (like that in Dale\cupercite{github:dale}) that could modify ASTs, then
+features like object-oriented programming would be implementable using macros,
+and C++ would perhaps have been unnecessary.  Another prominent weakness of C,
+widely noted both inside and outside the Lisp circle, is its memory unsafety
+which results in buffer overflows, null-pointer dereferences \etc; alternative
+C libraries like skalibs (\cf~Section~\ref{sec:devel}) surely help to reduce
+this kind of bugs, but are far from able to reducing them to the minimum,
+and I will mention a possible strategy for this in the next section.
 
 However, to be fair, Lisp also has its weaknesses, among which a best-known is
 the performance cost of dynamic type checking, especially in scenarios like
