@@ -11,8 +11,8 @@ Cobol（1959 年）是最古老的几种程序语言，而 Lisp 或许是其中�
 因简洁而打折扣的强大\stress{表达力}，而我们就将在本节简要考察 Lisp 的简洁性。
 
 John McCarthy\footnote{另外，他也是分时操作系统的先驱之一。} 设计了 Lisp，并由此
-说明了我们从几个基本函数、条件表达式和递归函数定义就可以建立一种 Turing 完全的
-语言\cupercite{mccarthy1960}。Steve Russell 出乎 McCarthy 预料地注意到 Lisp
+说明了我们从几个基本函数、条件表达式和递归函数定义就可以建立一种实用的 Turing
+完全语言\cupercite{mccarthy1960}。Steve Russell 出乎 McCarthy 预料地注意到 Lisp
 中的 \verb|eval| 函数可以直接翻译为汇编代码，其结果就是第一个 Lisp 解释器，
 后者运行在一台 IBM 704 大型机上、由 Russell 人工编译而成。Smalltalk 的
 设计者 Alan Kay 就这一想法发表了以下的评论\cupercite{feldman2004}：
@@ -139,7 +139,7 @@ Gödel 编码\cupercite{wiki:godelnum}和停机问题\cupercite{wiki:halt}。}�
 	one Architecture}.  This is a great Mystery, and the beginning of wisdom.
 \end{quoting}
 第 \ref{sec:boltzmann} 节提到所有 Turing 等价的计算模型并非一样好用，而
-类似地所有同像语言在“代码及数据”的实际应用中也并非同样好用\footnote{另一个
+类似地所有同像语言在“代码即数据”的实际应用中也并非同样好用\footnote{另一个
 例子是 XML，它是 SGML 的后继者，而 SGML 是一种文档标记语言，这使 XML 的
 标记部分比较冗长。尽管 XML 自然地代表一种树状结构，它在用于文档标记之外时
 经常产生包含标记多于实际内容的文件；此外 XML 的复杂标准使其不易进行语法解析，
@@ -189,7 +189,7 @@ f2 = lambda x, y:
 \end{wquoting}
 \end{multicols}\colskipb\noindent%
 \verb|f2| 的定义明显很丑陋，这种丑陋部分源于 \verb|f2| 中直接写出的值元组
-\verb|v|，另一部分源于过滤器顺序的反转——最后应用的 \verb|lambda| 被写在最前，
+\verb|v|，另一部分源于过滤器顺序的颠倒——最后应用的 \verb|lambda| 被写在最前，
 因为它是最外层的函数。在 Scheme 中，\verb|let| 表达式的输入值写在其主体的前面，
 因此我们可以利用它来把过滤器以我们希望的顺序进行复合，正如下面左侧所示。
 \colskipa\begin{multicols}{2}
@@ -216,7 +216,7 @@ f3 = lambda x, y: \
 ((a \emph{e$_1$}) (b \emph{e$_2$}) ...) ...)} 是 \texttt{((lambda (a b ...)
 ...) \emph{e$_1$} \emph{e$_2$} ...)} 的简写，因此 \verb|f3| 等价于上面右侧的
 Python 函数。你应该也已经注意到 \verb|v| 未在 \verb|f3| 中出现，这能正常工作
-的原因是内层 \verb|lambda| 的参数（如 \texttt{(lambda x: x * x + y)} 中的
+的原因是内层 \verb|lambda| 的参数（如 \texttt{lambda x: x * x + y} 中的
 \verb|x|）遮盖了外层的同名变量（如 \verb|f3| 的参数 \verb|x|）。
 
 \colskipa\begin{multicols}{2}
@@ -288,8 +288,8 @@ f5 = \x y -> do
 \end{wquoting}
 \end{multicols}\colskipb
 
-在本节末尾，我认为有必要指出操作系统中的\stress{目录树是类似于 S 表达式的}，
-因为它们本质上都是树状结构；Unix 中“一切皆是文件”的原则（见第 \ref{sec:plan9}
+在本节末尾，我认为有必要指出操作系统中的\stress{目录树类似于 S 表达式}，因为
+它们本质上都是树状结构；Unix 中“一切皆是文件”的原则（见第 \ref{sec:plan9}
 节）正是这一思想的直接结果，尽管对 Unix 做出重大贡献的多数人大概并没有注意到
 S 表达式的类似潜力：例如 Daniel J.\ Bernstein 在讨论安全性时指出文本数据的
 语法解析和格式化输出明显增加了软件系统的复杂度\cupercite{djb:qmailsec}，
@@ -351,7 +351,7 @@ Stanford 作风），而 Unix 会选择后者（“\stress{worse is better}”�
 然而从最小化包含接口和实现的系统总复杂度的角度看，我相信\stress{纯文本
 和 S 表达式的选择并不是非黑即白的}：在处理结构简单的数据时，使用纯文本
 一般更好，因为这时的接口仍然足够好用；相反在处理结构复杂的数据时，使用
-S 表达式缩减的接口复杂度则经常超过增加的实现复杂度。在处理语言时须要
+S 表达式减少的接口复杂度则经常超过增加的实现复杂度。在处理语言时须要
 面对的大量数据具有深嵌套且经常自指的结构，因此 S 表达式无疑更有优势。
 
 Lisp 圈另一种常见的对 Unix 的批评是后者把底层细节无情地暴露给用户，而这些
@@ -399,7 +399,7 @@ bug，但远不能把其数量削减到最小，对此我将在下节提到一�
 的命令行参数转义法，并将其包装为他的称作 execline 的语言\footnote{其设计和 Unix
 起初使用的 Thompson shell\cupercite{wiki:thompson} 相似，后者在 Unix v7 中
 因为在比较复杂的编程中不够用而被 Bourne shell 取代。}中的语句块\cupercite%
-{ska:elblocks}。然而 chainloading 不必然要用 \verb|exec()|，而可以在类 shell
+{ska:elblocks}。但是 chainloading 不必然要用 \verb|exec()|，而可以在类 shell
 语言中实现\cupercite{vector2016a}（参考 \verb|cd| 和 \verb|umask| 等等 shell
 命令）；基于 scsh\cupercite{scsh:home} 的模型，execline 语言可以替换为类 scsh
 的 Scheme，而 chainloader 可以替换为和下面重新实现 execline 所提供 \verb|cd|
@@ -426,7 +426,7 @@ Scheme 的表达力，以及优雅的 Scheme 编译器如 Chez Scheme 的存在�
 编译器全程的总复杂度}，因此它能增强我们对 Trusting Trust 的防御\footnote%
 {另一个潜在问题是硬件后门，而我认为一个遏制它们的办法是在构造编译器全程中的
 每一步预留足够的变通空间，因为底层代码的语义难以分析（这正是开源重要性的来源），
-因此任何机械地植入恶意代码的尝试都可能触发假阳性样本，后者可能导致后门暴露。}。
+所以任何机械地植入恶意代码的尝试都可能触发假阳性样本，后者可能导致后门暴露。}。
 
 \section{如何统一 Lisp 和 C？}\label{sec:howto}
 

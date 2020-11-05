@@ -267,8 +267,8 @@ is a shorthand for \texttt{((lambda (a b ...) ...) \emph{e$_1$} \emph{e$_2$}
 ...)}, so \verb|f3| is equivalent to the Python function above on the right.
 You should have also noticed \verb|v| is absent from \verb|f3|, and this
 works because arguments of inner \verb|lambda|s (\eg~the \verb|x|
-in \texttt{(lambda x: x * x + y)}) shadows outer variables with
-the same names (\eg~the argument \verb|x| for \verb|f3|).
+in \texttt{lambda x: x * x + y}) shadows outer variables with
+the same names (\eg~the argument \verb|x| of \verb|f3|).
 
 \colskipa\begin{multicols}{2}
 \begin{wquoting}
@@ -346,7 +346,7 @@ just now, the syntactic sugar above is hardcoded in Haskell;
 in Scheme, it can be implemented as a syntactic extension.
 
 In the end of this section, I find it necessary to note that in the operating
-system, \stress{directory trees resembles S-expressions} in that they are
+system, \stress{directory trees resemble S-expressions} in that they are
 essentially tree structures; the ``everything is a file'' principle of Unix
 (\cf~Section~\ref{sec:plan9}) is a direct result of this idea, although
 most important contributors to Unix probably did not realise the similar
@@ -414,7 +414,7 @@ and a well-known summary of it is Richard P.\ Gabriel's ``worse is better''%
 \cupercite{dreamsongs:wib}\footnote{As you can see from the page, Richard
 P.\ Gabriel had still not decided which style was better.  Additionally,
 the complexity issue of interruptible system calls in Unix can be bypassed
-simply by userspace wrappers that retry until the system calls return without
+by userspace wrappers that simply retry until the system calls return without
 interruption; however, current standards curiously do not require such
 wrappers, which is one reason why Daniel J.\ Bernstein created
 his own interface set (\cf~Section~\ref{sec:devel}).}.
@@ -465,7 +465,7 @@ in customising and debugging does not seem like a solved problem.
 
 \section{Benefits of reconciling Unix and Lisp}\label{sec:benefits}
 
-As noted in last section, C is an inferior language to Lisp, most importantly
+As was noted in last section, C is an inferior language to Lisp, most importantly
 due to its lack of expressiveness: for example, had it used a macro system (like
 that in Dale\cupercite{github:dale}) that could modify ASTs, then features like
 object-oriented programming would be implementable using macros, and C++ would
