@@ -176,8 +176,8 @@ is why I consider homoiconicity a notion as profound as complexity:
 It was mentioned in Section~\ref{sec:boltzmann} that all Turing-equivalent
 models of computation are not equally wieldy for generic discussions, and
 similarly all homoiconic languages are not equally wieldy for practical ``code
-as data'' usage\footnote{Another example is XML, which is a descendant of SGML,
-which is in turn a document markup language, and this makes the XML markup quite
+as data'' usage\footnote{Another example is XML, a descendant of SGML; the
+latter is in turn a document markup language, which makes the XML markup quite
 verbose.  Although XML naturally models a tree structure, its use outside of
 document markup often results in files with more markups than contents; in
 addition, the complex specification of XML makes it nontrivial to parse, and
@@ -350,7 +350,7 @@ system, \stress{directory trees resemble S-expressions} in that they are
 essentially tree structures; the ``everything is a file'' principle of Unix
 (\cf~Section~\ref{sec:plan9}) is a direct result of this idea, although
 most important contributors to Unix probably did not realise the similar
-potential of S-expressions: for example Daniel J.\ Bernstein noted, in the
+potential of S-expressions.  For example Daniel J.\ Bernstein noted, in the
 context of security, that parsing and quoting of textual data significantly
 complicate software systems\cupercite{djb:qmailsec}; instead, he extensively
 used directory trees with very simple formats to configure his software, and
@@ -392,7 +392,7 @@ nanopass framework\cupercite{andersen2016}\footnote{Incidentally, the
 name of one main author of nanopass, when abbreviated, becomes ``AWK''.},
 which is used by Chez Scheme\cupercite{wiki:chez}, the prestigious Scheme
 compiler that became open-source in 2016; Chez Scheme often produces
-executables that are even faster than workalikes written in C, and yet it
+executables that are even faster than workalikes written in C, yet it
 has a codebase more than one order of magnitude smaller than that of GCC,
 and self-compiles in seconds while GCC requires thousands of seconds.
 
@@ -400,7 +400,7 @@ As can already be seen above, in comparison with Lisp, C is in many aspects an
 inferior language\cupercite{graham2002}, to put it bluntly, and the pros and
 cons of both will be further examined in the next section; this is a result of
 effects from multiple historical and methodological factors, and I summarise
-them as the following: due to hardware limitations, C basically began as a
+them as the following.  Due to hardware limitations, C basically began as a
 portable assembly language, reasonably simple to implement with acceptable
 performance on computers at Bell Labs; due to the success of Unix, continued
 efforts are made to create stronger optimising C compilers, so it is still one
@@ -503,9 +503,9 @@ be taken as the first priority when pursuing an ultimate language.},
 \end{quoting}
 But is that achievable?  If yes, how to do it, and what would we get?
 If no, would the attempt be worthwhile?  My guess for the first question
-is ``yes''; the second and the fourth will be respectively explored
-in the next section and Section~\ref{sec:toe}; in the rest of
-this section, I will give some examples for the third question.
+is ``yes'', while the second and the fourth will be respectively
+explored in the next section and Section~\ref{sec:toe}; in the rest
+of this section, I will give some examples for the third question.
 
 As was mentioned in Section~\ref{sec:exec}, Laurent Bercot implemented the unit
 operations in chainloading as a set of command-line tools; in order to implement
@@ -549,9 +549,9 @@ with the elegance of Chez Scheme tells us that \stress{homoiconicity will
 dramatically reduce the total complexity of bootstrapping from machine code},
 and therefore strengthen our defence against Trusting Trust\footnote{Another
 potential problem is hardware backdoors, and I think a way to deter them is to
-leave adequate room for variation in every step of the bootstrapping procedure,
+leave adequate room for variation in every step of the bootstrapping procedure:
 because the semantics of low-level code is difficult to analyse (which results
-in the importance of open source), so any attempt at mechanically injecting
+in the importance of open source), any attempt at mechanically injecting
 malicious code may trigger false positives, which may expose the backdoor.}.
 
 \section{Lisp~/ C reconciliation: how to?}\label{sec:howto}
