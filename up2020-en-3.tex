@@ -15,10 +15,10 @@ is the reason for the continued vitality of Lisp?  The answer is Lisp's inherent
 simplicity, and its strong \stress{expressiveness} despite the simplicity;
 in this section, we will briefly examine the simplicity of Lisp.
 
-Lisp was designed by John McCarthy\footnote{By the way, he was also one of the
-pioneers in time-sharing operating systems (\cf~Section~\ref{sec:intro}).},
-who showed that a practically usable Turing-complete language can be built
-with a handful of primitive
+Lisp was designed by John McCarthy\footnote{By the way,
+he was also one of the pioneers in time-sharing operating systems
+(\cf~Section~\ref{sec:intro}).}, who showed that a practically usable
+Turing-complete language can be built with a handful of primitive
 functions in addition to conditional expressions and recursive function
 definitions\cupercite{mccarthy1960}.  Steve Russell noted, to McCarthy's
 surprise, that the \verb|eval| function in Lisp could be directly translated
@@ -82,12 +82,12 @@ the simplicity, and this expressiveness largely comes from the way Lisp code is
 written -- \stress{S-expressions} (short for symbolic expressions)\footnote%
 {In the original paper for Lisp\cupercite{mccarthy1960}, McCarthy actually
 intended to use another form called M-expressions (short for meta expressions)
-for source code, and let the computer translate them to S-expressions; however,
-programmers at that time generally preferred to
-use S-expression directly.  M-expressions are
-homoiconic just like S-expressions, and a format closely related to the former
-is used by Mathematica, the computational software.}; for example, the factorial
-function can be written in Scheme and Python respectively as\footnote{They
+for source code, and let the computer translate them to S-expressions;
+however, programmers at that time generally preferred to use S-expression
+directly.  M-expressions are homoiconic just like S-expressions,
+and a format closely related to the former is used by Mathematica,
+the computational software.}; for example, the factorial function
+can be written in Scheme and Python respectively as\footnote{They
 are not exactly equivalent: first, Scheme does not have a \texttt{return}
 primitive, and instead uses expressions in \stress{tail positions} as well as
 \stress{continuations} (\cf~Footnote~\ref{fn:cps}) to return values; second,
