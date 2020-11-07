@@ -10,7 +10,8 @@ Cobol（1959 年）是最古老的几种程序语言，而 Lisp 或许是其中�
 并无不公。那么 Lisp 能保持其生命力的原因是什么呢？答案在于其天然的简洁性以及并不
 因简洁而打折扣的强大\stress{表达力}，而我们就将在本节简要考察 Lisp 的简洁性。
 
-John McCarthy\footnote{另外，他也是分时操作系统的先驱之一。} 设计了 Lisp，并由此
+John McCarthy\footnote{另外，他也是分时操作系统（见第
+\ref{sec:intro} 节）的先驱之一。} 设计了 Lisp，并由此
 说明了我们从几个基本函数、条件表达式和递归函数定义就可以建立一种实用的 Turing
 完全语言\cupercite{mccarthy1960}。Steve Russell 出乎 McCarthy 预料地注意到
 Lisp 中的 \verb|eval| 函数可以直接翻译为汇编代码，其结果就是第一个 Lisp
@@ -61,9 +62,9 @@ Report on the Algorithmic Language Scheme》及其后续版本（一般简称为
 在很大程度上来源于 Lisp 代码的写法——\stress{S 表达式}（“符号表达式”的简称）%
 \footnote{在最初那篇关于 Lisp 的论文\cupercite{mccarthy1960}中，McCarthy 希望
 源代码使用的是另一种称为 M 表达式（“元表达式”的简称）的格式，而机器会将其翻译
-为 S 表达式；然而程序员多数更喜欢直接使用 S 表达式。M 表达式和 S 表达式一样
-具有同像性，而一个和前者紧密相关的格式被计算软件 Mathematica 使用。}；例如
-阶乘函数在 Scheme 和 Python 中分别可以写成\footnote{它们并不完全等价：
+为 S 表达式；然而当时的程序员多数更喜欢直接使用 S 表达式。M 表达式和 S 表达式
+一样具有同像性，而一个和前者紧密相关的格式被计算软件 Mathematica 使用。}；
+例如阶乘函数在 Scheme 和 Python 中分别可以写成\footnote{它们并不完全等价：
 首先，Scheme 没有 \texttt{return} 原语，而是使用\stress{延续}（见脚注
 \ref{fn:cps}）以及\stress{尾位置}表达式来返回值；第二，在 Scheme 中
 \texttt{(define (fn (args ...)) ...)} 是 \texttt{(define fn (lambda
