@@ -648,11 +648,11 @@ systemd 有着比 s6 多几乎两个数量级的开发者，而且应用了覆�
 到了难以分析的程度，其中一个典型例子是以 IPsec 为代表的 IP 安全协议\footnote{我
 认为近年新出现的 cjdns（以及后续的 Yggdrasil 等）从协议上看可能是很有潜力的
 方案，因其是一个强制端到端加密（避免监控和篡改，简化上层协议）的网状网（简化
-路由，且使 NAT 不再必要），使用直接从公钥生成的 IPv6 地址作为网络标识符（杜绝
+路由，且使 NAT 不再必要），使用直接从公钥生成的 IPv6 地址作为网络标识符（减少
 IP 地址伪装），且总体设计比较简洁。有必要说明，我很讨厌 cjdns 现在的实现，后者
-从构建系统到自身代码都显得过于臃肿；我甚至怀疑，几乎相同的协议如果由 Laurent
-Bercot 来实现，最后的代码量可能不到现在的 $1/10$。}。Niels Ferguson 和
-Bruce Schneier 在分析了 IPsec 之后认为\cupercite{ferguson2003}：
+从构建系统到自身代码都显得过于臃肿；至少在这方面，Yggdrasil 要好太多：它的代码
+量约为 cjdns 的 $1/10$，代码组织得很好，且依赖关系似乎也较为适度。}。Niels
+Ferguson 和 Bruce Schneier 在分析了 IPsec 之后认为\cupercite{ferguson2003}：
 \begin{quoting}
 	On the one hand, IPsec is far better than any IP security protocol that has
 	come before: Microsoft PPTP, L2TP, etc.  On the other hand, we do not

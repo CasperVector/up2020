@@ -933,12 +933,12 @@ scheme with perhaps great potentials, because it is a compulsorily end-to-end
 encrypted (preventing surveillance and manipulation, and simplifying upper-level
 protocols) mesh network (simplifying routing, and rendering NAT unnecessary)
 which uses IPv6 addresses generated from public keys as network identifiers
-(eliminating IP address spoofing) and is quite simple.  And I need to clarify
-that I detest the current implementation of cjdns, which seems too bloated
-from the build system to the actual codebase; I even suspect that if an almost
-identical protocol was implemented by Laurent Bercot, the codebase might
-have been less than $1/10$ of its current size.}.  After analysing IPsec,
-Niels Ferguson and Bruce Schneier remarked\cupercite{ferguson2003} that
+(mitigating IP address spoofing) and is quite simple.  And I need to clarify
+that I detest the current implementation of cjdns, which seems too bloated from
+the build system to the actual codebase.  At least on this aspect, Yggdrasil is
+vastly better: it has a well-organised codebase with a size roughly $1/10$ that
+of cjdns, while seeming to have fairly modest dependencies.}.  After analysing
+IPsec, Niels Ferguson and Bruce Schneier remarked\cupercite{ferguson2003} that
 \begin{quoting}
 	On the one hand, IPsec is far better than any IP security protocol that has
 	come before: Microsoft PPTP, L2TP, \etc.  On the other hand, we do not
