@@ -310,12 +310,12 @@ f5 = lambda x, y: check(
         x + y, (lambda x: x * x + y))))))))
 \end{Verbatim}
 \end{wquoting}
-Using this technique, we actually implemented exceptions in a purely functional
-way\footnote{Conversely, we can also see that, as a matter of fact, exceptions
-have a ground in type theory.  Besides, I find it necessary to note that
-unlike Haskell, Lisp does not pursue purely functional programming, although
+Using this technique, we have actually implemented exceptions in a purely
+functional way\footnote{Conversely, we can also see that, as a matter of fact,
+exceptions have a ground in type theory.  Besides, I find it necessary to note
+that unlike Haskell, Lisp does not pursue purely functional programming, though
 the functional style is certainly preferred.}; if you are familiar with Haskell,
-you might realise this essentially using a monad.  A Haskell counterpart of
+you might realise this is essentially using a monad.  A Haskell counterpart of
 \verb|f5| can be written in the form below on the left, which is equivalent
 to the form on the right using syntactic sugar hardcoded in Haskell\footnote%
 {\texttt{return} in Haskell is just a function, and the two \texttt{return}s
